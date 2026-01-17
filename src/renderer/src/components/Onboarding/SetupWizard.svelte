@@ -56,8 +56,8 @@
 
 <div class="card bg-base-100 shadow-xl max-w-lg mx-auto mt-10">
   <div class="card-body">
-    <h2 class="card-title">Setup Cloud Mount</h2>
-    <p>We need to install some dependencies to get started.</p>
+    <h2 class="card-title">Configuración de Cloud Mount</h2>
+    <p>Necesitamos instalar algunas dependencias para comenzar.</p>
 
     {#if loading}
       <span class="loading loading-spinner loading-lg"></span>
@@ -66,13 +66,13 @@
         <div class="flex justify-between items-center">
           <span>Rclone (v1.65.0)</span>
           {#if status.rclone}
-            <span class="badge badge-success">Installed</span>
+            <span class="badge badge-success">Instalado</span>
           {:else}
             <div class="flex items-center gap-2">
                 {#if installing.rclone}
                      <progress class="progress progress-primary w-20" value={rcloneProgress} max="100"></progress>
                 {:else}
-                    <button class="btn btn-sm btn-primary" onclick={installRclone}>Install</button>
+                    <button class="btn btn-sm btn-primary" onclick={installRclone}>Instalar</button>
                 {/if}
             </div>
           {/if}
@@ -81,13 +81,13 @@
         <div class="flex justify-between items-center">
           <span>WinFsp</span>
           {#if status.winfsp}
-            <span class="badge badge-success">Installed</span>
+            <span class="badge badge-success">Instalado</span>
           {:else}
             <div class="flex items-center gap-2">
                  {#if installing.winfsp}
                     <span class="loading loading-spinner loading-sm"></span>
                  {:else}
-                    <button class="btn btn-sm btn-primary" onclick={installWinFsp}>Install</button>
+                    <button class="btn btn-sm btn-primary" onclick={installWinFsp}>Instalar</button>
                  {/if}
             </div>
           {/if}

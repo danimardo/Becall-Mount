@@ -21,7 +21,7 @@
           await window.api.invoke('services:create', { name, type, params });
           onCreated();
       } catch (e) {
-          alert('Failed to create service');
+          alert('Fallo al crear servicio');
           console.error(e);
       } finally {
           loading = false;
@@ -30,14 +30,14 @@
 </script>
 
 <div class="modal-box">
-  <h3 class="font-bold text-lg">Add Service</h3>
+  <h3 class="font-bold text-lg">Añadir Servicio</h3>
   <form class="py-4 space-y-4" onsubmit={(e) => { e.preventDefault(); submit(); }}>
     <div class="form-control">
-        <label class="label">Name</label>
+        <label class="label">Nombre</label>
         <input class="input input-bordered" bind:value={name} required />
     </div>
     <div class="form-control">
-        <label class="label">Type</label>
+        <label class="label">Tipo</label>
         <select class="select select-bordered" bind:value={type}>
             <option value="b2">Backblaze B2</option>
             <option value="s3">Amazon S3</option>
@@ -46,31 +46,31 @@
 
     {#if type === 'b2'}
         <div class="form-control">
-            <label class="label">Account ID</label>
+            <label class="label">ID de Cuenta</label>
             <input class="input input-bordered" oninput={(e) => updateParam('account', e.currentTarget.value)} required />
         </div>
         <div class="form-control">
-            <label class="label">Application Key</label>
+            <label class="label">Clave de Aplicación</label>
             <input type="password" class="input input-bordered" oninput={(e) => updateParam('key', e.currentTarget.value)} required />
         </div>
     {:else if type === 's3'}
         <div class="form-control">
-            <label class="label">Access Key ID</label>
+            <label class="label">ID de Clave de Acceso</label>
             <input class="input input-bordered" oninput={(e) => updateParam('access_key_id', e.currentTarget.value)} required />
         </div>
         <div class="form-control">
-            <label class="label">Secret Access Key</label>
+            <label class="label">Clave de Acceso Secreta</label>
             <input type="password" class="input input-bordered" oninput={(e) => updateParam('secret_access_key', e.currentTarget.value)} required />
         </div>
         <div class="form-control">
-            <label class="label">Region</label>
+            <label class="label">Región</label>
             <input class="input input-bordered" placeholder="us-east-1" oninput={(e) => updateParam('region', e.currentTarget.value)} required />
         </div>
     {/if}
 
     <div class="modal-action">
-        <button class="btn" type="button" onclick={onCancel}>Cancel</button>
-        <button class="btn btn-primary" type="submit" disabled={loading}>Create</button>
+        <button class="btn" type="button" onclick={onCancel}>Cancelar</button>
+        <button class="btn btn-primary" type="submit" disabled={loading}>Crear</button>
     </div>
   </form>
 </div>

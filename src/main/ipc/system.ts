@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { ipcMain, shell } from 'electron';
 import { isRcloneInstalled, installRclone } from '../rclone/installer';
 import { isWinFspInstalled, installWinFsp } from '../utils/winfsp';
 
@@ -19,6 +19,11 @@ export function registerSystemHandlers() {
 
   ipcMain.handle('system:install-winfsp', async () => {
     await installWinFsp();
+    return true;
+  });
+
+  ipcMain.handle('system:open-external', async (_, url) => {
+    await shell.openExternal(url);
     return true;
   });
 }

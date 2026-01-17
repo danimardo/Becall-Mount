@@ -15,10 +15,10 @@
         if (success) {
             onAuthenticated();
         } else {
-            error = 'Invalid password';
+            error = 'Contraseña incorrecta';
         }
     } catch (e) {
-        error = 'Error verifying password';
+        error = 'Error verificando contraseña';
         console.error(e);
     } finally {
         loading = false;
@@ -28,11 +28,11 @@
 
 <div class="card bg-base-100 shadow-xl max-w-sm mx-auto mt-20">
   <div class="card-body">
-    <h2 class="card-title">{isSetup ? 'Set Master Password' : 'Unlock Cloud Mount'}</h2>
+    <h2 class="card-title">{isSetup ? 'Establecer Contraseña Maestra' : 'Desbloquear Cloud Mount'}</h2>
     <form class="space-y-4" onsubmit={(e) => { e.preventDefault(); submit(); }}>
       <input 
         type="password" 
-        placeholder="Master Password" 
+        placeholder="Contraseña Maestra" 
         class="input input-bordered w-full" 
         bind:value={password} 
         autofocus
@@ -41,7 +41,7 @@
         <p class="text-error text-sm">{error}</p>
       {/if}
       <button class="btn btn-primary w-full" type="submit" disabled={loading}>
-        {loading ? 'Verifying...' : (isSetup ? 'Set Password' : 'Unlock')}
+        {loading ? 'Verificando...' : (isSetup ? 'Establecer' : 'Desbloquear')}
       </button>
     </form>
   </div>

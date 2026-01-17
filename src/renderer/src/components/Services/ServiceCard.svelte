@@ -8,7 +8,7 @@
   let unmounting = $state(false);
 
   async function handleDelete() {
-      if(confirm(`Delete service ${service.name}?`)) {
+      if(confirm(`¿Eliminar servicio ${service.name}?`)) {
           await window.api.invoke('services:delete', service.name);
           onDelete(service.name);
       }
@@ -22,7 +22,7 @@
           await window.api.invoke('mount:stop', letter);
           onMountChange();
       } catch (e) {
-          alert('Unmount failed');
+          alert('Fallo al desmontar');
           console.error(e);
       } finally {
           unmounting = false;
@@ -39,19 +39,19 @@
         </div>
         {#if service.isMounted}
             <span class="badge badge-success gap-1">
-                Mounted: {service.mountPoint}
+                Montado: {service.mountPoint}
             </span>
         {/if}
     </div>
     <div class="flex gap-2">
         {#if service.isMounted}
             <button class="btn btn-sm btn-warning" onclick={handleUnmount} disabled={unmounting}>
-                {unmounting ? '...' : 'Unmount'}
+                {unmounting ? '...' : 'Desmontar'}
             </button>
         {:else}
-            <button class="btn btn-sm btn-success" onclick={() => showMountModal = true}>Mount</button>
+            <button class="btn btn-sm btn-success" onclick={() => showMountModal = true}>Montar</button>
         {/if}
-        <button class="btn btn-sm btn-ghost text-error" onclick={handleDelete}>Delete</button>
+        <button class="btn btn-sm btn-ghost text-error" onclick={handleDelete}>Eliminar</button>
     </div>
   </div>
 </div>
