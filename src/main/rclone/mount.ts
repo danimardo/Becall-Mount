@@ -58,7 +58,9 @@ export class MountManager {
         let log = '';
         try {
             log = await fs.readFile(logFile, 'utf-8');
-        } catch {}
+        } catch (e) {
+            // Ignore log reading errors
+        }
         throw new Error(`Mount failed: ${log.slice(0, 300)}...`);
     }
 
