@@ -89,6 +89,23 @@ export class MountManager {
       this.removeMount(driveLetter);
   }
 
+  async restoreState(): Promise<void> {
+      const mounts = store.get('mounts') || [];
+      const validMounts: MountState[] = [];
+
+      for (const m of mounts) {
+          if (m.pid) {
+              const isRunning = await this.checkPid(m.pid);
+              if (isRunning) {
+                  validMounts.push(m);
+              } else {
+                  console.log(`Dropping dead mount: ${m.driveLetter} (PID ${m.pid})`);
+              }
+          }
+      }
+      store.set('mounts', validMounts);
+  }
+
   getMounts(): MountState[] {
       return store.get('mounts') || [];
   }

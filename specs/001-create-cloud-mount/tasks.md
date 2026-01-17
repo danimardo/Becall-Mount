@@ -70,10 +70,10 @@
 **Goal**: App stays active in tray; mounts persist across restarts.
 **Independent Test**: Close window -> Tray icon remains; Restart app -> Mounts restore.
 
-- [ ] T030 [US4] Implement `src/main/tray.ts` for System Tray icon and context menu
-- [ ] T031 [US4] Update `src/main/index.ts` to handle window close (minimize to tray) vs quit
-- [ ] T032 [US4] Implement `restoreMounts` logic in `src/main/index.ts` on app startup
-- [ ] T033 [US4] Implement orphan process cleanup (check PIDs in `mounts.json` on boot)
+- [x] T030 [US4] Implement `src/main/tray.ts` for System Tray icon and context menu
+- [x] T031 [US4] Update `src/main/index.ts` to handle window close (minimize to tray) vs quit
+- [x] T032 [US4] Implement `restoreMounts` logic in `src/main/index.ts` on app startup
+- [x] T033 [US4] Implement orphan process cleanup (check PIDs in `mounts.json` on boot)
 
 ## Phase 7: User Story 5 - Settings & Polish
 **Goal**: Theme switching, Rclone updates, and final UX polish.
