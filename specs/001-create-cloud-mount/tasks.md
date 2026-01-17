@@ -29,7 +29,7 @@
 - [ ] T006 [P] Implement `src/main/store/index.ts` using electron-store for `settings.json` and `mounts.json` schemas
 - [ ] T007 [P] Implement `src/main/utils/paths.ts` to define isolated storage paths (`%APPDATA%/CloudMount/`)
 - [ ] T008 Implement `src/main/rclone/wrapper.ts` skeleton for spawning child processes
-- [ ] T009 Create `src/contracts/types.ts` shared type definitions from data-model
+- [x] T009 Create `src/contracts/types.ts` shared type definitions from data-model
 - [ ] T010 Set up `src/main/ipc/index.ts` to register handlers and `src/preload/index.ts` to expose them
 
 ## Phase 3: User Story 1 - Initial Setup & Security
