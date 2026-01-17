@@ -8,10 +8,11 @@ import { downloadFile } from './download';
 const execAsync = util.promisify(exec);
 
 export async function isWinFspInstalled(): Promise<boolean> {
-  // Method 1: Check service using sc (more reliable on Windows)
+  // Method 1: Check service using PowerShell with wildcard (as suggested by user)
   try {
-    const { stdout } = await execAsync('sc query WinFsp.Launcher');
-    if (stdout.includes('SERVICE_NAME')) return true;
+    const { stdout } = await execAsync('powershell -NoProfile -Command "Get-Service -Name WinFsp* -ErrorAction SilentlyContinue"');
+    // If the output contains any service, it's installed
+    if (stdout.trim().length > 0 && stdout.includes('WinFsp')) return true;
   } catch (e) {
     // Service not found or error
   }
@@ -19,7 +20,13 @@ export async function isWinFspInstalled(): Promise<boolean> {
   // Method 2: Check standard paths as fallback
   const path64 = 'C:\\Program Files (x86)\\WinFsp\\bin\\launch-winfsp.bat';
   const path32 = 'C:\\Program Files\\WinFsp\\bin\\launch-winfsp.bat';
-  return (await fs.pathExists(path64)) || (await fs.pathExists(path32));
+  const pathNative = 'C:\\Program Files\\WinFsp\\bin\\launch-winfsp.bat';
+  
+  if (await fs.pathExists(path64)) return true;
+  if (await fs.pathExists(path32)) return true;
+  if (await fs.pathExists(pathNative)) return true;
+
+  return false;
 }
 
 export async function installWinFsp(onProgress?: (percent: number) => void): Promise<void> {
