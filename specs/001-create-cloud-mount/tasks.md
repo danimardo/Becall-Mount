@@ -82,7 +82,7 @@
 - [x] T034 [US5] Implement `src/renderer/src/pages/Settings.svelte` with Theme switcher
 - [x] T035 [US5] Implement "Open Web UI" button launching default browser
 - [x] T036 [P] [US5] Add Spanish translations/labels for all UI text (hardcoded or simple i18n object)
-- [ ] T037 [US5] Final e2e manual verification pass (WinFsp install, Mount, Unmount, Quit)
+- [x] T037 [US5] Final e2e manual verification pass (WinFsp install, Mount, Unmount, Quit)
 
 ## Implementation Strategy
 - **MVP First**: Focus on B2/S3 mounting.
