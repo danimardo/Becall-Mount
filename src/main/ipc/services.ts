@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron';
+import { spawn } from 'child_process';
 import { RcloneConfig } from '../rclone/config';
 
 const config = new RcloneConfig();
@@ -15,6 +16,11 @@ export function registerServiceHandlers() {
 
   ipcMain.handle('services:delete', async (_, name) => {
     await config.deleteRemote(name);
+    return true;
+  });
+
+  ipcMain.handle('services:open-terminal', () => {
+    spawn('cmd.exe', ['/c', 'start', 'cmd.exe'], { detached: true, stdio: 'ignore' });
     return true;
   });
 }
