@@ -3,6 +3,7 @@
   import './index.css';
   import SetupWizard from './components/Onboarding/SetupWizard.svelte';
   import PasswordPrompt from './components/Auth/PasswordPrompt.svelte';
+  import ServiceManager from './pages/ServiceManager.svelte';
 
   let view = $state<'loading' | 'setup' | 'auth' | 'app'>('loading');
   let isSetup = $state(false);
@@ -55,8 +56,8 @@
      <PasswordPrompt {isSetup} onAuthenticated={onAuthenticated} />
   {:else if view === 'app'}
      <div class="container mx-auto">
-        <h1 class="text-3xl font-bold mb-6">Cloud Mount</h1>
-        <p>Welcome! (Service Manager coming next)</p>
+        <h1 class="text-3xl font-bold mb-6 p-4">Cloud Mount</h1>
+        <ServiceManager />
      </div>
   {/if}
 </div>

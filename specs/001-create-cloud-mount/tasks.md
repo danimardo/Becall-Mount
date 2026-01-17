@@ -51,9 +51,9 @@
 - [x] T018 [US2] Implement `src/main/rclone/config.ts` to handle `rclone config` commands
 - [x] T019 [US2] Implement `services:list`, `services:create`, `services:delete` handlers in `src/main/ipc/services.ts`
 - [x] T020 [US2] Implement `services:open-terminal` to launch interactive shell
-- [ ] T021 [US2] [P] Create `src/renderer/src/components/Services/ServiceCard.svelte`
-- [ ] T022 [US2] [P] Create `src/renderer/src/components/Services/AddServiceForm.svelte` (B2/S3 specific fields)
-- [ ] T023 [US2] Create `src/renderer/src/pages/ServiceManager.svelte` to list and manage services
+- [x] T021 [US2] [P] Create `src/renderer/src/components/Services/ServiceCard.svelte`
+- [x] T022 [US2] [P] Create `src/renderer/src/components/Services/AddServiceForm.svelte` (B2/S3 specific fields)
+- [x] T023 [US2] Create `src/renderer/src/pages/ServiceManager.svelte` to list and manage services
 
 ## Phase 5: User Story 3 - Mounting Drives
 **Goal**: Mount configured services to Windows drive letters.
