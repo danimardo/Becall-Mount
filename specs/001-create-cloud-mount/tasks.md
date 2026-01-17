@@ -48,8 +48,8 @@
 **Goal**: Add/Edit/List B2 and S3 services via GUI.
 **Independent Test**: Add a B2 service; verify it appears in list; verify `rclone.conf` contains the remote.
 
-- [ ] T018 [US2] Implement `src/main/rclone/config.ts` to handle `rclone config` commands
-- [ ] T019 [US2] Implement `services:list`, `services:create`, `services:delete` handlers in `src/main/ipc/services.ts`
+- [x] T018 [US2] Implement `src/main/rclone/config.ts` to handle `rclone config` commands
+- [x] T019 [US2] Implement `services:list`, `services:create`, `services:delete` handlers in `src/main/ipc/services.ts`
 - [ ] T020 [US2] Implement `services:open-terminal` to launch interactive shell
 - [ ] T021 [US2] [P] Create `src/renderer/src/components/Services/ServiceCard.svelte`
 - [ ] T022 [US2] [P] Create `src/renderer/src/components/Services/AddServiceForm.svelte` (B2/S3 specific fields)

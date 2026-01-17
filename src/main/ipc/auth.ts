@@ -1,15 +1,14 @@
 import { ipcMain } from 'electron';
 import store from '../store';
 import { hashPassword, verifyPassword } from '../utils/security';
-
-let isSessionAuthenticated = false;
+import { setSessionPassword, isSessionAuthenticated } from '../utils/session';
 
 export function registerAuthHandlers() {
   ipcMain.handle('auth:check-status', () => {
       const hasPassword = !!store.get('settings.passwordHash');
       return {
           hasPassword,
-          isAuthenticated: isSessionAuthenticated
+          isAuthenticated: isSessionAuthenticated()
       };
   });
 
@@ -20,12 +19,12 @@ export function registerAuthHandlers() {
           const newHash = hashPassword(password);
           store.set('settings.passwordHash', newHash);
           store.set('settings.firstRun', false);
-          isSessionAuthenticated = true;
+          setSessionPassword(password);
           return true;
       }
 
       if (verifyPassword(password, storedHash as string)) {
-          isSessionAuthenticated = true;
+          setSessionPassword(password);
           return true;
       }
       return false;
