@@ -17,7 +17,7 @@
 ## Phase 1: Setup
 **Goal**: Initialize project with Electron Forge, Svelte, and TypeScript.
 
-- [ ] T001 Initialize Electron Forge project with Svelte + TypeScript template
+- [x] T001 Initialize Electron Forge project with Svelte + TypeScript template
 - [ ] T002 Install dependencies (DaisyUI, TailwindCSS, electron-store, uuid, fs-extra)
 - [ ] T003 Configure TailwindCSS and DaisyUI in `tailwind.config.js` and `src/renderer/index.css`
 - [ ] T004 Create project directory structure (main/ipc, main/rclone, main/store, renderer/components, renderer/lib) per plan
