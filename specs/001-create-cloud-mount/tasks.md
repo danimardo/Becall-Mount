@@ -20,7 +20,7 @@
 - [x] T001 Initialize Electron Forge project with Svelte + TypeScript template
 - [x] T002 Install dependencies (DaisyUI, TailwindCSS, electron-store, uuid, fs-extra)
 - [x] T003 Configure TailwindCSS and DaisyUI in `tailwind.config.js` and `src/renderer/index.css`
-- [ ] T004 Create project directory structure (main/ipc, main/rclone, main/store, renderer/components, renderer/lib) per plan
+- [x] T004 Create project directory structure (main/ipc, main/rclone, main/store, renderer/components, renderer/lib) per plan
 - [ ] T005 Configure Vitest for main and renderer testing
 
 ## Phase 2: Foundation
