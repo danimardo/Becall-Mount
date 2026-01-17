@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import ServiceCard from '../components/Services/ServiceCard.svelte';
   import AddServiceForm from '../components/Services/AddServiceForm.svelte';
-  import type { Service } from '../../../../contracts/types';
+  import type { Service, MountState } from '../../../../contracts/types';
 
   let services = $state<Service[]>([]);
   let showAddModal = $state(false);
@@ -10,11 +10,17 @@
   async function loadServices() {
       try {
           const list = await window.api.invoke('services:list');
-          services = list.map((s: any) => ({
-              name: s.name,
-              type: s.type,
-              isMounted: false
-          }));
+          const mounts: MountState[] = await window.api.invoke('mount:list-active');
+          
+          services = list.map((s: any) => {
+              const mount = mounts.find(m => m.serviceName === s.name && m.status === 'mounted');
+              return {
+                  name: s.name,
+                  type: s.type,
+                  isMounted: !!mount,
+                  mountPoint: mount ? mount.driveLetter + ':' : undefined
+              };
+          });
       } catch (e) {
           console.error(e);
       }
@@ -38,7 +44,7 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {#each services as service}
-          <ServiceCard {service} onDelete={loadServices} />
+          <ServiceCard {service} onDelete={loadServices} onMountChange={loadServices} />
       {/each}
   </div>
 

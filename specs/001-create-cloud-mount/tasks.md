@@ -63,8 +63,8 @@
 - [x] T025 [US3] Update `src/main/rclone/mount.ts` to track PIDs in `mounts.json` via Store
 - [x] T026 [US3] Implement `mount:start`, `mount:stop`, `mount:list-active` handlers in `src/main/ipc/mount.ts`
 - [x] T027 [US3] Implement logic to detect mount failures (stderr parsing) and emit `mount:status-change`
-- [ ] T028 [US3] Create `src/renderer/src/components/Mount/MountModal.svelte` for drive letter selection
-- [ ] T029 [US3] Update `ServiceCard.svelte` to show mount status and control buttons
+- [x] T028 [US3] Create `src/renderer/src/components/Mount/MountModal.svelte` for drive letter selection
+- [x] T029 [US3] Update `ServiceCard.svelte` to show mount status and control buttons
 
 ## Phase 6: User Story 4 - System Tray & Persistence
 **Goal**: App stays active in tray; mounts persist across restarts.
