@@ -1,6 +1,8 @@
-import { ipcMain } from 'electron';
+import { registerSystemHandlers } from './system';
+import { registerAuthHandlers } from './auth';
 
 export function registerIpcHandlers() {
   console.log('Registering IPC handlers...');
-  // Handlers will be added here in future phases
+  registerSystemHandlers();
+  registerAuthHandlers();
 }

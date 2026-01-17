@@ -38,8 +38,8 @@
 
 - [x] T011 [US1] Implement `src/main/rclone/installer.ts` to download specific Rclone version (v1.65.0)
 - [x] T012 [US1] Implement `src/main/utils/winfsp.ts` to detect WinFsp and launch installer
-- [ ] T013 [US1] Implement `system:check-prereqs` IPC handler in `src/main/ipc/system.ts`
-- [ ] T014 [US1] Implement `auth:verify-password` IPC handler to validate/set master password in memory
+- [x] T013 [US1] Implement `system:check-prereqs` IPC handler in `src/main/ipc/system.ts`
+- [x] T014 [US1] Implement `auth:verify-password` IPC handler to validate/set master password in memory
 - [ ] T015 [US1] Create `src/renderer/src/components/Onboarding/SetupWizard.svelte` for download progress
 - [ ] T016 [US1] Create `src/renderer/src/components/Auth/PasswordPrompt.svelte` for master password entry
 - [ ] T017 [US1] Integrate `src/renderer/src/App.svelte` to show Setup or Auth flow on launch
