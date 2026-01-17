@@ -1,11 +1,22 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { spawn } from 'child_process';
+import { spawn, exec } from 'child_process';
 import { app } from 'electron';
+import util from 'util';
 import { downloadFile } from './download';
 
+const execAsync = util.promisify(exec);
+
 export async function isWinFspInstalled(): Promise<boolean> {
-  // Check standard paths
+  // Method 1: Check service using sc (more reliable on Windows)
+  try {
+    const { stdout } = await execAsync('sc query WinFsp.Launcher');
+    if (stdout.includes('SERVICE_NAME')) return true;
+  } catch (e) {
+    // Service not found or error
+  }
+
+  // Method 2: Check standard paths as fallback
   const path64 = 'C:\\Program Files (x86)\\WinFsp\\bin\\launch-winfsp.bat';
   const path32 = 'C:\\Program Files\\WinFsp\\bin\\launch-winfsp.bat';
   return (await fs.pathExists(path64)) || (await fs.pathExists(path32));
