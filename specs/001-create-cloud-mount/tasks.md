@@ -59,10 +59,10 @@
 **Goal**: Mount configured services to Windows drive letters.
 **Independent Test**: Mount a service to Z:; verify existence in Explorer; Unmount; verify removal.
 
-- [ ] T024 [US3] Implement `src/main/rclone/mount.ts` to spawn `rclone mount` with `--no-console` and detached flag
-- [ ] T025 [US3] Update `src/main/rclone/mount.ts` to track PIDs in `mounts.json` via Store
-- [ ] T026 [US3] Implement `mount:start`, `mount:stop`, `mount:list-active` handlers in `src/main/ipc/mount.ts`
-- [ ] T027 [US3] Implement logic to detect mount failures (stderr parsing) and emit `mount:status-change`
+- [x] T024 [US3] Implement `src/main/rclone/mount.ts` to spawn `rclone mount` with `--no-console` and detached flag
+- [x] T025 [US3] Update `src/main/rclone/mount.ts` to track PIDs in `mounts.json` via Store
+- [x] T026 [US3] Implement `mount:start`, `mount:stop`, `mount:list-active` handlers in `src/main/ipc/mount.ts`
+- [x] T027 [US3] Implement logic to detect mount failures (stderr parsing) and emit `mount:status-change`
 - [ ] T028 [US3] Create `src/renderer/src/components/Mount/MountModal.svelte` for drive letter selection
 - [ ] T029 [US3] Update `ServiceCard.svelte` to show mount status and control buttons
 
