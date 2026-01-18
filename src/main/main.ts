@@ -41,8 +41,8 @@ const getIcon = () => {
 const createSplashWindow = (): BrowserWindow => {
   console.log('Creating Splash Window...');
   const splash = new BrowserWindow({
-    width: 400,
-    height: 300,
+    width: 640,
+    height: 360,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -59,21 +59,35 @@ const createSplashWindow = (): BrowserWindow => {
 
   if (SPLASH_WINDOW_VITE_DEV_SERVER_URL) {
     console.log('Loading Splash from DEV URL:', SPLASH_WINDOW_VITE_DEV_SERVER_URL);
-    // In dev, we can point to splash.html if we configure it, or the root if it's separate server
-    // With one config file, it might just serve root.
-    // Try loading the specific html file
-    splash.loadURL(`${SPLASH_WINDOW_VITE_DEV_SERVER_URL}/splash.html`);
+    // Vite dev server serves from root.
+    splash.loadURL(`${SPLASH_WINDOW_VITE_DEV_SERVER_URL}/src/renderer/splash.html`);
   } else {
-    console.log('Loading Splash from FILE:', path.join(__dirname, `../renderer/${SPLASH_WINDOW_VITE_NAME}/splash.html`));
-    // In prod, it's likely in the renderer folder
-    splash.loadFile(path.join(__dirname, `../renderer/${SPLASH_WINDOW_VITE_NAME}/splash.html`));
+    console.log('Loading Splash from FILE:', path.join(__dirname, `../renderer/${SPLASH_WINDOW_VITE_NAME}/src/renderer/splash.html`));
+    splash.loadFile(path.join(__dirname, `../renderer/${SPLASH_WINDOW_VITE_NAME}/src/renderer/splash.html`));
   }
   
+  splash.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+      console.error('Splash failed to load:', errorCode, errorDescription);
+  });
+
   return splash;
 };
 
 const createMainWindow = async (splash: BrowserWindow) => {
   const icon = getIcon();
+
+  // Wait for splash to be visible to user
+  await new Promise<void>(resolve => {
+      splash.once('ready-to-show', () => {
+          splash.show();
+          resolve();
+      });
+      // Safety timeout in case ready-to-show never fires (transparent windows sometimes behave oddly)
+      setTimeout(resolve, 1000);
+  });
+
+  // Start the timer NOW that splash is visible
+  const minTimePromise = new Promise(resolve => setTimeout(resolve, 3000));
 
   const mainWindow = new BrowserWindow({
     width: 1000,
@@ -89,9 +103,6 @@ const createMainWindow = async (splash: BrowserWindow) => {
   const loadPromise = MAIN_WINDOW_VITE_DEV_SERVER_URL
     ? mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
     : mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
-
-  // Wait for 2s minimum AND window load
-  const minTimePromise = new Promise(resolve => setTimeout(resolve, 2000));
   
   // Also wait for mount restore?
   await Promise.all([loadPromise, minTimePromise, mountManager.restoreState()]);

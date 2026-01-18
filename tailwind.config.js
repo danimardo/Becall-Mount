@@ -4,6 +4,7 @@ export default {
     "./src/**/*.{html,js,ts,svelte}",
     "./index.html"
   ],
+  darkMode: 'selector',
   theme: {
     extend: {
       colors: {

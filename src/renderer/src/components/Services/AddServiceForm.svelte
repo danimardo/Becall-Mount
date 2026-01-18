@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getAvailableRemoteTypes, getVisibleFields, buildConfigWithDefaults } from '../../lib/remote-schema-loader';
+  import { showAlert } from '../../stores/modal';
 
   let { onCreated, onCancel, editService = null } = $props<{ 
       onCreated: () => void, 
@@ -81,7 +82,7 @@
           }
           onCreated();
       } catch (e) {
-          alert(`Fallo al ${isEdit ? 'actualizar' : 'crear'} servicio`);
+          await showAlert('Error', `Fallo al ${isEdit ? 'actualizar' : 'crear'} servicio`);
           console.error(e);
       } finally {
           loading = false;
@@ -89,7 +90,7 @@
   }
 </script>
 
-<div class="modal-box">
+<div class="modal-box bg-white dark:bg-slate-800 dark:text-white">
   <h3 class="font-bold text-lg">{isEdit ? 'Editar' : 'Añadir'} Servicio</h3>
 
   <!-- Mostrar errores de validación -->
@@ -108,14 +109,16 @@
 
   <form class="py-4 space-y-4" onsubmit={(e) => { e.preventDefault(); submit(); }}>
     <div class="form-control">
-        <label class="label">
-          <span class="label-text">Nombre <span class="text-error">*</span></span>
+        <label class="label" for="service-name">
+          <span class="label-text dark:text-gray-300">Nombre <span class="text-error">*</span></span>
         </label>
-        <input class="input input-bordered" bind:value={name} disabled={isEdit} />
+        <input id="service-name" class="input input-bordered dark:bg-slate-700 dark:border-gray-600" bind:value={name} disabled={isEdit} />
     </div>
     <div class="form-control">
-        <label class="label">Tipo</label>
-        <select class="select select-bordered" bind:value={type} disabled={isEdit}>
+        <label class="label" for="service-type">
+            <span class="label-text dark:text-gray-300">Tipo</span>
+        </label>
+        <select id="service-type" class="select select-bordered dark:bg-slate-700 dark:border-gray-600" bind:value={type} disabled={isEdit}>
             {#each availableTypes as remoteType}
                 <option value={remoteType.type}>{remoteType.name}</option>
             {/each}
@@ -125,8 +128,8 @@
     <!-- Campos dinámicos basados en el tipo seleccionado -->
     {#each Object.entries(getVisibleFields(type)) as [key, fieldConfig]}
         <div class="form-control">
-            <label class="label">
-              <span class="label-text">
+            <label class="label" for={key}>
+              <span class="label-text dark:text-gray-300">
                 {fieldConfig.label || key}
                 {#if fieldConfig.required}
                   <span class="text-error">*</span>
@@ -135,7 +138,8 @@
             </label>
             {#if fieldConfig.type === 'boolean'}
                 <select
-                    class="select select-bordered"
+                    id={key}
+                    class="select select-bordered dark:bg-slate-700 dark:border-gray-600"
                     bind:value={params[key]}
                 >
                     <option value="true">Sí</option>
@@ -143,8 +147,9 @@
                 </select>
             {:else}
                 <input
+                    id={key}
                     type={key.toLowerCase().includes('key') || key.toLowerCase().includes('secret') ? 'password' : 'text'}
-                    class="input input-bordered"
+                    class="input input-bordered dark:bg-slate-700 dark:border-gray-600"
                     placeholder={fieldConfig.placeholder || ''}
                     bind:value={params[key]}
                 />

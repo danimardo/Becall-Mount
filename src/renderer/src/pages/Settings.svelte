@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { AppSettings, Service } from '../../../../contracts/types';
+  import { showAlert } from '../stores/modal';
 
   let settings = $state<AppSettings>({
       theme: 'system',
@@ -36,11 +37,18 @@
 
   function applyTheme(theme: 'light' | 'dark' | 'system') {
       const html = document.documentElement;
+      let isDark = theme === 'dark';
+      
       if (theme === 'system') {
-           const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-           html.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+           isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+
+      html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      
+      if (isDark) {
+          html.classList.add('dark');
       } else {
-           html.setAttribute('data-theme', theme);
+          html.classList.remove('dark');
       }
   }
 
@@ -67,7 +75,7 @@
 
   async function doExport() {
       if (!exportPassword) {
-          alert('Debes establecer una contraseña');
+          await showAlert('Error', 'Debes establecer una contraseña', 'warning');
           return;
       }
       
@@ -77,10 +85,10 @@
       });
 
       if (result.success) {
-          alert('Configuración exportada correctamente');
+          await showAlert('Éxito', 'Configuración exportada correctamente', 'success');
           showExportModal = false;
       } else if (result.error) {
-          alert('Error al exportar: ' + result.error);
+          await showAlert('Error', 'Error al exportar: ' + result.error);
       }
   }
 
@@ -96,7 +104,7 @@
 
   async function doImport() {
       if (!importPassword) {
-          alert('Introduce la contraseña');
+          await showAlert('Error', 'Introduce la contraseña', 'warning');
           return;
       }
 
@@ -111,10 +119,10 @@
               importConflicts = result.conflicts;
               showConflictModal = true;
           } else {
-              alert(`Importados ${result.servicesImported} servicios correctamente.`);
+              await showAlert('Éxito', `Importados ${result.servicesImported} servicios correctamente.`, 'success');
           }
       } else {
-          alert('Error: ' + result.error);
+          await showAlert('Error', 'Error: ' + result.error);
       }
   }
 
@@ -143,11 +151,11 @@
           
           if (importConflicts.length === 0) {
               showConflictModal = false;
-              alert('Todos los conflictos resueltos.');
+              await showAlert('Éxito', 'Todos los conflictos resueltos.', 'success');
           }
       } catch (e) {
           console.error(e);
-          alert('Error al resolver conflicto');
+          await showAlert('Error', 'Error al resolver conflicto');
       }
   }
 </script>
@@ -179,15 +187,15 @@
   <!-- Export Modal -->
   {#if showExportModal}
       <dialog class="modal modal-open">
-          <div class="modal-box">
+          <div class="modal-box bg-white dark:bg-slate-800 dark:text-white">
               <h3 class="font-bold text-lg mb-4">Exportar Configuración</h3>
               {#if exportStep === 1}
-                  <p class="mb-2">Selecciona los servicios a exportar:</p>
-                  <div class="max-h-60 overflow-y-auto mb-4 border rounded p-2">
+                  <p class="mb-2 dark:text-gray-300">Selecciona los servicios a exportar:</p>
+                  <div class="max-h-60 overflow-y-auto mb-4 border dark:border-gray-600 rounded p-2 bg-gray-50 dark:bg-slate-700">
                       {#each services as service}
                           <label class="label cursor-pointer justify-start gap-2">
                               <input type="checkbox" class="checkbox checkbox-primary" checked={selectedServices.has(service.name)} onchange={() => toggleService(service.name)} />
-                              <span class="label-text">{service.name} ({service.type})</span>
+                              <span class="label-text dark:text-gray-200">{service.name} ({service.type})</span>
                           </label>
                       {/each}
                   </div>
@@ -196,8 +204,8 @@
                       <button class="btn bg-brand-green hover:bg-brand-green-dark text-white border-none" onclick={() => exportStep = 2} disabled={selectedServices.size === 0}>Continuar</button>
                   </div>
               {:else}
-                  <p class="mb-2">Establece una contraseña para encriptar el archivo:</p>
-                  <input type="password" class="input input-bordered w-full mb-4" bind:value={exportPassword} placeholder="Contraseña" />
+                  <p class="mb-2 dark:text-gray-300">Establece una contraseña para encriptar el archivo:</p>
+                  <input type="password" class="input input-bordered w-full mb-4 dark:bg-slate-700 dark:border-gray-600" bind:value={exportPassword} placeholder="Contraseña" />
                   <div class="modal-action">
                       <button class="btn btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" onclick={() => exportStep = 1}>Atrás</button>
                       <button class="btn bg-brand-green hover:bg-brand-green-dark text-white border-none" onclick={doExport} disabled={!exportPassword}>Exportar</button>
@@ -210,10 +218,10 @@
   <!-- Import Modal -->
   {#if showImportModal}
       <dialog class="modal modal-open">
-          <div class="modal-box">
+          <div class="modal-box bg-white dark:bg-slate-800 dark:text-white">
               <h3 class="font-bold text-lg mb-4">Importar Configuración</h3>
-              <p class="mb-2">Introduce la contraseña del archivo:</p>
-              <input type="password" class="input input-bordered w-full mb-4" bind:value={importPassword} placeholder="Contraseña" />
+              <p class="mb-2 dark:text-gray-300">Introduce la contraseña del archivo:</p>
+              <input type="password" class="input input-bordered w-full mb-4 dark:bg-slate-700 dark:border-gray-600" bind:value={importPassword} placeholder="Contraseña" />
               <div class="modal-action">
                   <button class="btn btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" onclick={() => showImportModal = false}>Cancelar</button>
                   <button class="btn bg-brand-green hover:bg-brand-green-dark text-white border-none" onclick={doImport} disabled={!importPassword}>Importar</button>
@@ -225,15 +233,15 @@
   <!-- Conflict Modal -->
   {#if showConflictModal}
       <dialog class="modal modal-open">
-          <div class="modal-box">
+          <div class="modal-box bg-white dark:bg-slate-800 dark:text-white">
               <h3 class="font-bold text-lg mb-4 text-warning">Conflictos Detectados</h3>
-              <p class="mb-4">El servicio <strong>{importConflicts[0]?.name}</strong> ya existe.</p>
+              <p class="mb-4 dark:text-gray-300">El servicio <strong>{importConflicts[0]?.name}</strong> ya existe.</p>
               <div class="flex flex-col gap-2">
                   <button class="btn btn-warning" onclick={() => resolveConflict(importConflicts[0], 'overwrite')}>Sobrescribir existente</button>
                   <button class="btn btn-info" onclick={() => resolveConflict(importConflicts[0], 'rename')}>Renombrar a "{importConflicts[0]?.name} (Importado)"</button>
-                  <button class="btn btn-ghost" onclick={() => resolveConflict(importConflicts[0], 'skip')}>Omitir este servicio</button>
+                  <button class="btn btn-ghost dark:text-gray-300 dark:hover:bg-slate-700" onclick={() => resolveConflict(importConflicts[0], 'skip')}>Omitir este servicio</button>
               </div>
-              <div class="mt-4 text-sm text-center text-gray-500">
+              <div class="mt-4 text-sm text-center text-gray-500 dark:text-gray-400">
                   Quedan {importConflicts.length} conflictos por resolver.
               </div>
           </div>

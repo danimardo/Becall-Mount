@@ -2,6 +2,7 @@
   import type { Service } from '../../../../contracts/types';
   import MountModal from '../Mount/MountModal.svelte';
   import { getRemoteConfig } from '../../lib/remote-schema-loader';
+  import { showConfirm, showAlert } from '../../stores/modal';
 
   let { service, onDelete, onMountChange, onEdit } = $props<{ 
       service: Service, 
@@ -18,7 +19,7 @@
   const serviceIcon = remoteConfig?.icon;
 
   async function handleDelete() {
-      if(confirm(`¿Eliminar servicio ${service.name}?`)) {
+      if(await showConfirm('Eliminar Servicio', `¿Estás seguro de que quieres eliminar el servicio "${service.name}"?`, 'error', 'Eliminar')) {
           await window.api.invoke('services:delete', service.name);
           onDelete(service.name);
       }
@@ -28,11 +29,10 @@
       if (!service.mountPoint) return;
       unmounting = true;
       try {
-          const letter = service.mountPoint.replace(':', '');
-          await window.api.invoke('mount:stop', letter);
+          await window.api.invoke('mount:stop', service.mountPoint);
           onMountChange();
-      } catch (e) {
-          alert('Fallo al desmontar');
+      } catch (e: any) {
+          await showAlert('Error', 'Fallo al desmontar: ' + e.message);
           console.error(e);
       } finally {
           unmounting = false;
@@ -57,7 +57,7 @@
             <span class="badge bg-brand-pistachio text-white border-none badge-sm">{service.type}</span>
         </div>
         {#if service.isMounted}
-            <span class="badge badge-success gap-1 ml-2">
+            <span class="badge bg-brand-green text-white border-none gap-1 ml-2">
                 Montado: {service.mountPoint}
             </span>
         {/if}

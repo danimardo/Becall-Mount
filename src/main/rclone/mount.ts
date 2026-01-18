@@ -17,21 +17,12 @@ export class MountManager {
     this.config = new RcloneConfig();
   }
 
-  async mount(serviceName: string, mountType: 'drive' | 'folder', target: string, force: boolean = false): Promise<void> {
-    // Check if service is already mounted
-    const existing = (store.get('mounts') || []).find(m => m.serviceName === serviceName);
-    if (existing) {
-        // Just checking by service name for simplicity, though multiple mounts of same service is a requirement (HU-3.3)
-        // If we allow multiple, we should check by target (mountPoint).
-        // Spec HU-3.3: Mount same service multiple times.
-        // So we check by target.
-    }
-    
+  async mount(serviceName: string, mountType: 'drive' | 'folder', target: string): Promise<void> {
     // Check if target is already in use by OUR app
     const existingTarget = (store.get('mounts') || []).find(m => m.mountPoint === target);
     if (existingTarget) {
         const isRunning = await this.checkPid(existingTarget.pid);
-        if (isRunning) throw new Error(`Target ${target} is already mounted in our app`);
+        if (isRunning) throw new Error(`El destino ${target} ya está montado en esta aplicación.`);
         this.removeMount(target);
     }
 
@@ -40,22 +31,22 @@ export class MountManager {
         try {
             const { stdout } = await execAsync('wmic logicaldisk get name');
             if (stdout.includes(`${target}:`)) {
-                throw new Error(`Drive ${target}: is already in use by the system`);
+                throw new Error(`La unidad ${target}: ya está en uso por el sistema.`);
             }
         } catch (e) {
             console.warn('Failed to check drive availability via wmic', e);
         }
-        // Normalize drive letter to include colon for rclone if needed?
-        // Rclone expects "Z:"
         if (!target.endsWith(':')) target += ':';
     } else {
-        // Folder mounting
-        if (!fs.existsSync(target)) {
-            throw new Error(`Directory ${target} does not exist`);
+        // Validación para montaje en CARPETA (Windows/WinFsp)
+        // La carpeta de destino NO DEBE EXISTIR
+        if (fs.existsSync(target)) {
+            throw new Error(`La carpeta de destino "${target}" ya existe. El montaje requiere que la carpeta no exista (Rclone la creará).`);
         }
-        const isEmpty = fs.readdirSync(target).length === 0;
-        if (!isEmpty && !force) {
-            throw new Error('FOLDER_NOT_EMPTY');
+        
+        const parentDir = path.dirname(target);
+        if (!fs.existsSync(parentDir)) {
+            throw new Error(`La carpeta superior "${parentDir}" no existe. Debe existir para poder crear el punto de montaje.`);
         }
     }
 
@@ -72,6 +63,7 @@ export class MountManager {
     const bucket = remoteConfig['bucket'] || '';
     const remotePath = remoteConfig['path'] || '';
 
+    // Construir el path remoto: remoto:bucket/path
     let remotePathFull = `${serviceName}:`;
     if (bucket) {
       remotePathFull += bucket;
@@ -98,6 +90,8 @@ export class MountManager {
         '--log-level', 'INFO'
     ];
 
+    console.log('Executing rclone mount with args:', args);
+
     const child = spawn(RCLONE_EXE_PATH, args, { 
         env, 
         detached: true, 
@@ -106,8 +100,9 @@ export class MountManager {
     
     child.unref();
 
-    if (!child.pid) throw new Error('Failed to spawn mount process');
+    if (!child.pid) throw new Error('No se pudo iniciar el proceso de rclone.');
 
+    // Wait and check if process is still alive after 2 seconds
     await new Promise(resolve => setTimeout(resolve, 2000));
     const isRunning = await this.checkPid(child.pid);
     
@@ -115,10 +110,8 @@ export class MountManager {
         let log = '';
         try {
             log = await fs.readFile(logFile, 'utf-8');
-        } catch (e) {
-            // Ignore
-        }
-        throw new Error(`Mount failed: ${log.slice(0, 300)}...`);
+        } catch (e) {}
+        throw new Error(`El montaje falló. Log de error: ${log.slice(0, 300)}...`);
     }
 
     const mounts = store.get('mounts') || [];
@@ -135,33 +128,52 @@ export class MountManager {
   }
 
   async unmount(mountPoint: string): Promise<void> {
+      console.log(`[MountManager] Request to unmount: ${mountPoint}`);
       const mounts = store.get('mounts') || [];
-      const mount = mounts.find(m => m.mountPoint === mountPoint || (m.driveLetter && mountPoint === m.driveLetter));
-      if (!mount) return;
+      const mount = mounts.find(m => 
+          m.mountPoint === mountPoint || 
+          (m.driveLetter && (mountPoint === m.driveLetter || mountPoint === `${m.driveLetter}:`))
+      );
+      
+      if (!mount) {
+          console.warn(`[MountManager] Mount not found in store for ${mountPoint}`);
+          return;
+      }
 
       if (mount.pid) {
           try {
+              console.log(`[MountManager] Killing PID ${mount.pid}`);
               await execAsync(`taskkill /PID ${mount.pid} /F`);
-          } catch (e) {
-              console.warn(`Failed to kill PID ${mount.pid}`, e);
+          } catch (e: any) {
+              console.warn(`[MountManager] Failed to kill PID ${mount.pid}`, e.message);
           }
       }
       
-      this.removeMount(mount.mountPoint);
+      this.removeMount(mount.mountPoint || mount.driveLetter || mountPoint);
   }
 
   async unmountAll(): Promise<{ success: boolean; unmountedCount: number; errors: string[] }> {
       const mounts = this.getMounts();
+      console.log(`[MountManager] UnmountAll: Found ${mounts.length} mounts`);
+
       let count = 0;
       const errors: string[] = [];
+      const mountsToUnmount = [...mounts];
 
-      for (const m of mounts) {
+      for (const m of mountsToUnmount) {
+          const target = m.mountPoint || (m.driveLetter ? `${m.driveLetter}:` : undefined);
+          console.log(`[MountManager] Processing mount: Service=${m.serviceName}, Target=${target}`);
+          
+          if (!target) {
+              this.removeMount('FORCE_CLEANUP_INVALID'); 
+              continue;
+          }
           try {
-              await this.unmount(m.mountPoint);
+              await this.unmount(target);
               count++;
           } catch (e: any) {
-              console.error(`Failed to unmount ${m.mountPoint}`, e);
-              errors.push(`${m.serviceName} (${m.mountPoint}): ${e.message}`);
+              console.error(`[MountManager] Error unmounting ${target}:`, e);
+              errors.push(`${m.serviceName}: ${e.message}`);
           }
       }
 
@@ -181,8 +193,6 @@ export class MountManager {
               const isRunning = await this.checkPid(m.pid);
               if (isRunning) {
                   validMounts.push(m);
-              } else {
-                  console.log(`Dropping dead mount: ${m.mountPoint} (PID ${m.pid})`);
               }
           }
       }
@@ -195,7 +205,15 @@ export class MountManager {
 
   private removeMount(target: string) {
       const mounts = store.get('mounts') || [];
-      store.set('mounts', mounts.filter(m => m.mountPoint !== target));
+      if (target === 'FORCE_CLEANUP_INVALID') {
+          store.set('mounts', mounts.filter(m => m.mountPoint || m.driveLetter));
+          return;
+      }
+      store.set('mounts', mounts.filter(m => {
+          const driveLetterWithoutColon = m.driveLetter ? m.driveLetter.replace(':', '') : '';
+          const targetWithoutColon = target.replace(':', '');
+          return m.mountPoint !== target && m.driveLetter !== target && driveLetterWithoutColon !== targetWithoutColon;
+      }));
   }
 
   private async checkPid(pid: number): Promise<boolean> {

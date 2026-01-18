@@ -4,12 +4,29 @@
   import SetupWizard from './components/Onboarding/SetupWizard.svelte';
   import PasswordPrompt from './components/Auth/PasswordPrompt.svelte';
   import ServiceManager from './pages/ServiceManager.svelte';
+  import GlobalModal from './components/Shared/GlobalModal.svelte';
 
   let view = $state<'loading' | 'setup' | 'auth' | 'app' | 'error'>('loading');
   let isSetup = $state(false);
   let errorMessage = $state('');
 
   onMount(async () => {
+    // Inicializar tema
+    try {
+        const settings = await window.api.invoke('settings:get');
+        const theme = settings.theme || 'system';
+        const html = document.documentElement;
+        let isDark = theme === 'dark';
+        if (theme === 'system') {
+            isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        if (isDark) html.classList.add('dark');
+        else html.classList.remove('dark');
+    } catch (e) {
+        console.error("Failed to load theme settings", e);
+    }
+
     if (!window.api) {
         view = 'error';
         errorMessage = 'La API de comunicación (preload) no se ha cargado correctamente.';
@@ -52,7 +69,7 @@
   }
 </script>
 
-<div class="min-h-screen bg-base-200 p-4">
+<div class="min-h-screen bg-brand-surface-light dark:bg-brand-surface-dark text-slate-900 dark:text-white p-4 transition-colors duration-300">
   {#if view === 'loading'}
      <div class="flex flex-col justify-center items-center h-full mt-20 gap-4">
          <span class="loading loading-spinner loading-lg"></span>
@@ -71,4 +88,5 @@
         <ServiceManager />
      </div>
   {/if}
+  <GlobalModal />
 </div>

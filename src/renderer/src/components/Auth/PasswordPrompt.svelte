@@ -26,21 +26,21 @@
   }
 </script>
 
-<div class="card bg-base-100 shadow-xl max-w-sm mx-auto mt-20">
+<div class="card bg-white dark:bg-slate-800 shadow-xl max-w-sm mx-auto mt-20 border border-gray-100 dark:border-gray-700">
   <div class="card-body">
-    <h2 class="card-title">{isSetup ? 'Establecer Contraseña Maestra' : 'Desbloquear Cloud Mount'}</h2>
+    <h2 class="card-title text-brand-blue dark:text-white">{isSetup ? 'Establecer Contraseña Maestra' : 'Desbloquear Cloud Mount'}</h2>
     <form class="space-y-4" onsubmit={(e) => { e.preventDefault(); submit(); }}>
       <input 
         type="password" 
         placeholder="Contraseña Maestra" 
-        class="input input-bordered w-full" 
-        bind:value={password} 
-        autofocus
+        class="input input-bordered w-full border-brand-blue focus:ring-brand-blue" 
+        bind:value={password}
       />
       {#if error}
-        <p class="text-error text-sm">{error}</p>
+        <p class="text-error text-sm font-semibold">{error}</p>
       {/if}
-      <button class="btn btn-primary w-full" type="submit" disabled={loading}>
+      <button class="btn bg-brand-green hover:bg-brand-green-dark text-white border-none w-full" type="submit" disabled={loading}>
+        {#if loading}<span class="loading loading-spinner loading-sm"></span>{/if}
         {loading ? 'Verificando...' : (isSetup ? 'Establecer' : 'Desbloquear')}
       </button>
     </form>

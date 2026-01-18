@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { showAlert } from '../../stores/modal';
 
   let mountType = $state<'drive' | 'folder'>('drive');
   let driveLetter = $state('');
@@ -12,7 +13,6 @@
   onMount(async () => {
       try {
           availableDrives = await window.api.invoke('system:get-free-drives');
-          // Do NOT pre-select as per spec requirement FR-MNT-02/Scenario 2
       } catch (e) {
           console.error('Error fetching drives', e);
       }
@@ -27,51 +27,68 @@
       }
   }
 
-  async function submit(force = false) {
+  async function submit() {
       if (mountType === 'drive' && !driveLetter) return;
       if (mountType === 'folder' && !folderPath) return;
 
       const target = mountType === 'drive' ? driveLetter : folderPath;
-
       loading = true;
+      
       try {
-          await window.api.invoke('mount:start', { serviceName, mountType, target, force });
+          console.log(`Attempting mount: ${serviceName} -> ${target}`);
+          await window.api.invoke('mount:start', { serviceName, mountType, target });
+          console.log('Mount success');
           onMounted();
       } catch (e: any) {
-          if (e.message.includes('FOLDER_NOT_EMPTY')) {
-              if (confirm('La carpeta no está vacía. Los archivos locales se ocultarán temporalmente. ¿Continuar?')) {
-                  await submit(true);
-                  return; // Don't run finally block here, let the recursive call handle it or handled by finally below?
-                  // Wait, recursive call will set loading=false in its finally.
-                  // This is fine.
-              }
-          } else {
-              alert('Fallo al montar: ' + e.message);
-              console.error(e);
-          }
+          console.error('Mount failed:', e);
+          loading = false; // Desactivar spinner antes de la alerta
+          await showAlert('Error', 'Fallo al montar: ' + e.message);
       } finally {
-          // If recursive called happened, loading might already be false? No, JS single threaded.
-          // Recursive call `await submit(true)` finishes, then we come here.
-          // It's okay to set loading false again.
           loading = false;
       }
   }
 </script>
 
-<div class="modal-box">
+<div class="modal-box bg-white dark:bg-slate-800 dark:text-white border border-gray-200 dark:border-gray-700 shadow-2xl">
   <h3 class="font-bold text-lg mb-4">Montar {serviceName}</h3>
   
-  <div role="tablist" class="tabs tabs-boxed mb-4">
-      <button role="tab" class="tab" class:tab-active={mountType === 'drive'} onclick={() => mountType = 'drive'}>Unidad</button>
-      <button role="tab" class="tab" class:tab-active={mountType === 'folder'} onclick={() => mountType = 'folder'}>Carpeta</button>
+  <div role="tablist" class="grid grid-cols-2 gap-1 p-1 bg-gray-100 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-gray-600 mb-6">
+      <button 
+        role="tab" 
+        class="py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none"
+        class:bg-white={mountType === 'drive'} 
+        class:text-brand-blue={mountType === 'drive'} 
+        class:shadow-sm={mountType === 'drive'}
+        class:text-gray-500={mountType !== 'drive'}
+        class:dark:bg-slate-600={mountType === 'drive'} 
+        class:dark:text-white={mountType === 'drive'}
+        class:dark:text-gray-400={mountType !== 'drive'}
+        onclick={() => mountType = 'drive'}
+      >
+        Unidad
+      </button>
+      <button 
+        role="tab" 
+        class="py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none"
+        class:bg-white={mountType === 'folder'} 
+        class:text-brand-blue={mountType === 'folder'} 
+        class:shadow-sm={mountType === 'folder'}
+        class:text-gray-500={mountType !== 'folder'}
+        class:dark:bg-slate-600={mountType === 'folder'} 
+        class:dark:text-white={mountType === 'folder'}
+        class:dark:text-gray-400={mountType !== 'folder'}
+        onclick={() => mountType = 'folder'}
+      >
+        Carpeta
+      </button>
   </div>
 
   <form class="space-y-4" onsubmit={(e) => { e.preventDefault(); submit(); }}>
     {#if mountType === 'drive'}
         <div class="form-control">
-            <label class="label" for="drive-select">Letra de Unidad</label>
+            <label class="label font-semibold" for="drive-select">Letra de Unidad</label>
             {#if availableDrives.length > 0}
-                <select id="drive-select" class="select select-bordered" bind:value={driveLetter}>
+                <select id="drive-select" class="select select-bordered dark:bg-slate-700 dark:border-gray-600" bind:value={driveLetter}>
                     <option value="" disabled selected>Seleccionar letra...</option>
                     {#each availableDrives as letter}
                         <option value={letter}>{letter}:</option>
@@ -83,22 +100,25 @@
         </div>
     {:else}
         <div class="form-control">
-            <label class="label" for="folder-path">Ruta de Carpeta Local</label>
+            <label class="label font-semibold" for="folder-path">Ruta de Carpeta Local</label>
             <div class="join w-full">
-                <input id="folder-path" type="text" bind:value={folderPath} placeholder="C:\MisNubes\Carpeta" class="input input-bordered join-item flex-1" />
+                <input id="folder-path" type="text" bind:value={folderPath} placeholder="C:\MisNubes\Carpeta" class="input input-bordered join-item flex-1 dark:bg-slate-700 dark:border-gray-600" />
                 <button type="button" class="btn btn-secondary join-item" onclick={selectFolder} aria-label="Seleccionar carpeta">📂</button>
             </div>
             <label class="label">
-                <span class="label-text-alt text-warning">Nota: Si la carpeta tiene archivos, se ocultarán mientras esté montada.</span>
+                <span class="label-text-alt text-warning font-medium">La carpeta de destino no ha de existir</span>
             </label>
         </div>
     {/if}
 
-    <div class="modal-action">
-        <button class="btn" type="button" onclick={onCancel}>Cancelar</button>
-        <button class="btn btn-primary" type="submit" disabled={loading || (mountType === 'drive' && !driveLetter) || (mountType === 'folder' && !folderPath)}>
-            {#if loading}<span class="loading loading-spinner"></span>{/if}
-            Montar
+    <div class="modal-action gap-2">
+        <button class="btn btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" type="button" onclick={onCancel}>Cancelar</button>
+        <button class="btn bg-brand-green hover:bg-brand-green-dark text-white border-none min-w-[100px]" type="submit" disabled={loading || (mountType === 'drive' && !driveLetter) || (mountType === 'folder' && !folderPath)}>
+            {#if loading}
+                <span class="loading loading-spinner loading-xs"></span>
+            {:else}
+                Montar
+            {/if}
         </button>
     </div>
   </form>
