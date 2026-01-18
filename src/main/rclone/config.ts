@@ -1,5 +1,7 @@
+import { spawn } from 'child_process';
 import { RcloneWrapper } from './wrapper';
-import { RCLONE_CONFIG_PATH } from '../utils/paths';
+import { RCLONE_CONFIG_PATH, RCLONE_EXE_PATH } from '../utils/paths';
+import fs from 'fs-extra';
 
 export class RcloneConfig {
   private wrapper: RcloneWrapper;
@@ -40,7 +42,6 @@ export class RcloneConfig {
       const output = await this.wrapper.execute(['config', 'dump', '--config', RCLONE_CONFIG_PATH]);
       const config = JSON.parse(output);
 
-      // Rclone dump devuelve la configuración con el nombre del remote como clave
       if (config[name]) {
         return config[name];
       }
@@ -50,5 +51,31 @@ export class RcloneConfig {
       console.error(`Failed to get config for remote ${name}:`, e);
       return {};
     }
+  }
+
+  async setConfigPassword(password: string): Promise<void> {
+      console.log('Launching visible terminal for Rclone config...');
+      // Launch a new terminal window running 'rclone config'
+      // Windows specific: start cmd /c "rclone config"
+      // We can't easily auto-fill the password in a new window securely without sendkeys/macros.
+      // So we'll let the user do it.
+      
+      const cmd = `start "Configurar Contraseña Rclone" "${RCLONE_EXE_PATH}" config --config "${RCLONE_CONFIG_PATH}"`;
+      
+      require('child_process').exec(cmd);
+      
+      // Return immediately, we can't wait for user in a detached terminal easily without polling
+      return Promise.resolve();
+  }
+
+  async isEncrypted(): Promise<boolean> {
+      if (!fs.existsSync(RCLONE_CONFIG_PATH)) return false;
+      try {
+          const content = await fs.readFile(RCLONE_CONFIG_PATH, 'utf-8');
+          // If it contains "type =" or "[RemoteName]", it's likely plaintext
+          return !content.includes('type =');
+      } catch {
+          return false;
+      }
   }
 }
