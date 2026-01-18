@@ -41,8 +41,7 @@
      <button class="btn btn-ghost mb-4" onclick={() => showSettings = false}>← Volver</button>
      <Settings />
   {:else}
-      <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold">Servicios</h2>
+      <div class="flex justify-end items-center mb-6">
           <div class="gap-2 flex">
               <button class="btn btn-ghost" onclick={openTerminal}>Abrir Terminal</button>
               <button class="btn btn-ghost" onclick={() => showSettings = true}>Configuración</button>
