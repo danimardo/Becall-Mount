@@ -1,11 +1,21 @@
 <script lang="ts">
   import type { Service } from '../../../../contracts/types';
   import MountModal from '../Mount/MountModal.svelte';
-  
-  let { service, onDelete, onMountChange } = $props<{ service: Service, onDelete: (name: string) => void, onMountChange: () => void }>();
-  
+  import { getRemoteConfig } from '../../lib/remote-schema-loader';
+
+  let { service, onDelete, onMountChange, onEdit } = $props<{ 
+      service: Service, 
+      onDelete: (name: string) => void, 
+      onMountChange: () => void,
+      onEdit: (service: Service) => void
+  }>();
+
   let showMountModal = $state(false);
   let unmounting = $state(false);
+
+  // Obtener el icono del servicio desde el esquema
+  const remoteConfig = getRemoteConfig(service.type);
+  const serviceIcon = remoteConfig?.icon;
 
   async function handleDelete() {
       if(confirm(`¿Eliminar servicio ${service.name}?`)) {
@@ -32,7 +42,16 @@
 
 <div class="card bg-base-100 shadow-sm border border-base-200">
   <div class="card-body p-4 flex-row items-center justify-between">
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-3">
+        {#if serviceIcon}
+            <img src={serviceIcon} alt={service.type} class="w-8 h-8 object-contain" />
+        {:else}
+            <div class="w-8 h-8 flex items-center justify-center bg-base-300 rounded">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                </svg>
+            </div>
+        {/if}
         <div>
             <h3 class="font-bold text-lg">{service.name}</h3>
             <span class="badge badge-ghost badge-sm">{service.type}</span>
@@ -50,6 +69,7 @@
             </button>
         {:else}
             <button class="btn btn-sm btn-success" onclick={() => showMountModal = true}>Montar</button>
+            <button class="btn btn-sm btn-outline btn-primary" onclick={() => onEdit(service)}>Editar</button>
         {/if}
         <button class="btn btn-sm btn-ghost text-error" onclick={handleDelete}>Eliminar</button>
     </div>

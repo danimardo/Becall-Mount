@@ -1,0 +1,95 @@
+{
+  "remotes": [
+    {
+      "name": "Amazon S3",
+      "type": "s3",
+      "icon": "./icons/amazon-s3.png",
+      "config": {
+        "type": {
+          "value": "s3",
+          "hidden": true
+        },
+        "provider": {
+          "value": "AWS",
+          "hidden": true
+        },
+        "access_key_id": {
+          "label": "Access Key ID",
+          "type": "string",
+          "required": true,
+          "placeholder": "AWS Access Key ID"
+        },
+        "secret_access_key": {
+          "label": "Secret Access Key",
+          "type": "string",
+          "required": true,
+          "placeholder": "AWS Secret Access Key"
+        },
+        "region": {
+          "label": "Región",
+          "type": "string",
+          "required": true,
+          "placeholder": "us-east-1"
+        },
+        "endpoint": {
+          "label": "Endpoint",
+          "type": "string",
+          "required": true,
+          "placeholder": "https://s3.amazonaws.com"
+        },
+        "bucket": {
+          "label": "Bucket",
+          "type": "string",
+          "required": true,
+          "placeholder": "mi-bucket-s3"
+        },
+        "path": {
+          "label": "Ruta",
+          "type": "string",
+          "required": false,
+          "placeholder": "ruta/dentro/del/bucket"
+        }
+      }
+    },
+    {
+      "name": "Backblaze B2",
+      "type": "b2",
+      "icon": "./icons/backblaze-b2.svg",
+      "config": {
+        "type": {
+          "value": "b2",
+          "hidden": true
+        },
+        "account": {
+          "label": "ID de Cuenta",
+          "type": "string",
+          "required": true,
+          "placeholder": "Account ID"
+        },
+        "key": {
+          "label": "Clave de Aplicación",
+          "type": "string",
+          "required": true,
+          "placeholder": "Application Key"
+        },
+        "hard_delete": {
+          "label": "Hard Delete",
+          "type": "boolean",
+          "value": "true"
+        },
+        "bucket": {
+          "label": "Bucket",
+          "type": "string",
+          "required": false,
+          "placeholder": "mi-bucket-b2"
+        },
+        "path": {
+          "label": "Ruta",
+          "type": "string",
+          "required": false,
+          "placeholder": "ruta/dentro/del/bucket"
+        }
+      }
+    }
+  ]
+}

@@ -14,6 +14,20 @@ export function registerServiceHandlers() {
     return true;
   });
 
+  ipcMain.handle('services:get', async (_, name) => {
+    return await config.getRemoteConfig(name);
+  });
+
+  ipcMain.handle('services:update', async (_, { name, params }) => {
+    // rclone doesn't have a direct "update" that merges, 
+    // but we can just use createRemote with the same name to overwrite
+    // or better, get the type first.
+    const remote = await config.getRemoteConfig(name);
+    if (!remote) throw new Error('Service not found');
+    await config.createRemote(name, remote.type, params);
+    return true;
+  });
+
   ipcMain.handle('services:delete', async (_, name) => {
     await config.deleteRemote(name);
     return true;

@@ -1,0 +1,35 @@
+# Iconos de Servicios
+
+Coloca aquí los archivos de imagen para los iconos de los servicios.
+
+## Formatos soportados
+
+- PNG (recomendado para transparencia)
+- JPG
+- SVG (recomendado para escalabilidad)
+- WebP
+
+## Cómo usar en remotes-schema.json
+
+```json
+{
+  "name": "Amazon S3",
+  "type": "s3",
+  "icon": "./icons/amazon-s3.png",
+  ...
+}
+```
+
+## Nombres de archivo recomendados
+
+- `amazon-s3.png` - Amazon S3
+- `backblaze-b2.png` - Backblaze B2
+- `google-drive.png` - Google Drive
+- `dropbox.png` - Dropbox
+- `cloud-icon.png` - Icono genérico por defecto
+
+## Notas
+
+- Los archivos en esta carpeta se copian automáticamente al build
+- Usa rutas relativas que empiezan con `./icons/`
+- Tamaño recomendado: 64x64 o 128x128 píxeles

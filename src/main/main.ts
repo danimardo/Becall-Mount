@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu, nativeImage } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { registerIpcHandlers } from './ipc';
@@ -17,10 +17,39 @@ app.on('before-quit', () => {
 });
 
 const createWindow = () => {
+  // Cargar el icono desde el archivo .ico
+  // En desarrollo y producción: buscar en múltiples ubicaciones posibles
+  let icon;
+  const iconPaths = [
+    // Para producción con asarUnpack
+    path.join(process.resourcesPath, 'app.asar.unpacked', 'public', 'icon.ico'),
+    path.join(__dirname, '../public/icon.ico'),
+    // Para desarrollo
+    path.join(__dirname, '../../public/icon.ico'),
+  ];
+
+  for (const iconPath of iconPaths) {
+    try {
+      const testIcon = nativeImage.createFromPath(iconPath);
+      if (!testIcon.isEmpty()) {
+        icon = testIcon;
+        console.log('Icono cargado desde:', iconPath);
+        break;
+      }
+    } catch (e) {
+      // Continuar con la siguiente ruta
+    }
+  }
+
+  if (!icon) {
+    console.warn('No se pudo cargar el icono desde ninguna ubicación');
+  }
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1000,
     height: 800,
+    ...(icon && { icon }),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
@@ -38,6 +67,14 @@ const createWindow = () => {
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
 
+  // Re-enable DevTools shortcut (Ctrl+Shift+I and F12) manually since menu is null
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if ((input.control && input.shift && input.key.toLowerCase() === 'i') || input.key === 'F12') {
+      mainWindow.webContents.toggleDevTools();
+      event.preventDefault();
+    }
+  });
+
   mainWindow.on('close', (event) => {
     if (!isQuitting) {
       event.preventDefault();
@@ -53,6 +90,9 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
+  // Quitar el menú de la aplicación (File, Edit, View, etc.)
+  Menu.setApplicationMenu(null);
+
   await mountManager.restoreState();
   registerIpcHandlers();
   createWindow();

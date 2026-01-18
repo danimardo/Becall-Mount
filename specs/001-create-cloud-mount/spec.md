@@ -43,19 +43,46 @@ As a user, I want to add, edit, and view my cloud storage services (specifically
 
 **Why this priority**: Users need to configure their storage providers before they can mount them.
 
+**Implementation Note**: The application uses a dynamic JSON-based configuration system. Service form fields are not hardcoded but loaded from `remotes-schema.json`, making it easy to add new services without code changes.
+
 **Independent Test**:
 1. Add a B2 service via the form.
 2. Add an S3 service via the form.
 3. Verify services appear in the list with correct icons.
 4. Verify credentials are validated before saving.
+5. Verify form fields are dynamically generated from JSON schema.
+6. Verify required fields show red asterisk (*) indicator.
+7. Verify validation prevents creation when required fields are empty.
+8. Verify S3 requires bucket field, B2 bucket is optional.
+9. Verify service icons from schema are displayed correctly.
 
 **Acceptance Scenarios**:
 
-1. **Given** "Add Service" clicked, **When** B2 or S3 selected, **Then** show a specific form with required fields (Keys, Endpoint, etc.).
+1. **Given** "Add Service" clicked, **When** B2 or S3 selected, **Then** show a dynamically generated form with required fields from schema.
 2. **Given** invalid credentials, **When** saving, **Then** show an error message and do not save.
 3. **Given** other service types, **When** selected, **Then** open Rclone interactive config in a terminal.
-4. **Given** existing service, **When** editing, **Then** allow credential updates (only if unmounted).
+4. **Given** existing service, **When** editing, **Then** show form with name/type locked and other fields editable (only if unmounted).
 5. **Given** a service, **When** deleting, **Then** ask for confirmation and remove it (unmounting first if needed).
+6. **Given** required field empty, **When** clicking "Create" or "Save Changes", **Then** show validation error with field name and red asterisk indicator.
+7. **Given** S3 service configuration, **When** bucket field is filled, **Then** service will mount directly to that specific bucket.
+8. **Given** B2 service configuration, **When** bucket field is empty, **Then** service can access all buckets (optional field).
+9. **Given** service with path specified, **When** mounted, **Then** directly access the specified sub-path within bucket.
+
+**Technical Implementation**:
+
+**Service Editing**:
+- **Backend IPC**:
+  - `services:get`: Retrieves existing remote configuration.
+  - `services:update`: Overwrites an existing remote configuration with new parameters.
+- **Frontend Flow**:
+  - `ServiceCard` provides an "Editar" button (disabled if `isMounted` is true).
+  - `ServiceManager` manages `serviceToEdit` state.
+  - `AddServiceForm` reuses the creation UI in "Edit Mode":
+    - Locks `name` and `type` fields.
+    - Loads current configuration into `params` on mount.
+    - Updates UI text to "Editar Servicio" and "Guardar Cambios".
+    - Uses `services:update` for saving.
+
 
 ---
 
@@ -143,9 +170,15 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **FR-014**: System MUST ensure Rclone mount processes remain active even if the main application UI process is terminated.
 - **FR-015**: System MUST detect mount failures due to authentication errors and prompt the user to update service credentials via a UI dialog.
 - **FR-002**: System MUST enforce Rclone configuration encryption using a Master Password.
-- **FR-003**: System MUST provide a GUI form for configuring Backblaze B2 and Amazon S3 services.
+- **FR-003**: System MUST provide a GUI form for configuring services, with form fields dynamically generated from a JSON schema (`remotes-schema.json`).
+- **FR-003.1**: System MUST support adding new service types by modifying the JSON schema without code changes.
+- **FR-003.2**: System MUST apply default values from schema automatically when creating services.
+- **FR-003.3**: System MUST support hidden configuration fields (e.g., `type`, `provider`) that are submitted but not displayed in forms.
+- **FR-003.4**: System MUST render appropriate input types based on schema field definitions (text, password, select).
 - **FR-004**: System MUST launch an interactive terminal for configuring unsupported Rclone services.
-- **FR-005**: System MUST allow mounting services to specific Windows drive letters (A-Z, excluding C).
+- **FR-005**: System MUST allow mounting services to specific Windows drive letters (A-Z, excluding C and any currently occupied by the OS).
+- **FR-005.1**: System MUST dynamically filter available drive letters in the UI by querying the operating system.
+- **FR-005.2**: System MUST perform a final availability check of the drive letter immediately before initiating the mount process.
 - **FR-006**: System MUST support mounting specific sub-paths/buckets.
 - **FR-007**: System MUST minimize to the System Tray on window close, keeping mounts active.
 - **FR-008**: System MUST persist mount states and attempt to restore them on application restart.
@@ -159,6 +192,9 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **ServiceConfig**: Represents a cloud provider configuration (Name, Type, encrypted credentials).
 - **MountState**: Represents an active mount (Service ID, Drive Letter, Local Path, Remote Path, PID).
 - **AppConfig**: User preferences (Theme, Master Password Hash/Salt, Rclone Binary Path).
+- **RemotesSchema**: JSON schema defining available service types and their configuration field structure.
+- **RemoteSchema**: Schema for a single service type (name, type, config fields).
+- **RemoteFieldConfig**: Configuration for a single field (label, type, required, placeholder, value, hidden).
 
 ## Success Criteria *(mandatory)*
 
@@ -168,3 +204,25 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **SC-002**: Users can mount a configured service in 2 clicks or fewer.
 - **SC-003**: 100% of Rclone configuration files are encrypted on disk.
 - **SC-004**: Application successfully handles basic mount/unmount operations without Administrator elevation.
+## Technical Implementation Details
+
+### Service Editing
+- **Backend IPC**:
+  - `services:get`: Retrieves existing remote configuration via `config dump`.
+  - `services:update`: Overwrites an existing remote configuration with new parameters.
+- **Frontend Flow**:
+  - `ServiceCard` provides an \"Editar\" button (enabled only if `isMounted` is false).
+  - `ServiceManager` manages `serviceToEdit` state.
+  - `AddServiceForm` reuses the creation UI in \"Edit Mode\":
+    - Locks `name` and `type` fields.
+    - Loads current configuration into `params` on mount and correctly maps fields.
+    - Uses `bind:value` to ensure all editable fields are pre-filled with existing information.
+    - Updates UI text to \"Editar Servicio\" and \"Guardar Cambios\".
+
+### Drive Availability Detection
+- **Logic**: 
+  - The system executes `wmic logicaldisk get name` to identify letters already in use by Windows (Local disks, Network drives, USB).
+  - It cross-references this with internal `mountManager` state to account for active cloud mounts.
+  - The UI (`MountModal`) only renders letters that pass both checks.
+- **Validation**:
+  - A double-check is performed in the `mount` method in the main process to prevent race conditions if a drive becomes occupied between selection and execution.

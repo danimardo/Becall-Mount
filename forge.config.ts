@@ -10,10 +10,16 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    asarUnpack: [
+      'public/icon.ico'
+    ],
+    icon: './public/icon', // Electron Forge añadirá .ico automáticamente en Windows
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      setupIcon: './public/icon.ico'
+    }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
     new MakerDeb({}),
@@ -25,12 +31,12 @@ const config: ForgeConfig = {
       build: [
         {
           // `entry` is just an alias for `build.lib.entry` in the corresponding file of `config`.
-          entry: 'src/main/index.ts',
+          entry: 'src/main/main.ts',
           config: 'vite.main.config.ts',
           target: 'main',
         },
         {
-          entry: 'src/preload/index.ts',
+          entry: 'src/preload/preload.ts',
           config: 'vite.preload.config.ts',
           target: 'preload',
         },

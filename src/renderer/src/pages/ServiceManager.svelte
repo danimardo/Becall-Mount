@@ -8,6 +8,7 @@
   let services = $state<Service[]>([]);
   let showAddModal = $state(false);
   let showSettings = $state(false);
+  let serviceToEdit = $state<Service | null>(null);
 
   async function loadServices() {
       try {
@@ -49,12 +50,17 @@
           </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="flex flex-col gap-4">
           {#each services as service}
-              <ServiceCard {service} onDelete={loadServices} onMountChange={loadServices} />
+              <ServiceCard 
+                {service} 
+                onDelete={loadServices} 
+                onMountChange={loadServices} 
+                onEdit={(s) => { serviceToEdit = s; showAddModal = true; }}
+              />
           {/each}
           {#if services.length === 0}
-              <div class="col-span-full text-center py-10 opacity-50">
+              <div class="text-center py-10 opacity-50">
                   No hay servicios configurados.
               </div>
           {/if}
@@ -64,8 +70,9 @@
   {#if showAddModal}
       <dialog class="modal modal-open">
           <AddServiceForm 
-            onCreated={() => { showAddModal = false; loadServices(); }} 
-            onCancel={() => showAddModal = false} 
+            editService={serviceToEdit}
+            onCreated={() => { showAddModal = false; serviceToEdit = null; loadServices(); }} 
+            onCancel={() => { showAddModal = false; serviceToEdit = null; }} 
           />
       </dialog>
   {/if}

@@ -6,35 +6,67 @@ import { RCLONE_EXE_PATH, LOGS_PATH, RCLONE_CONFIG_PATH } from '../utils/paths';
 import { getSessionPassword } from '../utils/session';
 import store from '../store';
 import { MountState } from '../../contracts/types';
+import { RcloneConfig } from './config';
 
 const execAsync = util.promisify(exec);
 
 export class MountManager {
-  
+  private config: RcloneConfig;
+
+  constructor() {
+    this.config = new RcloneConfig();
+  }
+
   async mount(serviceName: string, driveLetter: string): Promise<void> {
+    // Check if it's already in our store
     const existing = (store.get('mounts') || []).find(m => m.driveLetter === driveLetter);
     if (existing) {
         const isRunning = await this.checkPid(existing.pid);
-        if (isRunning) throw new Error(`Drive ${driveLetter} is already mounted`);
+        if (isRunning) throw new Error(`Drive ${driveLetter} is already mounted in our app`);
         this.removeMount(driveLetter);
+    }
+
+    // Check if it's already in use by the system (not just our app)
+    try {
+        const { stdout } = await execAsync('wmic logicaldisk get name');
+        if (stdout.includes(`${driveLetter}:`)) {
+            throw new Error(`Drive ${driveLetter}: is already in use by the system`);
+        }
+    } catch (e) {
+        // If wmic fails, we'll proceed but it might still fail later
+        console.warn('Failed to check drive availability via wmic', e);
     }
 
     const logFile = path.join(LOGS_PATH, `mount-${driveLetter}.log`);
     await fs.ensureDir(LOGS_PATH);
-    
+
     await fs.writeFile(logFile, '');
 
-    const env = { 
-        ...process.env, 
-        RCLONE_CONFIG_PASS: getSessionPassword() 
+    const env = {
+        ...process.env,
+        RCLONE_CONFIG_PASS: getSessionPassword()
     };
-    
+
+    // Obtener bucket y path de la configuración del servicio
+    const remoteConfig = await this.config.getRemoteConfig(serviceName);
+    const bucket = remoteConfig['bucket'] || '';
+    const remotePath = remoteConfig['path'] || '';
+
+    // Construir el path completo del remote: serviceName:bucket/path
+    let remotePathFull = `${serviceName}:`;
+    if (bucket) {
+      remotePathFull += bucket;
+      if (remotePath) {
+        remotePathFull += `/${remotePath}`;
+      }
+    }
+
     const args = [
-        'mount', 
-        `${serviceName}:`, 
-        `${driveLetter}:`, 
+        'mount',
+        remotePathFull,
+        `${driveLetter}:`,
         '--config', RCLONE_CONFIG_PATH,
-        '--vfs-cache-mode', 'full', 
+        '--vfs-cache-mode', 'full',
         '--no-console',
         '--log-file', logFile,
         '--log-level', 'INFO'

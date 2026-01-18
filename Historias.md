@@ -1,4 +1,18 @@
 Cloud Mount - Historias de Usuario
+
+Visión del Producto
+Propósito
+Cloud Mount es una aplicación de escritorio para Windows que permite a los usuarios montar servicios de almacenamiento en la nube como unidades locales del sistema, de forma que puedan acceder a sus archivos remotos directamente desde el Explorador de Windows como si fueran discos locales.
+
+Problema que resuelve
+Configurar y gestionar Rclone mediante línea de comandos requiere conocimientos técnicos y resulta tedioso para usuarios no expertos. Cloud Mount elimina esta barrera ofreciendo una interfaz visual intuitiva que abstrae la complejidad técnica mientras mantiene el acceso a funciones avanzadas para usuarios expertos.
+
+Usuarios objetivo
+
+Usuarios generales: Personas que quieren acceder a su almacenamiento en la nube de forma sencilla sin conocimientos técnicos.
+Usuarios avanzados: Técnicos que valoran tener acceso directo a las funcionalidades nativas de Rclone cuando lo necesitan.
+
+
 Contexto y Necesidad
 Llevo tiempo usando Rclone para acceder a mis archivos en la nube desde Windows. La herramienta es potente, pero cada vez que necesito montar una unidad o configurar un nuevo servicio tengo que abrir la terminal, recordar los comandos, los parámetros... Es tedioso. Y si quiero que alguien de mi equipo que no es técnico lo use, directamente es imposible.
 Lo que necesito es una aplicación de escritorio que haga de intermediaria con Rclone. Una interfaz gráfica sencilla donde pueda ver mis servicios de almacenamiento, montarlos como unidades de Windows con un par de clics, y olvidarme de la línea de comandos para el día a día. Pero sin perder la posibilidad de acceder a las funciones avanzadas de Rclone cuando las necesite.
@@ -90,15 +104,19 @@ Lo que espero:
 Para servicios como Google Drive, Dropbox, etc., que me abra la configuración interactiva de Rclone en terminal.
 Al cerrar la terminal, que la lista de servicios se actualice.
 
-HU-2.6 Editar un servicio existente
+HU-2.6 Editar un servicio existente (Implementado)
 Como usuario
 Quiero poder modificar la configuración de un servicio
 Para corregir errores o actualizar credenciales
 Lo que espero:
 
-Poder editar nombre y credenciales.
-Si el servicio está montado, que no me deje editarlo y me avise de que lo desmonte primero.
-Validación de credenciales al guardar.
+Botón "Editar" visible en la tarjeta del servicio (solo cuando está desmontado).
+Formulario pre-rellenado con los valores actuales del servicio.
+Nombre y Tipo bloqueados (solo lectura) para evitar inconsistencias en Rclone.
+Poder actualizar cualquier otro parámetro (claves, buckets, regiones, etc.).
+Validación de campos obligatorios al guardar cambios.
+Si el servicio está montado, el botón de edición está oculto o deshabilitado para evitar conflictos.
+Al guardar, los cambios se aplican inmediatamente en el archivo de configuración.
 
 HU-2.7 Eliminar un servicio
 Como usuario
@@ -109,17 +127,109 @@ Lo que espero:
 Confirmación antes de borrar.
 Si está montado, que lo desmonte automáticamente antes de eliminarlo.
 
+HU-2.8 Añadir nuevo servicio con selector
+Como usuario
+Quiero un botón claro para añadir nuevos servicios
+Para iniciar el proceso de configuración de forma intuitiva
+Lo que espero:
+
+Botón visible y accesible para añadir servicio.
+Al pulsarlo, mostrar un selector con los tipos de servicio disponibles.
+Si selecciono un servicio con formulario nativo (B2, S3), mostrar el formulario correspondiente.
+Si selecciono un servicio sin formulario nativo, abrir la configuración interactiva de Rclone en terminal.
+
+Arquitectura de Configuración Dinámica (Implementado)
+Nota técnica: La aplicación implementa una arquitectura de configuración dinámica basada en JSON para máxima flexibilidad y mantenibilidad.
+
+Esquema de Configuración:
+- Archivo: `src/renderer/src/config/remotes-schema.json`
+- Define estructura de campos para cada tipo de servicio
+- Soporta campos ocultos (ej: `type`, `provider`) que se envían pero no se muestran
+- Configuración de labels, placeholders, tipos y valores por defecto
+- Empaquetado con la aplicación, no editable por el usuario
+
+Componentes de Implementación:
+1. **remotes-schema.json**: Define campos para Amazon S3 y Backblaze B2
+2. **remote-schema-loader.ts**: Utilidades para cargar y procesar el esquema
+   - `getAvailableRemoteTypes()`: Obtiene tipos disponibles
+   - `getVisibleFields()`: Filtra campos visibles (excluye hidden)
+   - `buildConfigWithDefaults()`: Construye config con valores por defecto
+3. **AddServiceForm.svelte**: Componente refactorizado para generar campos dinámicamente
+4. **types.ts**: Tipos TypeScript para esquema (RemoteFieldConfig, RemoteSchema, RemotesSchema)
+
+Ventajas:
+- Fácil añadir nuevos servicios sin modificar código
+- Tipado fuerte con TypeScript
+- Valores por defecto configurables
+- Soporte para campos tipo string, boolean, number
+- Extensible para futuros servicios (Dropbox, Google Drive, etc.)
+
+Ejemplo de Añadir Nuevo Servicio:
+Para añadir soporte para un nuevo servicio, simplemente se añade una entrada en `remotes-schema.json` sin necesidad de modificar el código de la aplicación.
+
+Mejoras de Configuración y Validación (Implementado)
+Campos de Bucket y Ruta:
+- **Bucket**: Campo para especificar un bucket concreto en la configuración del servicio
+  - Para Amazon S3: campo **obligatorio**
+  - Para Backblaze B2: campo **opcional**
+  - Permite montar directamente un bucket específico sin navegar desde la raíz
+- **Ruta (Path)**: Campo opcional para especificar una ruta dentro del bucket
+  - Aplica tanto para S3 como para B2
+  - Permite montar directamente una subcarpeta específica
+
+Iconos Personalizados por Servicio:
+- **Campo `icon`** en el esquema JSON
+- Permite especificar una URL para el logo/icono de cada servicio
+- Si no se especifica, se usa un icono genérico de nube
+- Mejora la identificación visual en la interfaz principal
+- Ejemplos implementados:
+  - Amazon S3: Logo oficial de AWS
+  - Backblaze B2: Logo oficial de Backblaze
+
+Validación de Campos Obligatorios:
+- **Marcado visual**: Campos obligatorios mostrados con asterisco rojo (*)
+- **Validación al enviar**: La aplicación valida que todos los campos requeridos estén completos
+- **Mensajes de error**: Alertas claras indicando qué campos faltan
+- **Limpieza automática**: Los errores se eliminan cuando el usuario corrige los campos
+- Comportamiento:
+  - Solo valida al pulsar el botón "Crear" (no en tiempo real)
+  - Muestra múltiples errores a la vez
+  - Usa el sistema de alertas de DaisyUI
+
+Actualización de Campos Existentes:
+- **Endpoint para S3**: Ahora es **obligatorio** (antes era opcional)
+- **Bucket para S3**: Ahora es **obligatorio**
+- **Bucket para B2**: **Opcional** (permite acceder a todos los buckets si no se especifica)
+- **Path**: **Opcional** para ambos servicios
+
+Documentación del Formato:
+- **Archivo `SCHEMA_FORMAT.md`**: Documentación completa del formato JSON
+  - Descripción detallada de cada campo del esquema
+  - Ejemplos de configuración para S3 y B2
+  - Instrucciones para añadir nuevos servicios
+  - Consideraciones de seguridad
+  - Integración con el código TypeScript
+
+Implementación Técnica:
+- **Validación**: Función `validateRequiredFields()` en AddServiceForm.svelte
+- **Estado de errores**: Array `validationErrors` para mantener múltiples errores
+- **Marcado visual**: `{#if fieldConfig.required}` con `<span class="text-error">*</span>`
+- **Alertas**: Componente `alert alert-error` de DaisyUI
+- **Tipos actualizados**: Campo `icon?: string` añadido a `RemoteSchema` en types.ts
+
 
 3. Montaje y Desmontaje de Unidades
-HU-3.1 Montar un servicio como unidad de Windows
+HU-3.1 Montar un servicio como unidad de Windows (Implementado)
 Como usuario
 Quiero montar mi servicio de nube como una letra de unidad
 Para acceder a mis archivos desde el Explorador de Windows
 Lo que espero:
 
-Al pulsar "Montar", poder elegir la letra de unidad.
-Solo mostrar letras disponibles (excluyendo siempre C:).
-Que recuerde la última letra que usé para ese servicio.
+Al pulsar "Montar", ver un selector con las letras de unidad.
+El selector solo muestra letras que están realmente LIBRES en el sistema.
+Se excluye automáticamente la unidad C: y cualquier unidad ya ocupada (USB, red, otros montajes).
+La aplicación comprueba la disponibilidad en tiempo real al abrir el modal.
+Si no hay letras libres, se muestra un aviso claro.
 Ver un estado de "Conectando..." mientras trabaja.
 Notificación cuando el montaje se complete o si falla.
 
@@ -173,14 +283,15 @@ Cabecera con el nombre e icono de la aplicación.
 Área central con las tarjetas de servicios.
 Pie con botones para: interfaz web de Rclone, ayuda y configuración.
 
-HU-4.2 Tarjetas de servicio según estado
+HU-4.2 Tarjetas de servicio según estado (Implementado)
 Como usuario
 Quiero distinguir visualmente el estado de cada servicio
 Para saber de un vistazo qué está montado y qué no
 Lo que espero:
 
-Desmontado: apariencia atenuada/gris, botones Montar, Editar, Eliminar.
-Montado: apariencia destacada con indicador de conexión, muestra letra asignada, botón Desmontar.
+Desmontado: botones Montar, Editar, Eliminar.
+Montado: apariencia destacada, muestra letra asignada, botón Desmontar.
+El botón Editar solo está disponible si el servicio está desmontado.
 
 
 5. Bandeja del Sistema (System Tray)
@@ -278,6 +389,7 @@ Eventos que quiero que me notifique:
 
 Montaje completado correctamente.
 Error al montar (con descripción útil).
+Error de conexión o pérdida de montaje.
 Contraseña incorrecta.
 Actualización de Rclone disponible o completada.
 
@@ -330,7 +442,112 @@ Detectar y manejar estados inconsistentes (procesos huérfanos, etc.).
 Que un error en un servicio no afecte a los demás.
 
 
-10. Fuera de Alcance (Por Ahora)
+10. Casos de Uso Principales
+CU-01: Primer inicio de la aplicación
+Actor: Usuario nuevo
+Flujo principal:
+
+Usuario abre la aplicación por primera vez.
+La aplicación detecta que no existe Rclone instalado.
+Muestra mensaje de descarga y comienza descarga automática.
+Al completar, solicita establecer contraseña maestra.
+Usuario ingresa y confirma contraseña.
+Se crea configuración encriptada vacía.
+Se muestra pantalla principal con lista de servicios vacía.
+
+CU-02: Añadir servicio Backblaze B2
+Actor: Usuario
+Precondición: Aplicación configurada, usuario tiene credenciales de B2
+Flujo principal:
+
+Usuario pulsa "Añadir servicio".
+Selecciona "Backblaze B2".
+Completa formulario con nombre y credenciales.
+Pulsa "Guardar".
+Aplicación valida credenciales contra el servicio.
+Si son válidas, guarda el servicio y lo muestra en la lista.
+Flujo alternativo (credenciales inválidas):
+5a. Aplicación muestra error de validación.
+5b. Usuario corrige datos y reintenta.
+
+CU-03: Montar servicio
+Actor: Usuario
+Precondición: Existe al menos un servicio configurado
+Flujo principal:
+
+Usuario localiza servicio desmontado en la lista.
+Pulsa "Montar".
+Selecciona letra de unidad de las disponibles.
+Opcionalmente especifica ruta remota.
+Pulsa "Conectar".
+Aplicación muestra estado "Conectando...".
+Montaje se completa, tarjeta cambia a estado montado.
+Notificación confirma montaje exitoso.
+
+CU-04: Desmontar servicio
+Actor: Usuario
+Precondición: Servicio montado
+Flujo principal:
+
+Usuario localiza servicio montado.
+Pulsa "Desmontar".
+Aplicación termina el proceso de montaje.
+Tarjeta cambia a estado desmontado.
+
+CU-05: Montar/desmontar desde bandeja del sistema
+Actor: Usuario
+Precondición: Aplicación minimizada en bandeja
+Flujo principal:
+
+Usuario hace clic derecho en icono de bandeja.
+Selecciona "Montar todos" o "Desmontar todos".
+Aplicación ejecuta la acción sobre todos los servicios aplicables.
+Notificación confirma resultado.
+
+CU-06: Cerrar aplicación manteniendo montajes
+Actor: Usuario
+Precondición: Servicios montados
+Flujo principal:
+
+Usuario cierra ventana principal (X).
+Aplicación se minimiza a bandeja, montajes permanecen.
+Usuario hace clic derecho en icono de bandeja.
+Selecciona "Cerrar".
+Aplicación se cierra, montajes siguen funcionando.
+
+CU-07: Editar servicio existente
+Actor: Usuario
+Precondición: Servicio existente desmontado
+Flujo principal:
+
+Usuario pulsa "Editar" en un servicio.
+Se muestra formulario con datos actuales.
+Usuario modifica campos deseados.
+Pulsa "Guardar".
+Aplicación valida y guarda cambios.
+Flujo alternativo (servicio montado):
+1a. Usuario intenta editar servicio montado.
+1b. Aplicación muestra mensaje: "Desmonta el servicio antes de editar".
+
+
+11. Criterios de Éxito
+Facilidad de primer uso
+El usuario puede montar su primer servicio en menos de 5 minutos desde que abre la aplicación por primera vez.
+
+Fiabilidad de montajes
+Los montajes permanecen estables durante sesiones de trabajo prolongadas sin desconexiones inesperadas.
+
+Recuperación de estado
+Al reiniciar la aplicación, refleja correctamente qué montajes siguen activos y cuáles se cerraron externamente.
+
+Accesibilidad de acciones
+Montar o desmontar un servicio requiere máximo 2 clics desde cualquier estado de la aplicación.
+
+Claridad de errores
+El usuario comprende qué salió mal y cómo solucionarlo a partir de los mensajes de error mostrados.
+
+
+12. Fuera de Alcance (Por Ahora)
 Estas funcionalidades no son necesarias en la primera versión:
 
 Inicio automático con Windows.

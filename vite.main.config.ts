@@ -1,8 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vite';
 
-export default defineConfig({
-  test: {
-    environment: 'node',
-    include: ['src/main/**/*.test.ts', 'tests/main/**/*.test.ts'],
-  },
-});
+// https://vitejs.dev/config
+export default defineConfig({});
