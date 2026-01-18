@@ -54,18 +54,50 @@ export class RcloneConfig {
   }
 
   async setConfigPassword(password: string): Promise<void> {
-      console.log('Launching visible terminal for Rclone config...');
-      // Launch a new terminal window running 'rclone config'
-      // Windows specific: start cmd /c "rclone config"
-      // We can't easily auto-fill the password in a new window securely without sendkeys/macros.
-      // So we'll let the user do it.
+      console.log('Setting Rclone config password via "config encryption set"...');
       
-      const cmd = `start "Configurar Contraseña Rclone" "${RCLONE_EXE_PATH}" config --config "${RCLONE_CONFIG_PATH}"`;
-      
-      require('child_process').exec(cmd);
-      
-      // Return immediately, we can't wait for user in a detached terminal easily without polling
-      return Promise.resolve();
+      await fs.ensureFile(RCLONE_CONFIG_PATH);
+
+      return new Promise((resolve, reject) => {
+          const child = spawn(RCLONE_EXE_PATH, ['config', 'encryption', 'set', '--config', RCLONE_CONFIG_PATH], { 
+              env: { ...process.env }, 
+              stdio: ['pipe', 'pipe', 'pipe'] 
+          });
+
+          let buffer = '';
+          const write = (msg: string) => child.stdin.write(msg);
+
+          const timeout = setTimeout(() => {
+              child.kill();
+              reject(new Error('Timeout waiting for rclone config encryption set'));
+          }, 10000);
+
+          const onData = (data: Buffer) => {
+              const str = data.toString();
+              buffer += str;
+              // console.log('Rclone output chunk:', str); 
+              
+              if (buffer.toLowerCase().includes('password:')) {
+                  // console.log('Detected password prompt, sending password...');
+                  buffer = ''; 
+                  write(`${password}\n`);
+              }
+          };
+
+          child.stdout.on('data', onData);
+          child.stderr.on('data', onData);
+
+          child.on('close', (code) => {
+              clearTimeout(timeout);
+              if (code === 0) {
+                  console.log('Rclone config password set successfully.');
+                  resolve();
+              } else {
+                  console.error('Rclone failed. Full output buffer:', buffer);
+                  reject(new Error(`Rclone exited with code ${code}`));
+              }
+          });
+      });
   }
 
   async isEncrypted(): Promise<boolean> {

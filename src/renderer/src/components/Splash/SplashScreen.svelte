@@ -2,6 +2,16 @@
   import { onMount } from 'svelte';
   
   let appVersion = __APP_VERSION__; 
+  let statusMessage = $state('Iniciando...');
+
+  onMount(() => {
+    // Escuchar mensajes de estado desde el proceso principal
+    if (window.api) {
+        window.api.on('splash:status', (msg: string) => {
+            statusMessage = msg;
+        });
+    }
+  });
 </script>
 
 <div class="splash-container fade-in select-none cursor-default">
@@ -13,7 +23,8 @@
         </svg>
     </div>
   </div>
-  <h1 class="app-name text-4xl font-bold text-brand-blue mb-8 tracking-tight">Cloud Mount</h1>
+  <h1 class="app-name text-4xl font-bold text-brand-blue mb-2 tracking-tight">Cloud Mount</h1>
+  <p class="text-brand-gray text-sm font-medium animate-pulse">{statusMessage}</p>
   
   <div class="credits flex flex-col items-end w-full px-8 absolute bottom-12 right-0">
     <p class="text-sm text-gray-400 font-light">Diseñado y programado por:</p>

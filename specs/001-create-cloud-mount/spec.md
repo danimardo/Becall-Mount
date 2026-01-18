@@ -12,7 +12,7 @@
 - Q: How should the WinFsp dependency be handled? -> A: Download & Launch. The application will detect if WinFsp is missing, download the installer, and launch it to guide the user through the process.
 - Q: What happens to active mounts when the user fully exits the application? -> A: Silent Disconnect. Mount processes remain active in the background; the application UI process terminates without killing them.
 - Q: How should the system handle a mount failure due to invalid credentials? -> A: Prompt for Credentials. Show a clear error in Spanish and allow the user to immediately update the service configuration.
-- Q: Which Rclone version should be downloaded? -> A: Static Version Pinning. Use a verified stable version (e.g., v1.65.0) to ensure compatibility with the UI's command-line generation.
+- Q: Which Rclone version should be downloaded? -> A: Static Version Pinning. Use a verified stable version (e.g., v1.72.1) to ensure compatibility with the UI's command-line generation.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -34,6 +34,7 @@ As a first-time user, I want the application to automatically set up the environ
 2. **Given** no existing configuration, **When** Rclone is ready, **Then** force user to set a Master Password.
 3. **Given** existing unencrypted config, **When** application starts, **Then** force user to encrypt it with a Master Password.
 4. **Given** application restart, **When** opening, **Then** prompt for Master Password (unless "Remember" was selected).
+5. **Given** new Rclone version available, **When** 30 days passed since last check, **Then** auto-update silently on startup.
 
 ---
 
@@ -165,7 +166,7 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 
 ### Functional Requirements
 
-- **FR-001**: System MUST automatically download a specific verified version of the `rclone` binary (e.g., v1.65.0) if not found at startup.
+- **FR-001**: System MUST automatically download a specific verified version of the `rclone` binary (e.g., v1.72.1) if not found at startup.
 - **FR-013**: System MUST detect the presence of WinFsp and, if missing, download and launch the WinFsp installer.
 - **FR-014**: System MUST ensure Rclone mount processes remain active even if the main application UI process is terminated.
 - **FR-015**: System MUST detect mount failures due to authentication errors and prompt the user to update service credentials via a UI dialog.
@@ -186,12 +187,13 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **FR-010**: System MUST display all interface text and error messages in Spanish.
 - **FR-011**: System MUST store all data (including `rclone.conf`) in a dedicated isolated directory (`%APPDATA%/CloudMount/`) and never expose credentials in plain text logs.
 - **FR-012**: System MUST allow mounting the same service multiple times to different letters/paths.
+- **FR-016**: System MUST periodically (monthly) check for updates to the underlying `rclone` binary and automatically update it if a newer version is available.
 
 ### Key Entities
 
 - **ServiceConfig**: Represents a cloud provider configuration (Name, Type, encrypted credentials).
 - **MountState**: Represents an active mount (Service ID, Drive Letter, Local Path, Remote Path, PID).
-- **AppConfig**: User preferences (Theme, Master Password Hash/Salt, Rclone Binary Path).
+- **AppConfig**: User preferences (Theme, Master Password Hash/Salt, Rclone Binary Path, Last Driver Update Check).
 - **RemotesSchema**: JSON schema defining available service types and their configuration field structure.
 - **RemoteSchema**: Schema for a single service type (name, type, config fields).
 - **RemoteFieldConfig**: Configuration for a single field (label, type, required, placeholder, value, hidden).
@@ -211,16 +213,16 @@ As an advanced user, I want to customize the application (Theme, Password) and a
   - `services:get`: Retrieves existing remote configuration via `config dump`.
   - `services:update`: Overwrites an existing remote configuration with new parameters.
 - **Frontend Flow**:
-  - `ServiceCard` provides an \"Editar\" button (enabled only if `isMounted` is false).
+  - `ServiceCard` provides an "Editar" button (enabled only if `isMounted` is false).
   - `ServiceManager` manages `serviceToEdit` state.
-  - `AddServiceForm` reuses the creation UI in \"Edit Mode\":
+  - `AddServiceForm` reuses the creation UI in "Edit Mode":
     - Locks `name` and `type` fields.
     - Loads current configuration into `params` on mount and correctly maps fields.
     - Uses `bind:value` to ensure all editable fields are pre-filled with existing information.
-    - Updates UI text to \"Editar Servicio\" and \"Guardar Cambios\".
+    - Updates UI text to "Editar Servicio" and "Guardar Cambios".
 
 ### Drive Availability Detection
-- **Logic**: 
+- **Logic**:
   - The system executes `wmic logicaldisk get name` to identify letters already in use by Windows (Local disks, Network drives, USB).
   - It cross-references this with internal `mountManager` state to account for active cloud mounts.
   - The UI (`MountModal`) only renders letters that pass both checks.

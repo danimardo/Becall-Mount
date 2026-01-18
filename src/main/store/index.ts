@@ -9,7 +9,7 @@ interface MountPreference {
 }
 
 interface StoreSchema {
-  settings: AppSettings;
+  settings: AppSettings & { lastDriverUpdateCheck?: number };
   mounts: MountState[];
   mountPreferences: Record<string, MountPreference>;
 }
@@ -20,6 +20,7 @@ const store = new Store<StoreSchema>({
       theme: 'system',
       rclonePath: 'bin/rclone.exe',
       firstRun: true,
+      lastDriverUpdateCheck: 0,
     },
     mounts: [],
     mountPreferences: {}

@@ -34,6 +34,12 @@
     }
 
     try {
+        const prereqs = await window.api.invoke('system:check-prereqs');
+        if (!prereqs.rclone || !prereqs.winfsp) {
+            view = 'setup';
+            return;
+        }
+
         const authStatus = await window.api.invoke('auth:check-status');
         
         if (authStatus.isAuthenticated) {
@@ -41,17 +47,8 @@
             return;
         }
 
-        if (!authStatus.hasPassword) {
-            const prereqs = await window.api.invoke('system:check-prereqs');
-            if (!prereqs.rclone || !prereqs.winfsp) {
-                view = 'setup';
-            } else {
-                isSetup = true;
-                view = 'auth';
-            }
-        } else {
-            view = 'auth';
-        }
+        isSetup = !authStatus.hasPassword;
+        view = 'auth';
     } catch (e) {
         console.error("Failed to initialize app", e);
         view = 'error';

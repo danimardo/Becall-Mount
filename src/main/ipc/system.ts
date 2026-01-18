@@ -1,7 +1,7 @@
-import { ipcMain, shell, dialog } from 'electron';
+import { ipcMain, shell, dialog, BrowserWindow } from 'electron';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
-import { isRcloneInstalled, installRclone } from '../rclone/installer';
+import { isRcloneInstalled, installRclone, checkAndAutoUpdateRclone } from '../rclone/installer';
 import { isWinFspInstalled, installWinFsp } from '../utils/winfsp';
 import { mountManager } from './mount';
 
@@ -9,6 +9,9 @@ const execAsync = promisify(exec);
 
 export function registerSystemHandlers() {
   ipcMain.handle('system:check-prereqs', async () => {
+    await checkAndAutoUpdateRclone((msg) => {
+        BrowserWindow.getAllWindows().forEach(w => w.webContents.send('splash:status', msg));
+    });
     return {
       rclone: await isRcloneInstalled(),
       winfsp: await isWinFspInstalled(),

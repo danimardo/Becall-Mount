@@ -64,7 +64,7 @@
     {:else}
       <div class="space-y-4">
         <div class="flex justify-between items-center">
-          <span>Rclone (v1.65.0)</span>
+          <span>Drivers Cloud</span>
           {#if status.rclone}
             <span class="badge badge-success">Instalado</span>
           {:else}

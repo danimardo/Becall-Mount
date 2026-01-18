@@ -17,6 +17,9 @@ Si no existe configuración previa o no está encriptada, obligar a establecer u
 **HU-1.3 Recordar mi contraseña de forma segura**
 Opción de guardar la contraseña de forma segura (encriptada) para no escribirla en cada inicio.
 
+**HU-1.4 Actualización automática de controladores (Nueva)**
+El sistema debe verificar mensualmente si existen actualizaciones del motor de montaje (Drivers Cloud) y aplicarlas automáticamente al inicio.
+
 ## 2. Gestión de Servicios de Almacenamiento
 **HU-2.1 Ver mis servicios configurados**
 Lista visual con tarjetas para cada servicio mostrando nombre, tipo e icono.
@@ -98,8 +101,8 @@ Selector Claro/Oscuro/Sistema.
 **HU-6.2 Gestionar mi contraseña maestra**
 Cambiar o eliminar contraseña guardada.
 
-**HU-6.3 Actualizar Rclone**
-Buscar actualizaciones desde la app.
+**HU-6.3 Actualizar Rclone (ELIMINADA)**
+Sustituida por actualización automática silenciosa.
 
 **HU-6.4 Exportar configuración (Nueva)**
 Exportar servicios seleccionados a un archivo `.conf` encriptado con una contraseña nueva específica.
