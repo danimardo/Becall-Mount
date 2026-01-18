@@ -1,4 +1,4 @@
-import { ipcMain, shell } from 'electron';
+import { ipcMain, shell, dialog } from 'electron';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import { isRcloneInstalled, installRclone } from '../rclone/installer';
@@ -17,7 +17,6 @@ export function registerSystemHandlers() {
 
   ipcMain.handle('system:get-free-drives', async () => {
     try {
-        // List busy drive letters on Windows via WMIC
         const { stdout } = await execAsync('wmic logicaldisk get name');
         const busyDrives = new Set(
             stdout.split('\r\n')
@@ -26,18 +25,39 @@ export function registerSystemHandlers() {
                 .map(line => line[0])
         );
         
-        // Also add drives that our application thinks are mounted
         mountManager.getMounts().forEach(m => {
-            busyDrives.add(m.driveLetter);
+            if (m.driveLetter) busyDrives.add(m.driveLetter);
         });
         
         const allDrives = 'ZYXWVUTSRQPONMLKJIHGFEDCBA'.split('');
-        // Return only those NOT in busyDrives and definitely not C:
         return allDrives.filter(letter => !busyDrives.has(letter) && letter !== 'C');
     } catch (e) {
         console.error('Failed to list drives', e);
         return 'ZYXWVUTSRQPONMLKJIHGFEDBA'.split(''); 
     }
+  });
+
+  ipcMain.handle('system:select-folder', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openDirectory'],
+        title: 'Seleccionar carpeta de montaje'
+    });
+    if (!result.canceled && result.filePaths.length > 0) {
+        return result.filePaths[0];
+    }
+    return null;
+  });
+
+  ipcMain.handle('system:select-file', async (_, filters) => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: filters || [],
+        title: 'Seleccionar archivo'
+    });
+    if (!result.canceled && result.filePaths.length > 0) {
+        return result.filePaths[0];
+    }
+    return null;
   });
 
   ipcMain.handle('system:install-rclone', async (event) => {

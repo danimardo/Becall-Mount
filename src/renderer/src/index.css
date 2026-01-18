@@ -1,2 +1,10 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+@config "../../../tailwind.config.js";
+
+@layer base {
+  body {
+    @apply bg-brand-surface-light text-slate-900 dark:bg-brand-surface-dark dark:text-white min-h-screen;
+  }
+}

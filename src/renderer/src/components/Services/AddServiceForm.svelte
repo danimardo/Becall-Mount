@@ -153,8 +153,8 @@
     {/each}
 
     <div class="modal-action">
-        <button class="btn" type="button" onclick={onCancel}>Cancelar</button>
-        <button class="btn btn-primary" type="submit" disabled={loading}>
+        <button class="btn btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" type="button" onclick={onCancel}>Cancelar</button>
+        <button class="btn bg-brand-green hover:bg-brand-green-dark text-white border-none" type="submit" disabled={loading}>
             {isEdit ? 'Guardar Cambios' : 'Crear'}
         </button>
     </div>

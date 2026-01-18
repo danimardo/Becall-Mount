@@ -7,7 +7,9 @@ export interface AppSettings {
 
 export interface MountState {
   serviceName: string;
-  driveLetter: string;
+  driveLetter?: string; // Kept for backward compat or if type is 'drive'
+  mountPoint: string;   // The actual path or letter
+  mountType: 'drive' | 'folder';
   pid: number;
   startTime: string;
   status: "mounted" | "error" | "unmounted";
@@ -37,7 +39,6 @@ export interface AppState {
   activeMounts: MountConfig[];
 }
 
-// Tipos para el esquema de configuración de remotos
 export type RemoteFieldType = 'string' | 'number' | 'boolean';
 
 export interface RemoteFieldConfig {

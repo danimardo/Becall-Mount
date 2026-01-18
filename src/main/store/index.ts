@@ -1,9 +1,17 @@
 import Store from 'electron-store';
 import { AppSettings, MountState } from '../../contracts/types';
 
+interface MountPreference {
+  lastMountType: 'drive' | 'folder';
+  lastDriveLetter?: string;
+  lastFolderPath?: string;
+  remotePath?: string;
+}
+
 interface StoreSchema {
   settings: AppSettings;
   mounts: MountState[];
+  mountPreferences: Record<string, MountPreference>;
 }
 
 const store = new Store<StoreSchema>({
@@ -14,6 +22,7 @@ const store = new Store<StoreSchema>({
       firstRun: true,
     },
     mounts: [],
+    mountPreferences: {}
   },
 });
 

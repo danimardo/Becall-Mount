@@ -5,6 +5,12 @@ import { registerIpcHandlers } from './ipc';
 import { createTray } from './tray';
 import { mountManager } from './ipc/mount';
 
+// Declare globals from Vite plugin
+declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
+declare const MAIN_WINDOW_VITE_NAME: string;
+declare const SPLASH_WINDOW_VITE_DEV_SERVER_URL: string;
+declare const SPLASH_WINDOW_VITE_NAME: string;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
@@ -16,58 +22,84 @@ app.on('before-quit', () => {
   isQuitting = true;
 });
 
-const createWindow = () => {
-  // Cargar el icono desde el archivo .ico
-  // En desarrollo y producción: buscar en múltiples ubicaciones posibles
-  let icon;
+// Helper to get icon
+const getIcon = () => {
   const iconPaths = [
-    // Para producción con asarUnpack
     path.join(process.resourcesPath, 'app.asar.unpacked', 'public', 'icon.ico'),
     path.join(__dirname, '../public/icon.ico'),
-    // Para desarrollo
     path.join(__dirname, '../../public/icon.ico'),
   ];
-
   for (const iconPath of iconPaths) {
     try {
       const testIcon = nativeImage.createFromPath(iconPath);
-      if (!testIcon.isEmpty()) {
-        icon = testIcon;
-        console.log('Icono cargado desde:', iconPath);
-        break;
-      }
-    } catch (e) {
-      // Continuar con la siguiente ruta
+      if (!testIcon.isEmpty()) return testIcon;
+    } catch (e) {}
+  }
+  return undefined;
+};
+
+const createSplashWindow = (): BrowserWindow => {
+  console.log('Creating Splash Window...');
+  const splash = new BrowserWindow({
+    width: 400,
+    height: 300,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    resizable: false,
+    center: true,
+    icon: getIcon(),
+    webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        preload: path.join(__dirname, 'preload.js') // Reuse preload or specific one
     }
-  }
+  });
 
-  if (!icon) {
-    console.warn('No se pudo cargar el icono desde ninguna ubicación');
+  if (SPLASH_WINDOW_VITE_DEV_SERVER_URL) {
+    console.log('Loading Splash from DEV URL:', SPLASH_WINDOW_VITE_DEV_SERVER_URL);
+    // In dev, we can point to splash.html if we configure it, or the root if it's separate server
+    // With one config file, it might just serve root.
+    // Try loading the specific html file
+    splash.loadURL(`${SPLASH_WINDOW_VITE_DEV_SERVER_URL}/splash.html`);
+  } else {
+    console.log('Loading Splash from FILE:', path.join(__dirname, `../renderer/${SPLASH_WINDOW_VITE_NAME}/splash.html`));
+    // In prod, it's likely in the renderer folder
+    splash.loadFile(path.join(__dirname, `../renderer/${SPLASH_WINDOW_VITE_NAME}/splash.html`));
   }
+  
+  return splash;
+};
 
-  // Create the browser window.
+const createMainWindow = async (splash: BrowserWindow) => {
+  const icon = getIcon();
+
   const mainWindow = new BrowserWindow({
     width: 1000,
     height: 800,
+    show: false, // Hidden initially
     ...(icon && { icon }),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
 
-  // and load the index.html of the app.
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
-  } else {
-    mainWindow.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
-    );
-  }
+  // Load the index.html of the app.
+  const loadPromise = MAIN_WINDOW_VITE_DEV_SERVER_URL
+    ? mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
+    : mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  // Wait for 2s minimum AND window load
+  const minTimePromise = new Promise(resolve => setTimeout(resolve, 2000));
+  
+  // Also wait for mount restore?
+  await Promise.all([loadPromise, minTimePromise, mountManager.restoreState()]);
 
-  // Re-enable DevTools shortcut (Ctrl+Shift+I and F12) manually since menu is null
+  splash.close();
+  mainWindow.show();
+
+  // Re-enable DevTools shortcut
   mainWindow.webContents.on('before-input-event', (event, input) => {
     if ((input.control && input.shift && input.key.toLowerCase() === 'i') || input.key === 'F12') {
       mainWindow.webContents.toggleDevTools();
@@ -86,21 +118,14 @@ const createWindow = () => {
   createTray(mainWindow);
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  // Quitar el menú de la aplicación (File, Edit, View, etc.)
   Menu.setApplicationMenu(null);
-
-  await mountManager.restoreState();
   registerIpcHandlers();
-  createWindow();
+  
+  const splash = createSplashWindow();
+  createMainWindow(splash);
 });
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -108,9 +133,10 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    // If activating, we might skip splash or show it again?
+    // For simplicity, show splash again
+    const splash = createSplashWindow();
+    createMainWindow(splash);
   }
 });

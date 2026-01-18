@@ -3,6 +3,7 @@ import { registerAuthHandlers } from './auth';
 import { registerServiceHandlers } from './services';
 import { registerMountHandlers } from './mount';
 import { registerSettingsHandlers } from './settings';
+import { registerConfigTransferHandlers } from './config-transfer';
 
 export function registerIpcHandlers() {
   console.log('Registering IPC handlers...');
@@ -11,4 +12,5 @@ export function registerIpcHandlers() {
   registerServiceHandlers();
   registerMountHandlers();
   registerSettingsHandlers();
+  registerConfigTransferHandlers();
 }
