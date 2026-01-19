@@ -62,13 +62,13 @@ export function buildConfigWithDefaults(type: string, userParams: Record<string,
   const config: Record<string, string> = {};
 
   for (const [key, fieldConfig] of Object.entries(allFields)) {
-    // Si el campo tiene un valor por defecto, usarlo
-    if (fieldConfig.value !== undefined) {
-      config[key] = String(fieldConfig.value);
-    }
-    // Si el usuario proporcionó un valor, usarlo (sobrescribe el default)
-    else if (userParams[key] !== undefined) {
+    // Prioridad 1: Valor introducido por el usuario
+    if (userParams[key] !== undefined && userParams[key] !== '') {
       config[key] = userParams[key];
+    }
+    // Prioridad 2: Valor por defecto del esquema
+    else if (fieldConfig.value !== undefined) {
+      config[key] = String(fieldConfig.value);
     }
   }
 

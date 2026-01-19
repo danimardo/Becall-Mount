@@ -194,6 +194,7 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **FR-020**: System MUST automatically remove drive-specific registry customizations when a drive is unmounted to maintain system cleanliness.
 - **FR-021**: System MUST allow users to enable/disable automatic application launch at Windows startup through the settings menu using the `app.setLoginItemSettings` API.
 - **FR-022**: System MUST automatically re-mount all previously active cloud units after the user provides the Master Password (or if the session is already authenticated).
+- **FR-023**: System MUST provide a mechanism to test service connectivity before saving the configuration, creating a temporary remote and executing a lightweight `lsd` command to verify credentials.
 
 ### Key Entities
 

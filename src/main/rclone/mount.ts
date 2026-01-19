@@ -91,6 +91,10 @@ export class MountManager {
     if (bucket) {
       remotePathFull += bucket;
       if (remotePath) remotePathFull += `/${remotePath}`;
+    } else if (remotePath) {
+      // For SFTP/FTP that use 'path' instead of 'bucket'
+      // Ensure we don't double slash if path starts with it
+      remotePathFull += remotePath.startsWith('/') ? remotePath.substring(1) : remotePath;
     }
 
     // Aplicar Registro

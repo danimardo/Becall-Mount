@@ -27,14 +27,63 @@ export class RcloneConfig {
 
   async createRemote(name: string, type: string, params: Record<string, string>): Promise<void> {
     const args = ['config', 'create', name, type, '--config', RCLONE_CONFIG_PATH];
-    for (const [key, value] of Object.entries(params)) {
+    
+    for (let [key, value] of Object.entries(params)) {
+        // Enmascarar contraseña si es el campo 'pass'
+        // Rclone obscured passwords typically don't contain spaces and have a specific length/format
+        // But the most reliable way is to check if it's already obscured.
+        // If it was loaded from a config dump, it's already obscured.
+        if (key === 'pass' && value) {
+            const looksObscured = /^[a-zA-Z0-9_-]{20,}$/.test(value) && !value.includes(' ');
+            
+            if (!looksObscured) {
+                try {
+                    value = await this.obscurePassword(value);
+                } catch (e) {
+                    console.error('Failed to obscure password', e);
+                }
+            }
+        }
         args.push(key, value);
     }
     await this.wrapper.execute(args);
   }
 
+  async obscurePassword(password: string): Promise<string> {
+      return await this.wrapper.execute(['obscure', password]);
+  }
+
   async deleteRemote(name: string): Promise<void> {
     await this.wrapper.execute(['config', 'delete', name, '--config', RCLONE_CONFIG_PATH]);
+  }
+
+  async testConnection(type: string, params: Record<string, string>): Promise<void> {
+    const tempName = `temp-test-${Date.now()}`;
+    try {
+        // Create temporary remote
+        await this.createRemote(tempName, type, params);
+        
+        // Determine the folder to test (bucket for GCS/S3, path for SFTP/FTP)
+        const folder = params.bucket || params.path || '';
+        const testTarget = folder ? `${tempName}:${folder}` : `${tempName}:`;
+
+        // Try to list using 'lsf' which is more robust than 'lsd' for various protocols
+        await this.wrapper.execute([
+            'lsf', 
+            testTarget, 
+            '--config', RCLONE_CONFIG_PATH, 
+            '--max-depth', '1',
+            '--contimeout', '15s',
+            '--format', 'p' // Minimal output
+        ]);
+
+        // Cleanup
+        await this.deleteRemote(tempName);
+    } catch (e) {
+        // Ensure cleanup even on failure
+        try { await this.deleteRemote(tempName); } catch {}
+        throw e;
+    }
   }
 
   async getRemoteConfig(name: string): Promise<Record<string, string>> {

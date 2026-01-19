@@ -71,7 +71,7 @@
               </div>  
         <!-- Service List -->
         <div class="flex flex-col gap-4">
-            {#each services as service}
+            {#each services as service (service.name)}
                 <ServiceCard 
                   {service} 
                   onDelete={loadServices} 

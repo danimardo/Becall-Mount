@@ -129,6 +129,163 @@
           "placeholder": "ruta/dentro/del/bucket"
         }
       }
+    },
+    {
+      "name": "SFTP (SSH)",
+      "type": "sftp",
+      "icon": "./icons/ftp.png",
+      "config": {
+        "type": {
+          "value": "sftp",
+          "hidden": true
+        },
+        "host": {
+          "label": "Servidor (Host)",
+          "type": "string",
+          "required": true,
+          "placeholder": "sftp.ejemplo.com"
+        },
+        "user": {
+          "label": "Usuario",
+          "type": "string",
+          "required": true,
+          "placeholder": "mi_usuario"
+        },
+        "port": {
+          "label": "Puerto",
+          "type": "number",
+          "value": "22"
+        },
+        "pass": {
+          "label": "Contraseña",
+          "type": "string",
+          "required": false,
+          "placeholder": "Dejar vacío si usas llave"
+        },
+        "key_file": {
+          "label": "Ruta a Llave Privada",
+          "type": "string",
+          "required": false,
+          "placeholder": "C:\\Ruta\\a\\tu\\llave.pem"
+        },
+        "path": {
+          "label": "Ruta inicial",
+          "type": "string",
+          "required": false,
+          "placeholder": "/home/usuario/carpeta"
+        },
+        "subsystem": {
+          "label": "Subsystem (Avanzado)",
+          "type": "string",
+          "value": "sftp",
+          "placeholder": "sftp"
+        },
+        "server_path_override": {
+          "label": "Ruta sftp-server (Avanzado)",
+          "type": "string",
+          "required": false,
+          "placeholder": "/usr/lib/openssh/sftp-server"
+        },
+        "shell_type": {
+          "label": "Tipo de Shell (Avanzado)",
+          "type": "string",
+          "value": "unix",
+          "placeholder": "unix, windows, none"
+        },
+        "md5sum_command": {
+          "label": "Comando MD5 (Avanzado)",
+          "type": "string",
+          "value": "none",
+          "placeholder": "none o comando"
+        },
+        "sha1sum_command": {
+          "label": "Comando SHA1 (Avanzado)",
+          "type": "string",
+          "value": "none",
+          "placeholder": "none o comando"
+        }
+      }
+    },
+    {
+      "name": "FTP (Estándar)",
+      "type": "ftp",
+      "icon": "./icons/ftp.png",
+      "config": {
+        "type": {
+          "value": "ftp",
+          "hidden": true
+        },
+        "host": {
+          "label": "Servidor (Host)",
+          "type": "string",
+          "required": true,
+          "placeholder": "ftp.ejemplo.com"
+        },
+        "user": {
+          "label": "Usuario",
+          "type": "string",
+          "required": true,
+          "placeholder": "anonymous"
+        },
+        "port": {
+          "label": "Puerto",
+          "type": "number",
+          "value": "21"
+        },
+        "pass": {
+          "label": "Contraseña",
+          "type": "string",
+          "required": true
+        },
+        "path": {
+          "label": "Ruta inicial",
+          "type": "string",
+          "required": false,
+          "placeholder": "/carpeta"
+        }
+      }
+    },
+    {
+      "name": "FTPS (FTP Seguro)",
+      "type": "ftp",
+      "icon": "./icons/ftp.png",
+      "config": {
+        "type": {
+          "value": "ftp",
+          "hidden": true
+        },
+        "tls": {
+          "value": "true",
+          "hidden": true
+        },
+        "host": {
+          "label": "Servidor (Host)",
+          "type": "string",
+          "required": true,
+          "placeholder": "ftps.ejemplo.com"
+        },
+        "user": {
+          "label": "Usuario",
+          "type": "string",
+          "required": true
+        },
+        "port": {
+          "label": "Puerto",
+          "type": "number",
+          "value": "990"
+        },
+        "pass": {
+          "label": "Contraseña",
+          "type": "string",
+          "required": true
+        },
+        "path": {
+          "label": "Ruta inicial",
+          "type": "string",
+          "required": false,
+          "placeholder": "/carpeta"
+        }
+      }
     }
   ]
 }

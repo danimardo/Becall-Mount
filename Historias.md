@@ -54,6 +54,9 @@ Confirmación antes de borrar y desmontaje automático.
 - Las credenciales se integran directamente en la configuración encriptada de la aplicación (sin guardar archivos físicos residuales).
 - El sistema muestra un aviso de seguridad instando al usuario a borrar el archivo original tras la importación exitosa.
 
+**HU-2.10 Probar conexión antes de guardar (Nueva)**
+- Posibilidad de verificar la validez de las credenciales y el servidor mediante una prueba de conexión real antes de guardar la configuración del servicio.
+
 ## 3. Montaje y Desmontaje de Unidades
 **HU-3.1 Montar un servicio (Actualizada)**
 - Selector de letra de unidad SIN valor preseleccionado.

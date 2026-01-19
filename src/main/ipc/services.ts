@@ -14,6 +14,11 @@ export function registerServiceHandlers() {
     return true;
   });
 
+  ipcMain.handle('services:test-connection', async (_, { type, params }) => {
+    await config.testConnection(type, params);
+    return true;
+  });
+
   ipcMain.handle('services:get', async (_, name) => {
     return await config.getRemoteConfig(name);
   });
