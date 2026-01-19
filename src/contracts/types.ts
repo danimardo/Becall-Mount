@@ -58,6 +58,7 @@ export interface RemoteSchema {
   name: string;
   type: string;
   icon?: string;
+  mountArgs?: string[];
   config: RemoteConfig;
 }
 

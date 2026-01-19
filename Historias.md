@@ -47,6 +47,11 @@ Confirmación antes de borrar y desmontaje automático.
 - Posición flotante abajo a la derecha, por encima de los botones del pie.
 - Al pulsar, mostrar un selector con los tipos de servicio disponibles.
 
+**HU-2.9 Importar configuración desde archivo (Actualizada)**
+- Posibilidad de añadir servicios mediante la importación de archivos de credenciales (ej. JSON de Google Service Account).
+- Las credenciales se integran directamente en la configuración encriptada de la aplicación (sin guardar archivos físicos residuales).
+- El sistema muestra un aviso de seguridad instando al usuario a borrar el archivo original tras la importación exitosa.
+
 ## 3. Montaje y Desmontaje de Unidades
 **HU-3.1 Montar un servicio (Actualizada)**
 - Selector de letra de unidad SIN valor preseleccionado.

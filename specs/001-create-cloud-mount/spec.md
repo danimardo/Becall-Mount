@@ -188,6 +188,8 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **FR-011**: System MUST store all data (including `rclone.conf`) in a dedicated isolated directory (`%APPDATA%/CloudMount/`) and never expose credentials in plain text logs.
 - **FR-012**: System MUST allow mounting the same service multiple times to different letters/paths.
 - **FR-016**: System MUST periodically (monthly) check for updates to the underlying `rclone` binary and automatically update it if a newer version is available.
+- **FR-017**: System MUST support importing Service Account JSON files for Google Cloud Storage by embedding their content directly into the encrypted configuration, preventing plain-text credential files from remaining on disk.
+- **FR-018**: System MUST enforce that the `bucket` field is mandatory for Google Cloud Storage services to ensure correct mounting.
 
 ### Key Entities
 
@@ -220,6 +222,17 @@ As an advanced user, I want to customize the application (Theme, Password) and a
     - Loads current configuration into `params` on mount and correctly maps fields.
     - Uses `bind:value` to ensure all editable fields are pre-filled with existing information.
     - Updates UI text to "Editar Servicio" and "Guardar Cambios".
+
+### Importación de Configuraciones (Google JSON)
+- **Flujo de Usuario**:
+  - El usuario selecciona la pestaña "Importar Archivo" en el modal de creación.
+  - Selecciona un archivo `.json` de Service Account.
+  - El sistema extrae el contenido y muestra un aviso instando a borrar el archivo original.
+- **Proceso Interno**:
+  - El contenido íntegro del JSON se guarda en el parámetro `service_account_credentials` de rclone.
+  - Al estar el archivo `rclone.conf` encriptado con contraseña maestra, las credenciales quedan protegidas por AES-256 automáticamente.
+  - No se almacenan copias del archivo JSON en el disco duro del usuario.
+  - Se activa `bucket_policy_only` por defecto para compatibilidad con GCS.
 
 ### Drive Availability Detection
 - **Logic**:

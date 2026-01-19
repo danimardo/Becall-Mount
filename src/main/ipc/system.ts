@@ -1,9 +1,12 @@
 import { ipcMain, shell, dialog, BrowserWindow } from 'electron';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
+import path from 'node:path';
+import fs from 'fs-extra';
 import { isRcloneInstalled, installRclone, checkAndAutoUpdateRclone } from '../rclone/installer';
 import { isWinFspInstalled, installWinFsp } from '../utils/winfsp';
 import { mountManager } from './mount';
+import { KEYS_PATH } from '../utils/paths';
 
 const execAsync = promisify(exec);
 
@@ -16,6 +19,27 @@ export function registerSystemHandlers() {
       rclone: await isRcloneInstalled(),
       winfsp: await isWinFspInstalled(),
     };
+  });
+
+  ipcMain.handle('system:import-key-file', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [{ name: 'JSON Key File', extensions: ['json'] }],
+        title: 'Seleccionar Archivo de Credenciales'
+    });
+    
+    if (!result.canceled && result.filePaths.length > 0) {
+        const sourcePath = result.filePaths[0];
+        try {
+            const content = await fs.readFile(sourcePath, 'utf-8');
+            // Validar mínimamente que es un JSON
+            JSON.parse(content);
+            return content;
+        } catch (e) {
+            throw new Error('El archivo seleccionado no es un JSON válido.');
+        }
+    }
+    return null;
   });
 
   ipcMain.handle('system:get-free-drives', async () => {

@@ -4,15 +4,8 @@ import { MountManager } from '../rclone/mount';
 export const mountManager = new MountManager();
 
 export function registerMountHandlers() {
-  ipcMain.handle('mount:start', async (_, { serviceName, mountType, target, force }) => {
-    // Legacy support: if only driveLetter provided, map to target
-    // But for new UI we use mountType/target
-    if (!mountType && arguments[1].driveLetter) {
-        // Fallback for old calls if any
-        await mountManager.mount(serviceName, 'drive', arguments[1].driveLetter);
-    } else {
-        await mountManager.mount(serviceName, mountType, target, force);
-    }
+  ipcMain.handle('mount:start', async (_, { serviceName, mountType, target, extraArgs }) => {
+    await mountManager.mount(serviceName, mountType, target, extraArgs || []);
     return true;
   });
 

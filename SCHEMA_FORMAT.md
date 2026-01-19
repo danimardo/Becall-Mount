@@ -20,6 +20,7 @@ El archivo `src/renderer/src/config/remotes-schema.json` define la estructura de
       "name": "Nombre visible del servicio",
       "type": "tipo-interno",
       "icon": "URL opcional del icono",
+      "mountArgs": ["--arg1", "--arg2"],
       "config": {
         "nombre_campo": {
           "label": "Etiqueta visible",
@@ -61,34 +62,11 @@ Cada elemento del array `remotes` debe contener:
 - **Ejemplo ruta local**: `"./icons/amazon-s3.png"`
 - **Uso**: Se muestra en la tarjeta del servicio en la interfaz principal
 - **Comportamiento**: Si no se especifica, se usa un icono genérico de nube
-- **Tipos de ruta soportados**:
-  - **URL externa**: Cualquier URL HTTPS válida
-  - **Ruta local**: Archivos en la carpeta `public/icons/` del proyecto
-- **Ventajas de rutas locales**:
-  - No requiere conexión a internet
-  - Carga más rápido
-  - Funciona sin conexión externa
-  - Mayor control sobre la apariencia
 
-**Ubicación de iconos locales**:
-```
-Cloud-Mount/
-├── public/
-│   └── icons/
-│       ├── amazon-s3.png
-│       ├── backblaze-b2.png
-│       └── cloud-icon.png
-```
-
-**Cómo usar iconos locales**:
-```json
-{
-  "name": "Amazon S3",
-  "type": "s3",
-  "icon": "./icons/amazon-s3.png",
-  ...
-}
-```
+#### `mountArgs` (Array de Strings, Opcional)
+- **Descripción**: Parámetros adicionales específicos que se añadirán al comando `rclone mount` para este tipo de servicio.
+- **Ejemplo**: `["--no-console", "--vfs-cache-mode", "full"]`
+- **Uso**: Permite optimizar el montaje según el proveedor (ej. S3 requiere parámetros distintos a Google Drive).
 
 #### `config` (Object, **Requerido**)
 Objeto que contiene la configuración de campos para este servicio. Cada clave es un nombre de campo y cada valor es un objeto `RemoteFieldConfig`.

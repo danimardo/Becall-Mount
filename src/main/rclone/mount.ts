@@ -17,7 +17,7 @@ export class MountManager {
     this.config = new RcloneConfig();
   }
 
-  async mount(serviceName: string, mountType: 'drive' | 'folder', target: string): Promise<void> {
+  async mount(serviceName: string, mountType: 'drive' | 'folder', target: string, extraArgs: string[] = []): Promise<void> {
     // Check if target is already in use by OUR app
     const existingTarget = (store.get('mounts') || []).find(m => m.mountPoint === target);
     if (existingTarget) {
@@ -87,7 +87,8 @@ export class MountManager {
         '--vfs-cache-mode', 'full',
         '--no-console',
         '--log-file', logFile,
-        '--log-level', 'INFO'
+        '--log-level', 'INFO',
+        ...extraArgs
     ];
 
     console.log('Executing rclone mount with args:', args);

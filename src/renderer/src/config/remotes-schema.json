@@ -4,6 +4,9 @@
       "name": "Amazon S3",
       "type": "s3",
       "icon": "./icons/amazon-s3.png",
+      "mountArgs": [
+        "--no-console"
+      ],
       "config": {
         "type": {
           "value": "s3",
@@ -55,6 +58,7 @@
       "name": "Backblaze B2",
       "type": "b2",
       "icon": "./icons/backblaze-b2.svg",
+      "mountArgs": [],
       "config": {
         "type": {
           "value": "b2",
@@ -82,6 +86,40 @@
           "type": "string",
           "required": false,
           "placeholder": "mi-bucket-b2"
+        },
+        "path": {
+          "label": "Ruta",
+          "type": "string",
+          "required": false,
+          "placeholder": "ruta/dentro/del/bucket"
+        }
+      }
+    },
+    {
+      "name": "Google Cloud Storage",
+      "type": "google cloud storage",
+      "config": {
+        "type": {
+          "value": "google cloud storage",
+          "hidden": true
+        },
+        "service_account_credentials": {
+          "label": "Credenciales JSON",
+          "type": "string",
+          "required": true,
+          "placeholder": "Contenido del JSON de credenciales",
+          "hidden": true
+        },
+        "bucket_policy_only": {
+          "label": "Bucket Policy Only",
+          "type": "boolean",
+          "value": "true"
+        },
+        "bucket": {
+          "label": "Bucket",
+          "type": "string",
+          "required": true,
+          "placeholder": "mi-bucket-gcs"
         },
         "path": {
           "label": "Ruta",

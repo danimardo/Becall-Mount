@@ -80,6 +80,7 @@
     <dialog class="modal modal-open">
         <MountModal 
             serviceName={service.name} 
+            serviceType={service.type}
             onMounted={() => { showMountModal = false; onMountChange(); }}
             onCancel={() => showMountModal = false}
         />

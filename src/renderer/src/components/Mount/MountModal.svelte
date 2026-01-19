@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { showAlert } from '../../stores/modal';
+  import { getRemoteConfig } from '../../lib/remote-schema-loader';
 
   let mountType = $state<'drive' | 'folder'>('drive');
   let driveLetter = $state('');
@@ -8,7 +9,12 @@
   let loading = $state(false);
   let availableDrives = $state<string[]>([]);
 
-  let { serviceName, onMounted, onCancel } = $props<{ serviceName: string, onMounted: () => void, onCancel: () => void }>();
+  let { serviceName, serviceType, onMounted, onCancel } = $props<{ 
+      serviceName: string, 
+      serviceType: string,
+      onMounted: () => void, 
+      onCancel: () => void 
+  }>();
 
   onMount(async () => {
       try {
@@ -35,8 +41,16 @@
       loading = true;
       
       try {
-          console.log(`Attempting mount: ${serviceName} -> ${target}`);
-          await window.api.invoke('mount:start', { serviceName, mountType, target });
+          console.log(`Attempting mount: ${serviceName} (${serviceType}) -> ${target}`);
+          const schema = getRemoteConfig(serviceType);
+          const extraArgs = schema?.mountArgs || [];
+          
+          await window.api.invoke('mount:start', { 
+              serviceName, 
+              mountType, 
+              target, 
+              extraArgs 
+          });
           console.log('Mount success');
           onMounted();
       } catch (e: any) {
