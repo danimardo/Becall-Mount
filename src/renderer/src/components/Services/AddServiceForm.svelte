@@ -115,7 +115,7 @@
     <div role="tablist" class="grid grid-cols-2 gap-1 p-1 bg-gray-100 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-gray-600 mb-6">
         <button 
           role="tab" 
-          class="py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none"
+          class="py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none cursor-pointer"
           class:bg-white={activeTab === 'manual'} 
           class:text-brand-blue={activeTab === 'manual'} 
           class:shadow-sm={activeTab === 'manual'}
@@ -129,7 +129,7 @@
         </button>
         <button 
           role="tab" 
-          class="py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none"
+          class="py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none cursor-pointer"
           class:bg-white={activeTab === 'import'} 
           class:text-brand-blue={activeTab === 'import'} 
           class:shadow-sm={activeTab === 'import'}

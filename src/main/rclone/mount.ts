@@ -7,6 +7,7 @@ import { getSessionPassword } from '../utils/session';
 import store from '../store';
 import { MountState } from '../../contracts/types';
 import { RcloneConfig } from './config';
+import { setDriveIconAndLabel, clearDriveIconAndLabel } from '../utils/registry';
 
 const execAsync = util.promisify(exec);
 
@@ -17,7 +18,28 @@ export class MountManager {
     this.config = new RcloneConfig();
   }
 
-  async mount(serviceName: string, mountType: 'drive' | 'folder', target: string, extraArgs: string[] = []): Promise<void> {
+  private resolveIcoPath(schemaPath: string): string | null {
+      if (!schemaPath) return null;
+      
+      // Obtener el nombre base sin extensión y añadir .ico
+      const icoName = path.parse(schemaPath).name + '.ico';
+      
+      const possiblePaths = [
+          // Producción: carpeta unpacked
+          path.join(process.resourcesPath, 'app.asar.unpacked', 'public', 'icons', icoName),
+          // Desarrollo
+          path.join(__dirname, '../../public/icons', icoName),
+          path.join(__dirname, '../public/icons', icoName),
+          path.join(process.cwd(), 'public', 'icons', icoName),
+      ];
+
+      for (const p of possiblePaths) {
+          if (fs.existsSync(p)) return p;
+      }
+      return null;
+  }
+
+  async mount(serviceName: string, mountType: 'drive' | 'folder', target: string, extraArgs: string[] = [], schemaIconPath?: string): Promise<void> {
     // Check if target is already in use by OUR app
     const existingTarget = (store.get('mounts') || []).find(m => m.mountPoint === target);
     if (existingTarget) {
@@ -30,13 +52,21 @@ export class MountManager {
         // Check drive availability
         try {
             const { stdout } = await execAsync('wmic logicaldisk get name');
-            if (stdout.includes(`${target}:`)) {
+            if (stdout.includes(`${target.replace(':', '')}:`)) {
                 throw new Error(`La unidad ${target}: ya está en uso por el sistema.`);
             }
         } catch (e) {
             console.warn('Failed to check drive availability via wmic', e);
         }
         if (!target.endsWith(':')) target += ':';
+
+        // Personalizar Icono y Etiqueta en el Registro
+        if (schemaIconPath) {
+            const icoPath = this.resolveIcoPath(schemaIconPath);
+            if (icoPath) {
+                await setDriveIconAndLabel(target, icoPath, serviceName);
+            }
+        }
     } else {
         // Validación para montaje en CARPETA (Windows/WinFsp)
         // La carpeta de destino NO DEBE EXISTIR
@@ -148,6 +178,11 @@ export class MountManager {
           } catch (e: any) {
               console.warn(`[MountManager] Failed to kill PID ${mount.pid}`, e.message);
           }
+      }
+
+      // Limpiar personalización de disco en el registro
+      if (mount.mountType === 'drive') {
+          await clearDriveIconAndLabel(mountPoint);
       }
       
       this.removeMount(mount.mountPoint || mount.driveLetter || mountPoint);

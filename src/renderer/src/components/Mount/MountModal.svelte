@@ -44,12 +44,14 @@
           console.log(`Attempting mount: ${serviceName} (${serviceType}) -> ${target}`);
           const schema = getRemoteConfig(serviceType);
           const extraArgs = schema?.mountArgs || [];
+          const iconPath = schema?.icon || '';
           
           await window.api.invoke('mount:start', { 
               serviceName, 
               mountType, 
               target, 
-              extraArgs 
+              extraArgs,
+              iconPath
           });
           console.log('Mount success');
           onMounted();
@@ -69,7 +71,7 @@
   <div role="tablist" class="grid grid-cols-2 gap-1 p-1 bg-gray-100 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-gray-600 mb-6">
       <button 
         role="tab" 
-        class="py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none"
+        class="py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none cursor-pointer"
         class:bg-white={mountType === 'drive'} 
         class:text-brand-blue={mountType === 'drive'} 
         class:shadow-sm={mountType === 'drive'}
@@ -83,7 +85,7 @@
       </button>
       <button 
         role="tab" 
-        class="py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none"
+        class="py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none cursor-pointer"
         class:bg-white={mountType === 'folder'} 
         class:text-brand-blue={mountType === 'folder'} 
         class:shadow-sm={mountType === 'folder'}

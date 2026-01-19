@@ -75,7 +75,11 @@ Al reiniciar la app, intentar restaurar los montajes previos.
 Alternativa a letra de unidad: montar en `C:\Ruta\Local`.
 
 **HU-3.7 Desmontar todos los servicios (Nueva)**
-Botón "Desmontar todos" (arriba derecha, icono stop-circle) que desmonta todo tras confirmación.
+- Botón "Desmontar todos" (arriba derecha, icono stop-circle) que desmonta todo tras confirmación.
+
+**HU-3.8 Personalización visual en el Explorador (Nueva)**
+- Las unidades montadas deben mostrar el icono oficial del servicio (formato .ico) y el nombre personalizado del servicio como etiqueta en el Explorador de Windows.
+- La personalización debe limpiarse automáticamente al desmontar la unidad.
 
 ## 4. Interfaz Principal
 **HU-4.1 Ventana principal clara y sencilla (Actualizada)**

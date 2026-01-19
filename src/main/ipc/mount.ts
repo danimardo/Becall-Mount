@@ -4,8 +4,8 @@ import { MountManager } from '../rclone/mount';
 export const mountManager = new MountManager();
 
 export function registerMountHandlers() {
-  ipcMain.handle('mount:start', async (_, { serviceName, mountType, target, extraArgs }) => {
-    await mountManager.mount(serviceName, mountType, target, extraArgs || []);
+  ipcMain.handle('mount:start', async (_, { serviceName, mountType, target, extraArgs, iconPath }) => {
+    await mountManager.mount(serviceName, mountType, target, extraArgs || [], iconPath);
     return true;
   });
 

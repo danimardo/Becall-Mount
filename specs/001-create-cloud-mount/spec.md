@@ -190,6 +190,8 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **FR-016**: System MUST periodically (monthly) check for updates to the underlying `rclone` binary and automatically update it if a newer version is available.
 - **FR-017**: System MUST support importing Service Account JSON files for Google Cloud Storage by embedding their content directly into the encrypted configuration, preventing plain-text credential files from remaining on disk.
 - **FR-018**: System MUST enforce that the `bucket` field is mandatory for Google Cloud Storage services to ensure correct mounting.
+- **FR-019**: System MUST automatically set a custom icon (.ico) and label for mounted drive letters in the Windows Explorer via the `HKCU` registry.
+- **FR-020**: System MUST automatically remove drive-specific registry customizations when a drive is unmounted to maintain system cleanliness.
 
 ### Key Entities
 
@@ -233,6 +235,17 @@ As an advanced user, I want to customize the application (Theme, Password) and a
   - Al estar el archivo `rclone.conf` encriptado con contraseña maestra, las credenciales quedan protegidas por AES-256 automáticamente.
   - No se almacenan copias del archivo JSON en el disco duro del usuario.
   - Se activa `bucket_policy_only` por defecto para compatibilidad con GCS.
+
+### Personalización Visual de Unidades
+- **Objetivo**: Mejorar la integración con el sistema mostrando iconos y nombres descriptivos en el Explorador.
+- **Resolución de Iconos**:
+  - El sistema extrae el nombre base del icono definido en el esquema (ej. de `google.webp` extrae `google`).
+  - Busca el archivo equivalente con extensión `.ico` en las carpetas de recursos de la aplicación.
+- **Modificaciones de Registro**:
+  - Se utilizan claves en `HKEY_CURRENT_USER\Software\Classes\Applications\explorer.exe\Drives\{LETRA}`.
+  - `DefaultIcon`: Ruta al archivo `.ico`.
+  - `DefaultLabel`: Nombre personalizado del servicio.
+- **Limpieza**: Al ejecutar el comando de desmontaje, se elimina la clave de registro correspondiente a esa letra de unidad para evitar que personalizaciones antiguas afecten a unidades físicas conectadas posteriormente.
 
 ### Drive Availability Detection
 - **Logic**:

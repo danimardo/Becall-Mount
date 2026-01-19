@@ -32,9 +32,9 @@ export function registerSystemHandlers() {
         const sourcePath = result.filePaths[0];
         try {
             const content = await fs.readFile(sourcePath, 'utf-8');
-            // Validar mínimamente que es un JSON
-            JSON.parse(content);
-            return content;
+            // Parsear y volver a convertir a string (esto elimina saltos de línea y espacios)
+            const minimized = JSON.stringify(JSON.parse(content));
+            return minimized;
         } catch (e) {
             throw new Error('El archivo seleccionado no es un JSON válido.');
         }

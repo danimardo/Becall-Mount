@@ -98,6 +98,7 @@
     {
       "name": "Google Cloud Storage",
       "type": "google cloud storage",
+      "icon": "./icons/GoogleBucket.webp",
       "config": {
         "type": {
           "value": "google cloud storage",
