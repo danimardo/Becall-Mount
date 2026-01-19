@@ -29,11 +29,8 @@ export class RcloneConfig {
     const args = ['config', 'create', name, type, '--config', RCLONE_CONFIG_PATH];
     
     for (let [key, value] of Object.entries(params)) {
-        // Enmascarar contraseña si es el campo 'pass'
-        // Rclone obscured passwords typically don't contain spaces and have a specific length/format
-        // But the most reliable way is to check if it's already obscured.
-        // If it was loaded from a config dump, it's already obscured.
-        if (key === 'pass' && value) {
+        // Enmascarar contraseña si es el campo 'pass' o 'key' (Azure)
+        if ((key === 'pass' || (type === 'azureblob' && key === 'key')) && value) {
             const looksObscured = /^[a-zA-Z0-9_-]{20,}$/.test(value) && !value.includes(' ');
             
             if (!looksObscured) {
