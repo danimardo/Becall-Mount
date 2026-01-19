@@ -11,8 +11,8 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     extraResource: [
-      'public/icon.ico',
-      'public/icon.png'
+      'public/icons',
+      'public/icon.ico'
     ],
     icon: './public/icon', 
   },

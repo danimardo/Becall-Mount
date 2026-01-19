@@ -22,7 +22,11 @@ export class MountManager {
       if (!schemaPath) return null;
       const icoName = path.parse(schemaPath).name + '.ico';
       const possiblePaths = [
+          // 1. ExtraResource (Producción - Método recomendado)
+          path.join(process.resourcesPath, 'icons', icoName),
+          // 2. Legacy ASAR Unpacked
           path.join(process.resourcesPath, 'app.asar.unpacked', 'public', 'icons', icoName),
+          // 3. Desarrollo
           path.join(__dirname, '../../public/icons', icoName),
           path.join(__dirname, '../public/icons', icoName),
           path.join(process.cwd(), 'public', 'icons', icoName),
