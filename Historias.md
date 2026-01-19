@@ -38,6 +38,15 @@ Formulario nativo con validación de credenciales.
 **HU-2.5 Añadir otros servicios**
 Para servicios no soportados, abrir configuración interactiva de Rclone en terminal.
 
+**HU-2.11 Soporte para Azure Blob Storage (Nueva)**
+- Formulario nativo para configurar cuentas de Azure Blob Storage usando Account Name y Account Key.
+- Encriptación automática de la clave de acceso.
+
+**HU-2.12 Soporte para Protocolos de Archivos (Nueva)**
+- Soporte para SFTP (SSH), FTP estándar y FTPS (FTP seguro).
+- Parámetros avanzados de compatibilidad para SFTP (shell type, md5/sha1 override).
+- Posibilidad de definir una ruta inicial específica para el montaje.
+
 **HU-2.6 Editar un servicio existente**
 Botón "Editar" (solo si está desmontado) que abre formulario pre-rellenado con nombre/tipo bloqueados.
 
