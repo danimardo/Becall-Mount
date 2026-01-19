@@ -192,6 +192,8 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **FR-018**: System MUST enforce that the `bucket` field is mandatory for Google Cloud Storage services to ensure correct mounting.
 - **FR-019**: System MUST automatically set a custom icon (.ico) and label for mounted drive letters in the Windows Explorer via the `HKCU` registry.
 - **FR-020**: System MUST automatically remove drive-specific registry customizations when a drive is unmounted to maintain system cleanliness.
+- **FR-021**: System MUST allow users to enable/disable automatic application launch at Windows startup through the settings menu using the `app.setLoginItemSettings` API.
+- **FR-022**: System MUST automatically re-mount all previously active cloud units after the user provides the Master Password (or if the session is already authenticated).
 
 ### Key Entities
 

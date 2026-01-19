@@ -3,6 +3,7 @@ export interface AppSettings {
   rclonePath: string;
   firstRun: boolean;
   passwordHash?: string;
+  autoLaunch?: boolean;
 }
 
 export interface MountState {
@@ -13,6 +14,8 @@ export interface MountState {
   pid: number;
   startTime: string;
   status: "mounted" | "error" | "unmounted";
+  iconPath?: string;
+  extraArgs?: string[];
 }
 
 export type ServiceType = 'b2' | 's3' | 'drive' | 'dropbox' | 'other';

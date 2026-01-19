@@ -43,6 +43,7 @@
         const authStatus = await window.api.invoke('auth:check-status');
         
         if (authStatus.isAuthenticated) {
+            await window.api.invoke('mount:auto-mount-all');
             view = 'app';
             return;
         }
@@ -61,7 +62,8 @@
       view = 'auth';
   }
 
-  function onAuthenticated() {
+  async function onAuthenticated() {
+      await window.api.invoke('mount:auto-mount-all');
       view = 'app';
   }
 </script>

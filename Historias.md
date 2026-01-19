@@ -68,8 +68,8 @@ Posibilidad de montar el mismo servicio en varias ubicaciones simultáneamente.
 **HU-3.4 Desmontar una unidad**
 Botón "Desmontar" que libera los recursos y actualiza la interfaz.
 
-**HU-3.5 Persistencia del estado de montajes**
-Al reiniciar la app, intentar restaurar los montajes previos.
+**HU-3.5 Persistencia del estado de montajes (Actualizada)**
+Al iniciar la aplicación y tras la autenticación, el sistema debe intentar montar automáticamente todas las unidades que estaban activas en la sesión anterior.
 
 **HU-3.6 Montar servicio en carpeta local (Nueva)**
 Alternativa a letra de unidad: montar en `C:\Ruta\Local`.
@@ -118,6 +118,9 @@ Exportar servicios seleccionados a un archivo `.conf` encriptado con una contras
 
 **HU-6.5 Importar configuración (Nueva)**
 Importar archivo `.conf` (detectando si requiere contraseña), gestionando conflictos de nombres.
+
+**HU-6.6 Configuración de arranque automático (Nueva)**
+Opción en la configuración para que la aplicación se inicie automáticamente al arrancar Windows e iniciar sesión el usuario.
 
 ## 7. Funciones Avanzadas
 **HU-7.1 Acceder a la terminal de configuración (ELIMINADA)**

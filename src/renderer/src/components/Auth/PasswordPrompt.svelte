@@ -1,9 +1,17 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+
   let password = $state('');
   let error = $state('');
   let loading = $state(false);
+  let inputRef = $state<HTMLInputElement | null>(null);
 
   let { onAuthenticated, isSetup } = $props<{ onAuthenticated: () => void, isSetup: boolean }>();
+
+  onMount(() => {
+      // Forzar el foco al campo de contraseña al montar el componente
+      inputRef?.focus();
+  });
 
   async function submit() {
     if (!password) return;
@@ -31,10 +39,12 @@
     <h2 class="card-title text-brand-blue dark:text-white">{isSetup ? 'Establecer Contraseña Maestra' : 'Desbloquear Cloud Mount'}</h2>
     <form class="space-y-4" onsubmit={(e) => { e.preventDefault(); submit(); }}>
       <input 
+        bind:this={inputRef}
         type="password" 
         placeholder="Contraseña Maestra" 
         class="input input-bordered w-full border-brand-blue focus:ring-brand-blue" 
         bind:value={password}
+        autofocus
       />
       {#if error}
         <p class="text-error text-sm font-semibold">{error}</p>

@@ -21,6 +21,7 @@ const store = new Store<StoreSchema>({
       rclonePath: 'bin/rclone.exe',
       firstRun: true,
       lastDriverUpdateCheck: 0,
+      autoLaunch: false,
     },
     mounts: [],
     mountPreferences: {}

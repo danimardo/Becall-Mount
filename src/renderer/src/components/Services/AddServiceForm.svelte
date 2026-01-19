@@ -17,8 +17,12 @@
   let isEdit = !!editService;
   let activeTab = $state<'manual' | 'import'>('manual');
   let hasImportedContent = $state(false);
+  let nameInputRef = $state<HTMLInputElement | null>(null);
 
   onMount(async () => {
+      // Poner foco en el nombre al abrir
+      nameInputRef?.focus();
+
       if (isEdit && editService) {
           try {
               const remoteData = await window.api.invoke('services:get', editService.name);
@@ -163,7 +167,15 @@
             <label class="label" for="service-name">
               <span class="label-text dark:text-gray-300 font-semibold">Nombre del Servicio <span class="text-error">*</span></span>
             </label>
-            <input id="service-name" placeholder="Ej: Mi Google Cloud" class="input input-bordered dark:bg-slate-700 dark:border-gray-600 focus:border-brand-blue" bind:value={name} disabled={isEdit} />
+            <input 
+              bind:this={nameInputRef}
+              id="service-name" 
+              placeholder="Ej: Mi Google Cloud" 
+              class="input input-bordered dark:bg-slate-700 dark:border-gray-600 focus:border-brand-blue" 
+              bind:value={name} 
+              disabled={isEdit}
+              autofocus 
+            />
         </div>
         
         {#if activeTab === 'manual'}

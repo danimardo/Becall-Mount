@@ -55,7 +55,7 @@
   <div class="p-4 min-h-screen relative pb-24">
     {#if showSettings}
        <button class="btn btn-ghost mb-4" onclick={() => showSettings = false}>← Volver</button>
-       <Settings />
+       <Settings onRefresh={loadServices} />
     {:else}
               <!-- Header -->
               <div class="flex justify-end items-center mb-6 relative z-50">

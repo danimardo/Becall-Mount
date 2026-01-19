@@ -18,6 +18,11 @@ export function registerMountHandlers() {
     return await mountManager.unmountAll();
   });
 
+  ipcMain.handle('mount:auto-mount-all', async () => {
+    await mountManager.autoMountAll();
+    return true;
+  });
+
   ipcMain.handle('mount:list-active', () => {
     return mountManager.getMounts();
   });
