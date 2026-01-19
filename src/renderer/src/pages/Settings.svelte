@@ -26,10 +26,27 @@
   let importConflicts = $state<any[]>([]);
   let showConflictModal = $state(false);
   let conflictNewName = $state('');
+  
+  let importPasswordRef = $state<HTMLInputElement | null>(null);
+  let exportPasswordRef = $state<HTMLInputElement | null>(null);
 
   $effect(() => {
       if (importConflicts.length > 0) {
           conflictNewName = importConflicts[0].name + ' (Importado)';
+      }
+  });
+
+  // Forzar foco en modal de importación
+  $effect(() => {
+      if (showImportModal) {
+          setTimeout(() => importPasswordRef?.focus(), 50);
+      }
+  });
+
+  // Forzar foco en modal de exportación (paso 2)
+  $effect(() => {
+      if (showExportModal && exportStep === 2) {
+          setTimeout(() => exportPasswordRef?.focus(), 50);
       }
   });
 
@@ -236,7 +253,7 @@
                   </div>
               {:else}
                   <p class="mb-2 dark:text-gray-300">Establece una contraseña para encriptar el archivo:</p>
-                  <input type="password" class="input input-bordered w-full mb-4 dark:bg-slate-700 dark:border-gray-600" bind:value={exportPassword} placeholder="Contraseña" />
+                  <input bind:this={exportPasswordRef} type="password" class="input input-bordered w-full mb-4 dark:bg-slate-700 dark:border-gray-600" bind:value={exportPassword} placeholder="Contraseña" />
                   <div class="modal-action">
                       <button class="btn btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" onclick={() => exportStep = 1}>Atrás</button>
                       <button class="btn bg-brand-green hover:bg-brand-green-dark text-white border-none" onclick={doExport} disabled={!exportPassword}>Exportar</button>
@@ -252,7 +269,7 @@
           <div class="modal-box bg-white dark:bg-slate-800 dark:text-white">
               <h3 class="font-bold text-lg mb-4">Importar Configuración</h3>
               <p class="mb-2 dark:text-gray-300">Introduce la contraseña del archivo:</p>
-              <input type="password" class="input input-bordered w-full mb-4 dark:bg-slate-700 dark:border-gray-600" bind:value={importPassword} placeholder="Contraseña" autofocus />
+              <input bind:this={importPasswordRef} type="password" class="input input-bordered w-full mb-4 dark:bg-slate-700 dark:border-gray-600" bind:value={importPassword} placeholder="Contraseña" />
               <div class="modal-action">
                   <button class="btn btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" onclick={() => showImportModal = false}>Cancelar</button>
                   <button class="btn bg-brand-green hover:bg-brand-green-dark text-white border-none" onclick={doImport} disabled={!importPassword}>Importar</button>

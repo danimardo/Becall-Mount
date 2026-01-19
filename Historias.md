@@ -11,8 +11,10 @@ Configurar y gestionar Rclone mediante línea de comandos requiere conocimientos
 **HU-1.1 Descarga automática de Rclone**
 Al abrir la aplicación, si no encuentra Rclone, que me avise y lo descargue solo mostrando progreso.
 
-**HU-1.2 Configuración obligatoria de seguridad**
-Si no existe configuración previa o no está encriptada, obligar a establecer una contraseña maestra.
+**HU-1.2 Configuración obligatoria de seguridad (Actualizada)**
+- Si no existe configuración previa o no está encriptada, obligar a establecer una contraseña maestra.
+- Requerir confirmación mediante doble entrada de contraseña.
+- Validar fortaleza mínima: al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales.
 
 **HU-1.3 Recordar mi contraseña de forma segura**
 Opción de guardar la contraseña de forma segura (encriptada) para no escribirla en cada inicio.

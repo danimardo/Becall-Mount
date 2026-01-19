@@ -52,15 +52,20 @@
                 </svg>
             </div>
         {/if}
-        <div>
-            <h3 class="font-bold text-lg text-gray-900 dark:text-white">{service.name}</h3>
-            <span class="badge bg-brand-pistachio text-white border-none badge-sm">{service.type}</span>
+        <div class="flex flex-col">
+            <h3 class="font-bold text-lg text-gray-900 dark:text-white leading-tight mb-1">{service.name}</h3>
+            <div class="flex items-center gap-2">
+                <span class="badge bg-brand-pistachio text-white border-none badge-sm uppercase text-[10px] font-bold tracking-wider">{service.type}</span>
+                {#if service.isMounted}
+                    <span class="badge bg-brand-green text-white border-none badge-sm gap-1 font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        </svg>
+                        {service.mountPoint}
+                    </span>
+                {/if}
+            </div>
         </div>
-        {#if service.isMounted}
-            <span class="badge bg-brand-green text-white border-none gap-1 ml-2">
-                Montado: {service.mountPoint}
-            </span>
-        {/if}
     </div>
     <div class="flex gap-2">
         {#if service.isMounted}

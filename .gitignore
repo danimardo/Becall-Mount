@@ -90,3 +90,13 @@ typings/
 
 # Electron-Forge
 out/
+
+# Application Data & Secrets
+rclone.conf
+config.json
+*.conf
+*.json_bak
+bin/
+logs/
+keys/
+.temp_setup/
