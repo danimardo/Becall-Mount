@@ -197,6 +197,7 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **FR-023**: System MUST provide a mechanism to test service connectivity before saving the configuration, creating a temporary remote and executing a lightweight `lsd` command to verify credentials.
 - **FR-024**: System MUST support Azure Blob Storage using account credentials, ensuring the access key is automatically obscured before saving.
 - **FR-025**: System MUST support SFTP, FTP, and FTPS protocols, including advanced compatibility settings like `shell_type` and `subsystem` overrides.
+- **FR-026**: System MUST allow extending the Splash Screen duration by 5 seconds upon user click, using an IPC event to delay the main window transition.
 
 ### Key Entities
 

@@ -152,7 +152,10 @@ Alertas visuales para validaciones y confirmaciones.
 
 ## 13. Splash Screen (Nueva)
 **HU-13.1 Pantalla de presentación**
-Ventana sin bordes al inicio (mínimo 2s) con Logo, Nombre y Créditos ("Daniel Diez Mardomingo").
+Ventana sin bordes al inicio (mínimo 5s) con Logo, Nombre y Créditos ("Daniel Diez Mardomingo"). Soporta temas claro y oscuro según la configuración del sistema.
+
+**HU-13.2 Extensión manual de visibilidad (Nueva)**
+- Al hacer clic sobre la pantalla de presentación, esta debe extender su tiempo de vida 5 segundos adicionales por cada clic recibido.
 
 ## 14. Identidad Visual (Nueva)
 **RG-14.1 Paleta de colores corporativa**

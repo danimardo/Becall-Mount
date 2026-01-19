@@ -4,77 +4,68 @@ import path from 'node:path';
 let tray: Tray | null = null;
 
 export function createTray(mainWindow: BrowserWindow) {
-  // Cargar el icono desde el archivo .ico (igual que la ventana principal)
-  let icon;
-  const iconPaths = [
-    // Para producción con asarUnpack
-    path.join(process.resourcesPath, 'app.asar.unpacked', 'public', 'icon.ico'),
-    path.join(__dirname, '../public/icon.ico'),
-    // Para desarrollo
-    path.join(__dirname, '../../public/icon.ico'),
+  let icon = null;
+  
+  // Lista priorizada de rutas para el icono
+  const possiblePaths = [
+    // 1. Producción (Resources raíz - via extraResource en forge.config.ts)
+    path.join(process.resourcesPath, 'icon.ico'),
+    path.join(process.resourcesPath, 'icon.png'),
+    
+    // 2. Desarrollo (Relativo a src/main/ o dist/main/)
+    path.join(__dirname, '../../public/icon.ico'), // Desde .vite/build/main.js
+    path.join(__dirname, '../public/icon.ico'),    // Estructura src plana
+    path.join(process.cwd(), 'public', 'icon.ico'), // Fallback a root de proyecto en dev
   ];
 
-  for (const iconPath of iconPaths) {
+  for (const p of possiblePaths) {
     try {
-      const testIcon = nativeImage.createFromPath(iconPath);
-      if (!testIcon.isEmpty()) {
-        icon = testIcon;
-        console.log('Icono del tray cargado desde:', iconPath);
+      const img = nativeImage.createFromPath(p);
+      if (!img.isEmpty()) {
+        console.log('Tray icon loaded successfully from:', p);
+        icon = img;
         break;
       }
-    } catch (e) {
-      // Continuar con la siguiente ruta
+    } catch (e) { 
+       // Silenciosamente ignorar errores de lectura, probar siguiente path
     }
   }
 
-  // Si no se pudo cargar el .ico, intentar con PNG como fallback
-  if (!icon) {
-    const pngPaths = [
-      path.join(process.resourcesPath, 'app.asar.unpacked', 'public', 'icon.png'),
-      path.join(__dirname, '../public/icon.png'),
-      path.join(__dirname, '../../public/icon.png'),
-    ];
-
-    for (const iconPath of pngPaths) {
-      try {
-        const testIcon = nativeImage.createFromPath(iconPath);
-        if (!testIcon.isEmpty()) {
-          icon = testIcon;
-          console.log('Icono del tray (PNG) cargado desde:', iconPath);
-          break;
-        }
-      } catch (e) {
-        // Continuar
-      }
+  if (!icon || icon.isEmpty()) {
+    console.error('CRITICAL: Tray icon not found in any expected location.');
+    // Intentar cargar uno por defecto de sistema o simplemente fallar con log claro
+    // Usar empty image causará el bug de "transparente", pero es mejor que crash.
+    icon = nativeImage.createEmpty();
+  } else {
+    // Windows Tray prefiere 16x16, pero si damos una imagen de alta calidad,
+    // es mejor dejar que el OS la escale o redimensionarla suavemente.
+    // Si es ICO, suele tener varios tamaños. Si es PNG grande, redimensionamos.
+    if (icon.getSize().width > 32) {
+       icon = icon.resize({ width: 16, height: 16, quality: 'high' });
     }
   }
 
-  if (!icon) {
-    console.warn('No se pudo cargar el icono del tray desde ninguna ubicación');
+  try {
+      tray = new Tray(icon);
+
+      const contextMenu = Menu.buildFromTemplate([
+        { label: 'Abrir Cloud Mount', click: () => mainWindow.show() },
+        { type: 'separator' },
+        { label: 'Salir', click: () => {
+            app.quit(); 
+        }}
+      ]);
+      
+      tray.setToolTip('Cloud Mount');
+      tray.setContextMenu(contextMenu);
+      
+      // Permitir abrir con un solo clic o doble clic
+      tray.on('double-click', () => mainWindow.show());
+      tray.on('click', () => mainWindow.show());
+      
+      return tray;
+  } catch (e) {
+      console.error('Error creando el Tray:', e);
+      return null;
   }
-
-  // Asegurar tamaño correcto para el system tray (16x16 recomendado)
-  if (icon && !icon.isEmpty()) {
-    // Windows ajusta automáticamente, pero podemos asegurarnos de que sea de buena calidad
-    icon = icon.resize({ width: 16, height: 16 });
-  }
-
-  tray = new Tray(icon);
-
-  const contextMenu = Menu.buildFromTemplate([
-    { label: 'Show App', click: () => mainWindow.show() },
-    { type: 'separator' },
-    { label: 'Quit', click: () => {
-        app.quit(); 
-    }}
-  ]);
-  
-  tray.setToolTip('Cloud Mount');
-  tray.setContextMenu(contextMenu);
-  
-  tray.on('double-click', () => {
-      mainWindow.show();
-  });
-  
-  return tray;
 }

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, nativeImage } from 'electron';
+import { app, BrowserWindow, Menu, nativeImage, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { registerIpcHandlers } from './ipc';
@@ -10,6 +10,8 @@ declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
 declare const SPLASH_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const SPLASH_WINDOW_VITE_NAME: string;
+
+let extraSplashTime = 0;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -25,9 +27,12 @@ app.on('before-quit', () => {
 // Helper to get icon
 const getIcon = () => {
   const iconPaths = [
-    path.join(process.resourcesPath, 'app.asar.unpacked', 'public', 'icon.ico'),
-    path.join(__dirname, '../public/icon.ico'),
+    // Production (extraResource)
+    path.join(process.resourcesPath, 'icon.ico'),
+    // Development
     path.join(__dirname, '../../public/icon.ico'),
+    path.join(__dirname, '../public/icon.ico'),
+    path.join(process.cwd(), 'public', 'icon.ico'),
   ];
   for (const iconPath of iconPaths) {
     try {
@@ -76,6 +81,12 @@ const createSplashWindow = (): BrowserWindow => {
 const createMainWindow = async (splash: BrowserWindow) => {
   const icon = getIcon();
 
+  // Listen for splash extend events
+  ipcMain.on('splash:extend', () => {
+      extraSplashTime += 5000;
+      console.log(`Splash extended! Total extra time: ${extraSplashTime}ms`);
+  });
+
   // Wait for splash to be visible to user
   await new Promise<void>(resolve => {
       splash.once('ready-to-show', () => {
@@ -86,8 +97,8 @@ const createMainWindow = async (splash: BrowserWindow) => {
       setTimeout(resolve, 1000);
   });
 
-  // Start the timer NOW that splash is visible
-  const minTimePromise = new Promise(resolve => setTimeout(resolve, 3000));
+  const startTime = Date.now();
+  const minTime = 5000;
 
   const mainWindow = new BrowserWindow({
     width: 1000,
@@ -105,7 +116,12 @@ const createMainWindow = async (splash: BrowserWindow) => {
     : mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   
   // Also wait for mount restore?
-  await Promise.all([loadPromise, minTimePromise, mountManager.restoreState()]);
+  await Promise.all([loadPromise, mountManager.restoreState()]);
+
+  // Dynamic wait loop for splash time
+  while (Date.now() - startTime < (minTime + extraSplashTime)) {
+      await new Promise(r => setTimeout(r, 200));
+  }
 
   splash.close();
   mainWindow.show();
@@ -126,6 +142,11 @@ const createMainWindow = async (splash: BrowserWindow) => {
     }
   });
 
+  mainWindow.on('minimize', (event: any) => {
+      event.preventDefault();
+      mainWindow.hide();
+  });
+
   createTray(mainWindow);
 };
 
@@ -138,9 +159,9 @@ app.on('ready', async () => {
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  // No hacemos nada aquí para evitar que la app se cierre al ocultar la ventana principal.
+  // La app se cerrará a través del menú del Tray que invoca app.quit(), 
+  // lo cual activa el flag 'isQuitting'.
 });
 
 app.on('activate', () => {

@@ -57,18 +57,25 @@
        <button class="btn btn-ghost mb-4" onclick={() => showSettings = false}>← Volver</button>
        <Settings onRefresh={loadServices} />
     {:else}
-              <!-- Header -->
-              <div class="flex justify-end items-center mb-6 relative z-50">
+              <!-- Header Actions (Floating) -->
+              <div class="fixed top-6 right-6 z-50">
                   <button 
-                    class="btn btn-circle btn-ghost text-error" 
-                    onclick={() => { console.log('Direct HTML click'); handleUnmountAll(); }} 
+                    class="btn btn-circle bg-white dark:bg-slate-800 shadow-lg text-error border-none hover:bg-gray-100 dark:hover:bg-slate-700 transition-transform hover:scale-105 active:scale-95" 
+                    onclick={() => handleUnmountAll()} 
                     title="Desmontar todos"
                   >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                   </button>
               </div>  
+
+        <div class="bg-brand-blue -mx-4 mb-8 py-4 shadow-sm">
+            <h2 class="text-white text-center text-lg font-bold tracking-[0.15em] uppercase">
+                Servicios Cloud Disponibles
+            </h2>
+        </div>
+
         <!-- Service List -->
         <div class="flex flex-col gap-4">
             {#each services as service (service.name)}

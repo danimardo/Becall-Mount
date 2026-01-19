@@ -61,16 +61,10 @@ npm run start
 
 Cloud Mount utiliza **Electron Forge** para el empaquetado y distribución.
 
-### Crear ejecutable rápido (Portable)
-```bash
-npm run package
-```
-
-### Generar Instalador de Windows (EXE/MSI)
-```bash
-npm run make
-```
-Los archivos resultantes se encontrarán en la carpeta `/out/make/`.
+| Comando | Acción | Resultado |
+| :--- | :--- | :--- |
+| `npm run package` | **Empaquetar** | Genera la aplicación ejecutable en una carpeta (`/out/Cloud Mount-win32-x64/`). Ideal para pruebas locales rápidas sin instalar. |
+| `npm run make` | **Crear Instalador** | Genera el instalador final (`setup.exe`) y paquetes distribuibles en `/out/make/`. Este es el archivo para compartir con usuarios. |
 
 ---
 
