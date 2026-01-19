@@ -133,7 +133,7 @@
     {
       "name": "SFTP (SSH)",
       "type": "sftp",
-      "icon": "./icons/ftp.png",
+      "icon": "./icons/sftp.webp",
       "config": {
         "type": {
           "value": "sftp",

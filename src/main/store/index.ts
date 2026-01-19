@@ -8,10 +8,18 @@ interface MountPreference {
   remotePath?: string;
 }
 
+interface WindowBounds {
+  width: number;
+  height: number;
+  x?: number;
+  y?: number;
+}
+
 interface StoreSchema {
   settings: AppSettings & { lastDriverUpdateCheck?: number };
   mounts: MountState[];
   mountPreferences: Record<string, MountPreference>;
+  windowBounds?: WindowBounds;
 }
 
 const store = new Store<StoreSchema>({
@@ -24,7 +32,8 @@ const store = new Store<StoreSchema>({
       autoLaunch: false,
     },
     mounts: [],
-    mountPreferences: {}
+    mountPreferences: {},
+    windowBounds: { width: 1000, height: 800 }
   },
 });
 

@@ -4,6 +4,7 @@ import started from 'electron-squirrel-startup';
 import { registerIpcHandlers } from './ipc';
 import { createTray } from './tray';
 import { mountManager } from './ipc/mount';
+import store from './store';
 
 // Declare globals from Vite plugin
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
@@ -80,6 +81,7 @@ const createSplashWindow = (): BrowserWindow => {
 
 const createMainWindow = async (splash: BrowserWindow) => {
   const icon = getIcon();
+  const bounds = store.get('windowBounds');
 
   // Listen for splash extend events
   ipcMain.on('splash:extend', () => {
@@ -101,14 +103,33 @@ const createMainWindow = async (splash: BrowserWindow) => {
   const minTime = 5000;
 
   const mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 800,
+    width: bounds?.width || 1000,
+    height: bounds?.height || 800,
+    x: bounds?.x,
+    y: bounds?.y,
     show: false, // Hidden initially
     ...(icon && { icon }),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
+
+  // Save window bounds on resize/move
+  const saveBounds = () => {
+      if (!mainWindow.isMaximized() && !mainWindow.isMinimized()) {
+          store.set('windowBounds', mainWindow.getBounds());
+      }
+  };
+  
+  // Debounce saving slightly to avoid disk spam
+  let saveTimeout: NodeJS.Timeout;
+  const debouncedSave = () => {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(saveBounds, 500);
+  };
+
+  mainWindow.on('resize', debouncedSave);
+  mainWindow.on('move', debouncedSave);
 
   // Load the index.html of the app.
   const loadPromise = MAIN_WINDOW_VITE_DEV_SERVER_URL

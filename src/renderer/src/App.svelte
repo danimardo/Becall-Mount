@@ -68,7 +68,7 @@
   }
 </script>
 
-<div class="min-h-screen bg-brand-surface-light dark:bg-brand-surface-dark text-slate-900 dark:text-white p-4 transition-colors duration-300">
+<div class="min-h-screen bg-brand-surface-light dark:bg-brand-surface-dark text-slate-900 dark:text-white transition-colors duration-300" class:p-4={view !== 'app'}>
   {#if view === 'loading'}
      <div class="flex flex-col justify-center items-center h-full mt-20 gap-4">
          <span class="loading loading-spinner loading-lg"></span>
@@ -83,9 +83,7 @@
   {:else if view === 'auth'}
      <PasswordPrompt {isSetup} onAuthenticated={onAuthenticated} />
   {:else if view === 'app'}
-     <div class="container mx-auto">
-        <ServiceManager />
-     </div>
+     <ServiceManager />
   {/if}
   <GlobalModal />
 </div>
