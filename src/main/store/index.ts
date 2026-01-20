@@ -20,6 +20,7 @@ interface StoreSchema {
   mounts: MountState[];
   mountPreferences: Record<string, MountPreference>;
   windowBounds?: WindowBounds;
+  serviceMountOptions: Record<string, Record<string, string>>;
 }
 
 const store = new Store<StoreSchema>({
@@ -33,7 +34,8 @@ const store = new Store<StoreSchema>({
     },
     mounts: [],
     mountPreferences: {},
-    windowBounds: { width: 1000, height: 800 }
+    windowBounds: { width: 1000, height: 800 },
+    serviceMountOptions: {}
   },
 });
 

@@ -65,7 +65,7 @@ export class MountManager {
         }
     }
 
-    const pid = await this.spawnRclone(serviceName, target, extraArgs, schemaIconPath);
+    const pid = await this.spawnRclone(serviceName, mountType, target, extraArgs, schemaIconPath);
 
     const mounts = store.get('mounts') || [];
     mounts.push({
@@ -82,7 +82,7 @@ export class MountManager {
     store.set('mounts', mounts);
   }
 
-  private async spawnRclone(serviceName: string, target: string, extraArgs: string[], schemaIconPath?: string): Promise<number> {
+  private async spawnRclone(serviceName: string, mountType: 'drive' | 'folder', target: string, extraArgs: string[], schemaIconPath?: string): Promise<number> {
     const logFile = path.join(LOGS_PATH, `mount-${serviceName}-${Date.now()}.log`);
     await fs.ensureDir(LOGS_PATH);
 
@@ -102,10 +102,32 @@ export class MountManager {
     }
 
     // Aplicar Registro
-    if (target.includes(':') && schemaIconPath) {
+    if (mountType === 'drive' && schemaIconPath) {
         const icoPath = this.resolveIcoPath(schemaIconPath);
         if (icoPath) await setDriveIconAndLabel(target, icoPath, serviceName);
     }
+
+    store.set(`mountPreferences.${serviceName}`, {
+        lastMountType: mountType,
+        lastDriveLetter: mountType === 'drive' ? target.replace(':', '') : undefined,
+        lastFolderPath: mountType === 'folder' ? target : undefined
+    });
+
+    // Obtener opciones avanzadas de montaje (Robust access for keys with spaces)
+    const allMountOptions = store.get('serviceMountOptions') || {};
+    const mountOptions = allMountOptions[serviceName] || {};
+    
+    console.log(`[MountManager] Advanced options found for '${serviceName}':`, mountOptions);
+
+    const advancedArgs: string[] = [];
+    
+    for (const [flag, value] of Object.entries(mountOptions)) {
+        if (value && value !== 'off') {
+            advancedArgs.push(flag, value as string);
+        }
+    }
+    
+    console.log('[MountManager] Advanced Args prepared:', advancedArgs);
 
     const args = [
         'mount', remotePathFull, target,
@@ -114,8 +136,22 @@ export class MountManager {
         '--no-console',
         '--log-file', logFile,
         '--log-level', 'INFO',
-        ...extraArgs
+        ...extraArgs,
+        ...advancedArgs
     ];
+
+    // Remove default --vfs-cache-mode if user provided one in advancedArgs
+    // We check if it exists in advancedArgs values (since advancedArgs is [flag, value, flag, value...])
+    if (advancedArgs.includes('--vfs-cache-mode')) {
+        const defaultIndex = args.indexOf('--vfs-cache-mode');
+        // Ensure we remove the default one (which is early in the array), not the user one (at the end)
+        if (defaultIndex > -1 && defaultIndex < args.length - advancedArgs.length) {
+            args.splice(defaultIndex, 2); 
+        }
+    }
+
+    console.log('🚀 LANZANDO MONTAJE RCLONE:');
+    console.log(`> "${RCLONE_EXE_PATH}"`, JSON.stringify(args));
 
     const child = spawn(RCLONE_EXE_PATH, args, { env, detached: true, stdio: 'ignore' });
     child.unref();
@@ -141,7 +177,7 @@ export class MountManager {
           if (!isRunning) {
               console.log(`[MountManager] Re-mounting ${m.serviceName}...`);
               try {
-                  const newPid = await this.spawnRclone(m.serviceName, m.mountPoint, m.extraArgs || [], m.iconPath);
+                  const newPid = await this.spawnRclone(m.serviceName, m.mountType, m.mountPoint, m.extraArgs || [], m.iconPath);
                   mounts[i].pid = newPid;
                   mounts[i].startTime = new Date().toISOString();
               } catch (e) {

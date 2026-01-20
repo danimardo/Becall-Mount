@@ -200,6 +200,9 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **FR-026**: System MUST allow extending the Splash Screen duration by 5 seconds upon user click, using an IPC event to delay the main window transition.
 - **FR-027**: System MUST persist the main window's dimensions and screen coordinates, restoring them upon application launch.
 - **FR-028**: System MUST provide a conflict resolution mechanism during configuration import, allowing users to rename (with custom name) or overwrite existing services.
+- **FR-029**: System MUST allow configuring advanced per-service mount flags via a UI section that visually highlights itself when custom settings are active.
+- **FR-030**: System MUST display the list of configured services sorted alphabetically by name.
+- **FR-031**: System MUST provide an integrated help modal explaining the purpose and default values of all advanced mount parameters to assist users in configuration.
 
 ### Key Entities
 

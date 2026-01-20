@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { getAvailableRemoteTypes, getVisibleFields, buildConfigWithDefaults } from '../../lib/remote-schema-loader';
+  import { getAvailableRemoteTypes, getVisibleFields, buildConfigWithDefaults, loadRemotesSchema } from '../../lib/remote-schema-loader';
   import { showAlert } from '../../stores/modal';
 
   let { onCreated, onCancel, editService = null } = $props<{ 
@@ -12,6 +12,7 @@
   let name = $state(editService?.name || '');
   let type = $state(editService?.type || 'b2');
   let params = $state<Record<string, string>>({});
+  let mountOptions = $state<Record<string, string>>({});
   let loading = $state(false);
   let testingConnection = $state(false);
   let testResult = $state<{success: boolean, message: string} | null>(null);
@@ -20,6 +21,25 @@
   let activeTab = $state<'manual' | 'import'>('manual');
   let hasImportedContent = $state(false);
   let nameInputRef = $state<HTMLInputElement | null>(null);
+  let showHelpModal = $state(false);
+
+  const globalFlags = loadRemotesSchema().globalMountFlags || {};
+  
+  // Detectar si hay opciones avanzadas configuradas (distintas del default)
+  let hasAdvancedOptions = $derived(Object.entries(mountOptions).some(([key, value]) => {
+      if (!value) return false;
+      const config = globalFlags[key];
+      // Si no hay configuración en el esquema (raro), asumimos que si hay valor es custom
+      if (!config) return true;
+      
+      // Si hay un valor por defecto definido, comparamos
+      if (config.default !== undefined) {
+          return value !== config.default;
+      }
+      
+      // Si no hay default, cualquier valor distinto de vacío u 'off' cuenta
+      return value !== 'off';
+  }));
 
   onMount(async () => {
       nameInputRef?.focus();
@@ -35,6 +55,8 @@
                       hasImportedContent = true;
                   }
               }
+              // Cargar opciones avanzadas
+              mountOptions = await window.api.invoke('mount-options:get', editService.name);
           } catch (e) {
               console.error('Error al cargar servicio para editar', e);
           }
@@ -99,10 +121,15 @@
           } else {
               await window.api.invoke('services:create', { name, type, params: finalConfig });
           }
+          // Guardar opciones avanzadas (Desempaquetar Proxy de Svelte)
+          const plainOptions = JSON.parse(JSON.stringify(mountOptions));
+          console.log('[Frontend] Saving mount options for', name, ':', plainOptions);
+          await window.api.invoke('mount-options:set', { serviceName: name, options: plainOptions });
+          
           onCreated();
-      } catch (e) {
-          await showAlert('Error', `Fallo al ${isEdit ? 'actualizar' : 'crear'} servicio`);
-          console.error(e);
+      } catch (e: any) {
+          console.error('[Frontend] Submit error:', e);
+          await showAlert('Error', `Fallo al ${isEdit ? 'actualizar' : 'crear'} servicio: ${e.message || e}`);
       } finally {
           loading = false;
       }
@@ -171,6 +198,101 @@
                 </div>
             {/each}
         </div>
+    {/if}
+
+    <!-- Opciones Avanzadas de Montaje -->
+    <div 
+        class="collapse collapse-arrow border rounded-lg mt-4 transition-all duration-300 bg-base-100 dark:bg-slate-700/50 border-base-300 dark:border-gray-600"
+        style:background-color={hasAdvancedOptions ? 'rgba(94, 194, 246, 0.15)' : ''}
+        style:border-color={hasAdvancedOptions ? '#5EC2F6' : ''}
+        style:border-width={hasAdvancedOptions ? '2px' : ''}
+    >
+        <input type="checkbox" /> 
+        <div class="collapse-title text-sm font-semibold flex justify-between items-center pr-12 {hasAdvancedOptions ? 'text-brand-blue dark:text-brand-blue-light' : 'text-gray-700 dark:text-gray-200'}">
+            <span>Opciones Avanzadas de Montaje {hasAdvancedOptions ? '(Personalizadas)' : ''}</span>
+            <button 
+                type="button" 
+                class="btn btn-circle btn-xs btn-ghost text-info hover:bg-info/20 z-10 mr-4" 
+                onclick={(e) => { 
+                    e.preventDefault(); 
+                    showHelpModal = true; 
+                }} 
+                title="Ver ayuda de parámetros"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                </svg>
+            </button>
+        </div>
+        <div class="collapse-content"> 
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                {#each Object.entries(globalFlags) as [flag, config]}
+                    <div class="form-control">
+                        <label class="label py-1">
+                            <span class="label-text text-xs dark:text-gray-300 font-medium">{config.label}</span>
+                        </label>
+                        {#if config.type === 'select'}
+                            <select class="select select-bordered select-sm w-full dark:bg-slate-800" bind:value={mountOptions[flag]}>
+                                {#each config.options as opt}
+                                    <option value={opt} selected={opt === config.default}>{opt}</option>
+                                {/each}
+                            </select>
+                        {:else}
+                            <input type="text" class="input input-bordered input-sm w-full dark:bg-slate-800" placeholder={config.placeholder} bind:value={mountOptions[flag]} />
+                        {/if}
+                    </div>
+                {/each}
+            </div>
+        </div>
+    </div>
+
+    {#if showHelpModal}
+        <dialog class="modal modal-open">
+            <div class="modal-box w-11/12 max-w-3xl bg-white dark:bg-slate-800 dark:text-white border border-info/30 shadow-2xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg text-info flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                        </svg>
+                        Guía de Parámetros Avanzados
+                    </h3>
+                    <button class="btn btn-sm btn-circle btn-ghost" onclick={() => showHelpModal = false}>✕</button>
+                </div>
+                
+                <div class="overflow-x-auto max-h-[60vh] border rounded-lg dark:border-gray-700">
+                    <table class="table table-zebra table-pin-rows">
+                        <thead>
+                            <tr class="bg-gray-100 dark:bg-slate-700 dark:text-white">
+                                <th class="w-1/4">Parámetro</th>
+                                <th class="w-1/2">Descripción</th>
+                                <th class="w-1/4">Valor por Defecto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#each Object.entries(globalFlags) as [flag, config]}
+                                <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50">
+                                    <td class="font-mono text-xs text-brand-blue font-bold">{flag}</td>
+                                    <td class="text-sm dark:text-gray-300">
+                                        <p class="font-semibold mb-1 text-gray-700 dark:text-gray-200">{config.label}</p>
+                                        {config.description}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-sm badge-ghost font-mono">{config.default || 'Vacío'}</span>
+                                    </td>
+                                </tr>
+                            {/each}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="modal-action">
+                    <button class="btn bg-brand-blue hover:bg-brand-blue-dark text-white border-none shadow-md px-8" onclick={() => showHelpModal = false}>Entendido</button>
+                </div>
+            </div>
+            <form method="dialog" class="modal-backdrop">
+                <button onclick={() => showHelpModal = false}>close</button>
+            </form>
+        </dialog>
     {/if}
 
     {#if testResult}

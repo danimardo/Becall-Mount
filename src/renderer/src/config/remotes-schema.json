@@ -3,7 +3,7 @@
     {
       "name": "Amazon S3",
       "type": "s3",
-      "icon": "./icons/amazon-s3.png",
+      "icon": "./icons/amazon-s3.svg",
       "mountArgs": [
         "--no-console"
       ],
@@ -57,7 +57,7 @@
     {
       "name": "Backblaze B2",
       "type": "b2",
-      "icon": "./icons/backblaze-b2.svg",
+      "icon": "./icons/backblaze-b2.png",
       "mountArgs": [],
       "config": {
         "type": {
@@ -133,7 +133,7 @@
     {
       "name": "SFTP (SSH)",
       "type": "sftp",
-      "icon": "./icons/sftp.webp",
+      "icon": "./icons/sftp.png",
       "config": {
         "type": {
           "value": "sftp",
@@ -289,7 +289,7 @@
     {
       "name": "Azure Blob Storage",
       "type": "azureblob",
-      "icon": "./icons/azure.png",
+      "icon": "./icons/azure.svg",
       "config": {
         "type": {
           "value": "azureblob",
@@ -321,5 +321,68 @@
         }
       }
     }
-  ]
+  ],
+  "globalMountFlags": {
+    "--vfs-cache-mode": {
+      "label": "Modo Caché VFS",
+      "type": "select",
+      "options": ["off", "minimal", "writes", "full"],
+      "default": "full",
+      "description": "Controla cómo rclone cachea los objetos en disco"
+    },
+    "--vfs-cache-max-size": {
+      "label": "Tamaño Máx. Caché",
+      "type": "select",
+      "options": ["off", "10G", "50G", "100G", "500G"],
+      "default": "off",
+      "description": "Límite de espacio en disco para la caché"
+    },
+    "--vfs-cache-max-age": {
+      "label": "Tiempo Máx. Caché",
+      "type": "select",
+      "options": ["1h", "12h", "24h", "48h", "168h"],
+      "default": "1h",
+      "description": "Tiempo máximo que un objeto permanece en caché sin uso"
+    },
+    "--cache-dir": {
+      "label": "Directorio de Caché",
+      "type": "string",
+      "placeholder": "Ej: D:/RcloneCache",
+      "description": "Ruta personalizada para almacenar los archivos temporales de la caché."
+    },
+    "--volname": {
+      "label": "Nombre del Volumen",
+      "type": "string",
+      "placeholder": "Ej: MiNube",
+      "description": "Nombre que aparecerá en el Explorador de Windows para la unidad montada."
+    },
+    "--network-mode": {
+      "label": "Modo Red (Network Drive)",
+      "type": "select",
+      "options": ["off", "true"],
+      "default": "off",
+      "description": "Si se activa, la unidad aparecerá como una Ubicación de Red en lugar de un disco local."
+    },
+    "--bwlimit": {
+      "label": "Límite de Ancho de Banda",
+      "type": "select",
+      "options": ["off", "1M", "5M", "10M", "20M", "50M", "100M"],
+      "default": "off",
+      "description": "Limita la velocidad de transferencia (subida/bajada) para no saturar tu conexión."
+    },
+    "--buffer-size": {
+      "label": "Tamaño de Buffer en RAM",
+      "type": "select",
+      "options": ["16M", "32M", "64M", "128M", "256M", "512M"],
+      "default": "16M",
+      "description": "Memoria RAM usada por archivo transferido. Aumentar mejora rendimiento en conexiones rápidas pero consume más RAM."
+    },
+    "--dir-cache-time": {
+      "label": "Caché de Directorios",
+      "type": "select",
+      "options": ["30s", "1m", "5m", "30m", "1h", "24h"],
+      "default": "5m",
+      "description": "Tiempo que rclone recuerda la lista de archivos. Reducir si los archivos cambian mucho externamente."
+    }
+  }
 }

@@ -95,6 +95,19 @@ Alternativa a letra de unidad: montar en `C:\Ruta\Local`.
 - Las unidades montadas deben mostrar el icono oficial del servicio (formato .ico) y el nombre personalizado del servicio como etiqueta en el Explorador de Windows.
 - La personalización debe limpiarse automáticamente al desmontar la unidad.
 
+**HU-3.9 Auto-montaje al arrancar (Actualizada)**
+Al iniciar la aplicación y tras la autenticación, el sistema debe intentar montar automáticamente todas las unidades que estaban activas en la sesión anterior.
+
+**HU-3.10 Opciones avanzadas de montaje (Actualizada)**
+- Posibilidad de configurar parámetros avanzados de rclone por servicio, como el modo de caché VFS, tamaño máximo de caché y tiempo de expiración, mediante un panel desplegable en la edición del servicio.
+- El panel debe resaltar visualmente (color de fondo/borde) si existen configuraciones activas para alertar al usuario.
+
+**HU-3.11 Ayuda contextual de parámetros (Nueva)**
+- El usuario debe poder consultar la documentación de cada parámetro avanzado mediante un botón de ayuda integrado en la interfaz, sin necesidad de salir de la aplicación.
+
+**HU-2.13 Ordenación de servicios (Nueva)**
+- La lista de servicios disponibles debe mostrarse siempre ordenada alfabéticamente por nombre para facilitar la localización.
+
 ## 4. Interfaz Principal
 **HU-4.1 Ventana principal clara y sencilla (Actualizada)**
 - Cabecera con botón "Desmontar todos".

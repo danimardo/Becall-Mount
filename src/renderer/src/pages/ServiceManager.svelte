@@ -22,17 +22,16 @@
           
           services = list.map((s: any) => {
               const mount = mounts.find(m => m.serviceName === s.name && m.status === 'mounted');
-              return {
-                  name: s.name,
-                  type: s.type,
-                  isMounted: !!mount,
-                  mountPoint: mount ? mount.mountPoint : undefined
-              };
-          });
-      } catch (e) {
-          console.error(e);
-      }
-  }
+                              return {
+                                  name: s.name,
+                                  type: s.type,
+                                  isMounted: !!mount,
+                                  mountPoint: mount ? mount.mountPoint : undefined
+                              };
+                          }).sort((a, b) => a.name.localeCompare(b.name));
+                      } catch (e) {
+                          console.error(e);
+                      }  }
 
   async function handleUnmountAll() {
       if(await showConfirm('Desmontar Todo', '¿Desmontar todos los servicios? Esto detendrá todas las conexiones activas.', 'warning')) {

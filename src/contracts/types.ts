@@ -65,6 +65,16 @@ export interface RemoteSchema {
   config: RemoteConfig;
 }
 
+export interface MountFlagConfig {
+  label: string;
+  type: 'string' | 'select' | 'number' | 'boolean';
+  options?: string[];
+  default?: string | boolean;
+  placeholder?: string;
+  description?: string;
+}
+
 export interface RemotesSchema {
   remotes: RemoteSchema[];
+  globalMountFlags: Record<string, MountFlagConfig>;
 }
