@@ -8,8 +8,10 @@ Cloud Mount es una aplicación de escritorio para Windows que permite a los usua
 Configurar y gestionar Rclone mediante línea de comandos requiere conocimientos técnicos y resulta tedioso para usuarios no expertos. Cloud Mount elimina esta barrera ofreciendo una interfaz visual intuitiva que abstrae la complejidad técnica mientras mantiene el acceso a funciones avanzadas para usuarios expertos.
 
 ## 1. Instalación y Primer Uso
-**HU-1.1 Descarga automática de Rclone**
-Al abrir la aplicación, si no encuentra Rclone, que me avise y lo descargue solo mostrando progreso.
+**HU-1.1 Descarga automática de componentes**
+- Al abrir la aplicación, si no encuentra Rclone o WinFsp, mostrar un asistente de instalación.
+- Para WinFsp, el sistema debe detectar automáticamente la finalización del instalador externo mediante comprobaciones periódicas sin intervención del usuario.
+- Mostrar progreso visual durante la descarga de Drivers Cloud.
 
 **HU-1.2 Configuración obligatoria de seguridad (Actualizada)**
 - Si no existe configuración previa o no está encriptada, obligar a establecer una contraseña maestra.
@@ -88,8 +90,9 @@ Al iniciar la aplicación y tras la autenticación, el sistema debe intentar mon
 **HU-3.6 Montar servicio en carpeta local (Nueva)**
 Alternativa a letra de unidad: montar en `C:\Ruta\Local`.
 
-**HU-3.7 Desmontar todos los servicios (Nueva)**
-- Botón "Desmontar todos" (arriba derecha, icono stop-circle) que desmonta todo tras confirmación.
+**HU-3.7 Desmontar todos los servicios (Actualizada)**
+- Botón "Desmontar todos" (abajo del header, color rojo) que desmonta todo tras confirmación.
+- El botón solo es visible cuando existe al menos un servicio montado en el sistema.
 
 **HU-3.8 Personalización visual en el Explorador (Nueva)**
 - Las unidades montadas deben mostrar el icono oficial del servicio (formato .ico) y el nombre personalizado del servicio como etiqueta en el Explorador de Windows.

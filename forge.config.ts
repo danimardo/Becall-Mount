@@ -19,7 +19,10 @@ const config: ForgeConfig = {
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      setupIcon: './public/icon.ico'
+      setupIcon: './public/icon.ico',
+      iconUrl: 'https://github.com/danimardo/cloud-mount/blob/main/public/icon.ico?raw=true',
+      authors: 'Daniel Díez Mardomingo',
+      description: 'Cloud Mount'
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),

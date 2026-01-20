@@ -5,52 +5,58 @@
   let loading = $state(true);
   let installing = $state({ rclone: false, winfsp: false });
   let rcloneProgress = $state(0);
+  let pollingInterval: NodeJS.Timeout;
 
   let { onDone } = $props<{ onDone: () => void }>();
 
   async function check() {
-    loading = true;
+    // ... (sin cambios)
     try {
-        status = await window.api.invoke('system:check-prereqs');
-    } catch (e) {
-        console.error(e);
-    }
+        const newStatus = await window.api.invoke('system:check-prereqs');
+        status = newStatus; // Actualizar estado local
+        if (newStatus.rclone && newStatus.winfsp) {
+            if (pollingInterval) clearInterval(pollingInterval);
+            onDone();
+        }
+    } catch (e) { console.error(e); }
     loading = false;
-    
-    if (status.rclone && status.winfsp) {
-      onDone();
-    }
   }
 
   onMount(() => {
     check();
-    
     const cleanup = window.api.on('system:install-rclone-progress', (percent) => {
         rcloneProgress = percent;
     });
-    return cleanup;
+    return () => {
+        cleanup();
+        if (pollingInterval) clearInterval(pollingInterval);
+    };
   });
 
   async function installRclone() {
     installing.rclone = true;
     try {
         await window.api.invoke('system:install-rclone');
+        // Rclone avisa cuando termina, así que solo hacemos check al final
+        check();
     } catch (e) {
         console.error(e);
     }
     installing.rclone = false;
-    check();
   }
 
   async function installWinFsp() {
     installing.winfsp = true;
     try {
         await window.api.invoke('system:install-winfsp');
+        // Iniciar polling para detectar cuando el usuario termine el instalador externo
+        if (!pollingInterval) {
+            pollingInterval = setInterval(check, 2000);
+        }
     } catch (e) {
         console.error(e);
+        installing.winfsp = false;
     }
-    installing.winfsp = false;
-    check();
   }
 </script>
 
@@ -66,28 +72,28 @@
         <div class="flex justify-between items-center">
           <span>Drivers Cloud</span>
           {#if status.rclone}
-            <span class="badge badge-success">Instalado</span>
+            <span class="badge bg-brand-green text-white border-none font-bold">Instalado</span>
           {:else}
             <div class="flex items-center gap-2">
                 {#if installing.rclone}
-                     <progress class="progress progress-primary w-20" value={rcloneProgress} max="100"></progress>
+                     <progress class="progress progress-info w-20 shadow-sm" value={rcloneProgress} max="100"></progress>
                 {:else}
-                    <button class="btn btn-sm btn-primary" onclick={installRclone}>Instalar</button>
+                    <button class="btn btn-sm bg-brand-green hover:bg-brand-green-dark text-white border-none shadow-sm px-4" onclick={installRclone}>Instalar</button>
                 {/if}
             </div>
           {/if}
         </div>
 
         <div class="flex justify-between items-center">
-          <span>WinFsp</span>
+          <span class="font-medium text-gray-700 dark:text-gray-300">WinFsp</span>
           {#if status.winfsp}
-            <span class="badge badge-success">Instalado</span>
+            <span class="badge bg-brand-green text-white border-none font-bold">Instalado</span>
           {:else}
             <div class="flex items-center gap-2">
                  {#if installing.winfsp}
-                    <span class="loading loading-spinner loading-sm"></span>
+                    <span class="loading loading-spinner loading-sm text-brand-blue"></span>
                  {:else}
-                    <button class="btn btn-sm btn-primary" onclick={installWinFsp}>Instalar</button>
+                    <button class="btn btn-sm bg-brand-green hover:bg-brand-green-dark text-white border-none shadow-sm px-4" onclick={installWinFsp}>Instalar</button>
                  {/if}
             </div>
           {/if}

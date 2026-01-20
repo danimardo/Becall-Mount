@@ -167,7 +167,7 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 ### Functional Requirements
 
 - **FR-001**: System MUST automatically download a specific verified version of the `rclone` binary (e.g., v1.72.1) if not found at startup.
-- **FR-013**: System MUST detect the presence of WinFsp and, if missing, download and launch the WinFsp installer.
+- **FR-013**: System MUST detect the presence of WinFsp. If missing, it MUST download and launch the installer and use a background polling mechanism (2-second interval) to automatically detect when the installation is complete.
 - **FR-014**: System MUST ensure Rclone mount processes remain active even if the main application UI process is terminated.
 - **FR-015**: System MUST detect mount failures due to authentication errors and prompt the user to update service credentials via a UI dialog.
 - **FR-002**: System MUST enforce Rclone configuration encryption using a robust Master Password (minimum 8 characters, including uppercase, lowercase, numbers, and special characters). System MUST require double-entry confirmation during the initial setup process.
@@ -203,6 +203,7 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **FR-029**: System MUST allow configuring advanced per-service mount flags via a UI section that visually highlights itself when custom settings are active.
 - **FR-030**: System MUST display the list of configured services sorted alphabetically by name.
 - **FR-031**: System MUST provide an integrated help modal explaining the purpose and default values of all advanced mount parameters to assist users in configuration.
+- **FR-032**: System MUST only display the "Desmontar Todos" action button when there is at least one active mount point detected.
 
 ### Key Entities
 

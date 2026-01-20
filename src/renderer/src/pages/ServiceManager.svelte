@@ -15,6 +15,9 @@
   let serviceToEdit = $state<Service | null>(null);
   let appVersion = __APP_VERSION__;
 
+  // Derivada para saber si hay algún servicio montado
+  let anyMounted = $derived(services.some(s => s.isMounted));
+
   async function loadServices() {
       try {
           const list = await window.api.invoke('services:list');
@@ -63,23 +66,45 @@
           </h2>
       </div>
 
-      <div class="container mx-auto px-4">
-          <!-- Action Bar under Header -->
-          <div class="flex justify-end mb-6">
-              <button 
-                  class="btn btn-error btn-sm text-white gap-2 shadow-md hover:bg-error-dark border-none"
-                  onclick={handleUnmountAll} 
-                  title="Desmontar todos"
-              >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Desmontar Todos
-              </button>
-          </div>
+                  <div class="container mx-auto px-4">
 
-          <!-- Service List -->
-          <div class="flex flex-col gap-4">
+                      <!-- Action Bar under Header -->
+
+                      <div class="flex justify-end mb-6 min-h-[32px]">
+
+                          {#if anyMounted}
+
+                              <div class="animate-in fade-in slide-in-from-top-4 duration-300">
+
+                                  <button 
+
+                                      class="btn btn-error btn-sm text-white gap-2 shadow-md hover:bg-error-dark border-none" 
+
+                                      onclick={handleUnmountAll} 
+
+                                      title="Desmontar todos"
+
+                                  >
+
+                                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+
+                                      </svg>
+
+                                      Desmontar Todos
+
+                                  </button>
+
+                              </div>
+
+                          {/if}
+
+                      </div>
+
+            
+
+                      <!-- Service List -->          <div class="flex flex-col gap-4">
               {#each services as service (service.name)}
                   <ServiceCard 
                     {service} 
