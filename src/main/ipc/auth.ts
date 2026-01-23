@@ -4,7 +4,11 @@ import { hashPassword, verifyPassword } from '../utils/security';
 import { setSessionPassword, isSessionAuthenticated } from '../utils/session';
 import { RcloneConfig } from '../rclone/config';
 
-const rcloneConfig = new RcloneConfig();
+let rcloneConfigInstance: RcloneConfig;
+function getRcloneConfig() {
+    if (!rcloneConfigInstance) rcloneConfigInstance = new RcloneConfig();
+    return rcloneConfigInstance;
+}
 
 export function registerAuthHandlers() {
   ipcMain.handle('auth:check-status', () => {
@@ -19,6 +23,8 @@ export function registerAuthHandlers() {
   ipcMain.handle('auth:verify-password', async (_, password) => {
       const store = getStore();
       const storedHash = store.get('settings.passwordHash');
+      const rcloneConfig = getRcloneConfig();
+
       if (!storedHash) {
           // Set password (First Run / Setup)
           const newHash = hashPassword(password);

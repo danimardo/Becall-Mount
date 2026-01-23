@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Menu, nativeImage, ipcMain } from 'electron';
 import path from 'node:path';
+import fs from 'fs';
 import started from 'electron-squirrel-startup';
 import { registerIpcHandlers } from './ipc';
 import { createTray } from './tray';
@@ -69,8 +70,27 @@ const createSplashWindow = (): BrowserWindow => {
     // Vite dev server serves from root.
     splash.loadURL(`${SPLASH_WINDOW_VITE_DEV_SERVER_URL}/src/renderer/splash.html`);
   } else {
-    console.log('Loading Splash from FILE:', path.join(__dirname, `../renderer/${SPLASH_WINDOW_VITE_NAME}/src/renderer/splash.html`));
-    splash.loadFile(path.join(__dirname, `../renderer/${SPLASH_WINDOW_VITE_NAME}/src/renderer/splash.html`));
+    // Try multiple paths for production
+    const possiblePaths = [
+        path.join(__dirname, `../renderer/${SPLASH_WINDOW_VITE_NAME}/src/renderer/splash.html`),
+        path.join(__dirname, `../renderer/${SPLASH_WINDOW_VITE_NAME}/splash.html`),
+        path.join(__dirname, `../renderer/${SPLASH_WINDOW_VITE_NAME}/index.html`), // Fallback?
+    ];
+
+    let foundPath = possiblePaths[0];
+
+    for (const p of possiblePaths) {
+        try {
+            if (fs.existsSync(p)) {
+                console.log('Found splash at:', p);
+                foundPath = p;
+                break;
+            }
+        } catch (e) {}
+    }
+
+    console.log('Loading Splash from FILE:', foundPath);
+    splash.loadFile(foundPath);
   }
   
   splash.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
@@ -85,6 +105,8 @@ const createMainWindow = async (splash: BrowserWindow) => {
   const store = getStore();
   const mountManager = getMountManager();
   const bounds = store.get('windowBounds');
+
+  console.log('Creating Main Window...');
 
   // Listen for splash extend events
   ipcMain.on('splash:extend', () => {
@@ -135,12 +157,19 @@ const createMainWindow = async (splash: BrowserWindow) => {
   mainWindow.on('move', debouncedSave);
 
   // Load the index.html of the app.
+  console.log('Loading Main Window...');
   const loadPromise = MAIN_WINDOW_VITE_DEV_SERVER_URL
     ? mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
     : mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   
   // Also wait for mount restore?
-  await Promise.all([loadPromise, mountManager.restoreState()]);
+  console.log('Restoring mounts...');
+  try {
+    await Promise.all([loadPromise, mountManager.restoreState()]);
+  } catch (e) {
+    console.error('Error during startup (mount restore or window load):', e);
+  }
+  console.log('Mounts restored / Window loaded.');
 
   // Dynamic wait loop for splash time
   while (Date.now() - startTime < (minTime + extraSplashTime)) {

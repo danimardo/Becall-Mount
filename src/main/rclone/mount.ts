@@ -242,7 +242,13 @@ export class MountManager {
   private async checkPid(pid: number): Promise<boolean> {
       if (!pid) return false;
       try {
-          const { stdout } = await execAsync(`tasklist /FI "PID eq ${pid}" /NH`);
+          // Add timeout to avoid hanging indefinitely if tasklist freezes
+          const promise = execAsync(`tasklist /FI "PID eq ${pid}" /NH`);
+          const timeout = new Promise<{ stdout: string }>((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), 2000)
+          );
+          
+          const { stdout } = await Promise.race([promise, timeout]);
           return stdout.includes(pid.toString());
       } catch { return false; }
   }
