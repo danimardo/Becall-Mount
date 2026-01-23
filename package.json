@@ -23,7 +23,7 @@
     "@electron-forge/cli": "^7.11.1",
     "@electron-forge/maker-deb": "^7.11.1",
     "@electron-forge/maker-rpm": "^7.11.1",
-    "@electron-forge/maker-squirrel": "^7.11.1",
+    "@electron-forge/maker-wix": "^7.11.1",
     "@electron-forge/maker-zip": "^7.11.1",
     "@electron-forge/plugin-auto-unpack-natives": "^7.11.1",
     "@electron-forge/plugin-fuses": "^7.11.1",
@@ -54,7 +54,6 @@
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
-    "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^11.0.2",
     "fs-extra": "^11.3.3",
     "uuid": "^13.0.0"

@@ -1,7 +1,6 @@
 import { app, BrowserWindow, Menu, nativeImage, ipcMain } from 'electron';
 import path from 'node:path';
 import fs from 'fs';
-import started from 'electron-squirrel-startup';
 import { registerIpcHandlers } from './ipc';
 import { createTray } from './tray';
 import { getMountManager } from './ipc/mount';
@@ -14,12 +13,6 @@ declare const SPLASH_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const SPLASH_WINDOW_VITE_NAME: string;
 
 let extraSplashTime = 0;
-
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (started) {
-  app.quit();
-  process.exit(0);
-}
 
 let isQuitting = false;
 

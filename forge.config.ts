@@ -1,8 +1,8 @@
 import type { ForgeConfig } from '@electron-forge/shared-types';
-import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerRpm } from '@electron-forge/maker-rpm';
+import { MakerWix } from '@electron-forge/maker-wix';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
@@ -18,11 +18,17 @@ const config: ForgeConfig = {
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({
+    new MakerWix({
+      language: 1034, // Español
+      manufacturer: 'Daniel Díez Mardomingo',
+      description: 'Cloud Mount - Acceso a unidades en la nube',
+      shortcutFolderName: 'Cloud Mount',
+      upgradeCode: '0484A8E5-3C9F-4E8B-BDD5-C36C6DA99C9F',
+      ui: {
+        chooseDirectory: true,
+      },
+      icon: './public/icon.ico',
       setupIcon: './public/icon.ico',
-      iconUrl: 'https://github.com/danimardo/cloud-mount/blob/main/public/icon.ico?raw=true',
-      authors: 'Daniel Díez Mardomingo',
-      description: 'Cloud Mount'
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
