@@ -1,9 +1,18 @@
 import { ipcMain } from 'electron';
 import { MountManager } from '../rclone/mount';
 
-export const mountManager = new MountManager();
+let mountManagerInstance: MountManager;
+
+export function getMountManager() {
+  if (!mountManagerInstance) {
+    mountManagerInstance = new MountManager();
+  }
+  return mountManagerInstance;
+}
 
 export function registerMountHandlers() {
+  const mountManager = getMountManager();
+
   ipcMain.handle('mount:start', async (_, { serviceName, mountType, target, extraArgs, iconPath }) => {
     await mountManager.mount(serviceName, mountType, target, extraArgs || [], iconPath);
     return true;

@@ -1,13 +1,14 @@
 import { ipcMain, app } from 'electron';
-import store from '../store';
+import getStore from '../store';
 import { AppSettings } from '../../contracts/types';
 
 export function registerSettingsHandlers() {
   ipcMain.handle('settings:get', () => {
-    return store.get('settings');
+    return getStore().get('settings');
   });
 
   ipcMain.handle('settings:set', (_, settings: Partial<AppSettings>) => {
+    const store = getStore();
     const currentSettings = store.get('settings');
     
     if (settings.autoLaunch !== undefined && settings.autoLaunch !== currentSettings.autoLaunch) {

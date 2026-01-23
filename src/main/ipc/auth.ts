@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import store from '../store';
+import getStore from '../store';
 import { hashPassword, verifyPassword } from '../utils/security';
 import { setSessionPassword, isSessionAuthenticated } from '../utils/session';
 import { RcloneConfig } from '../rclone/config';
@@ -8,6 +8,7 @@ const rcloneConfig = new RcloneConfig();
 
 export function registerAuthHandlers() {
   ipcMain.handle('auth:check-status', () => {
+      const store = getStore();
       const hasPassword = !!store.get('settings.passwordHash');
       return {
           hasPassword,
@@ -16,6 +17,7 @@ export function registerAuthHandlers() {
   });
 
   ipcMain.handle('auth:verify-password', async (_, password) => {
+      const store = getStore();
       const storedHash = store.get('settings.passwordHash');
       if (!storedHash) {
           // Set password (First Run / Setup)

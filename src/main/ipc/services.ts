@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import { spawn } from 'child_process';
 import { RcloneConfig } from '../rclone/config';
-import store from '../store';
+import getStore from '../store';
 
 const config = new RcloneConfig();
 
@@ -16,13 +16,13 @@ export function registerServiceHandlers() {
   });
 
   ipcMain.handle('mount-options:get', (_, serviceName) => {
-    return store.get(`serviceMountOptions.${serviceName}`) || {};
+    return getStore().get(`serviceMountOptions.${serviceName}`) || {};
   });
 
   ipcMain.handle('mount-options:set', (_, { serviceName, options }) => {
     console.log(`[IPC] Received mount options for ${serviceName}:`, options);
     try {
-        store.set(`serviceMountOptions.${serviceName}`, options);
+        getStore().set(`serviceMountOptions.${serviceName}`, options);
         console.log(`[IPC] Mount options saved successfully`);
         return true;
     } catch (e) {

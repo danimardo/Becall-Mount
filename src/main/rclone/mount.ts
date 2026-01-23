@@ -4,7 +4,7 @@ import path from 'path';
 import util from 'util';
 import { RCLONE_EXE_PATH, LOGS_PATH, RCLONE_CONFIG_PATH } from '../utils/paths';
 import { getSessionPassword } from '../utils/session';
-import store from '../store';
+import getStore from '../store';
 import { MountState } from '../../contracts/types';
 import { RcloneConfig } from './config';
 import { setDriveIconAndLabel, clearDriveIconAndLabel } from '../utils/registry';
@@ -38,6 +38,7 @@ export class MountManager {
   }
 
   async mount(serviceName: string, mountType: 'drive' | 'folder', target: string, extraArgs: string[] = [], schemaIconPath?: string): Promise<void> {
+    const store = getStore();
     const existingMounts = store.get('mounts') || [];
     const existingIndex = existingMounts.findIndex(m => m.mountPoint === target);
     
@@ -83,6 +84,7 @@ export class MountManager {
   }
 
   private async spawnRclone(serviceName: string, mountType: 'drive' | 'folder', target: string, extraArgs: string[], schemaIconPath?: string): Promise<number> {
+    const store = getStore();
     const logFile = path.join(LOGS_PATH, `mount-${serviceName}-${Date.now()}.log`);
     await fs.ensureDir(LOGS_PATH);
 
@@ -170,6 +172,7 @@ export class MountManager {
   }
 
   async autoMountAll(): Promise<void> {
+      const store = getStore();
       const mounts = store.get('mounts') || [];
       for (let i = 0; i < mounts.length; i++) {
           const m = mounts[i];
@@ -189,6 +192,7 @@ export class MountManager {
   }
 
   async unmount(mountPoint: string): Promise<void> {
+      const store = getStore();
       const mounts = store.get('mounts') || [];
       const mount = mounts.find(m => m.mountPoint === mountPoint || (m.driveLetter && mountPoint.startsWith(m.driveLetter)));
       if (!mount) return;
@@ -204,6 +208,7 @@ export class MountManager {
   }
 
   async unmountAll(): Promise<{ success: boolean; unmountedCount: number; errors: string[] }> {
+      const store = getStore();
       const mounts = [...(store.get('mounts') || [])];
       let count = 0;
       for (const m of mounts) {
@@ -216,6 +221,7 @@ export class MountManager {
   }
 
   async restoreState(): Promise<void> {
+      const store = getStore();
       // Solo actualiza el estado de los que ya están corriendo sin intentar montar nada
       const mounts = store.get('mounts') || [];
       const updatedMounts = [];
@@ -229,6 +235,7 @@ export class MountManager {
   }
 
   getMounts(): MountState[] {
+      const store = getStore();
       return store.get('mounts') || [];
   }
 

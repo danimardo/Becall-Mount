@@ -5,7 +5,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import { isRcloneInstalled, installRclone, checkAndAutoUpdateRclone } from '../rclone/installer';
 import { isWinFspInstalled, installWinFsp } from '../utils/winfsp';
-import { mountManager } from './mount';
+import { getMountManager } from './mount';
 
 const execAsync = promisify(exec);
 
@@ -51,7 +51,7 @@ export function registerSystemHandlers() {
                 .map(line => line[0])
         );
         
-        mountManager.getMounts().forEach(m => {
+        getMountManager().getMounts().forEach(m => {
             if (m.driveLetter) busyDrives.add(m.driveLetter);
         });
         

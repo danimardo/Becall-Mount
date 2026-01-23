@@ -3,8 +3,8 @@ import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { registerIpcHandlers } from './ipc';
 import { createTray } from './tray';
-import { mountManager } from './ipc/mount';
-import store from './store';
+import { getMountManager } from './ipc/mount';
+import getStore from './store';
 
 // Declare globals from Vite plugin
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
@@ -82,6 +82,8 @@ const createSplashWindow = (): BrowserWindow => {
 
 const createMainWindow = async (splash: BrowserWindow) => {
   const icon = getIcon();
+  const store = getStore();
+  const mountManager = getMountManager();
   const bounds = store.get('windowBounds');
 
   // Listen for splash extend events

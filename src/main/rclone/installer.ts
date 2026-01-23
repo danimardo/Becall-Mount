@@ -5,7 +5,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { BIN_PATH, RCLONE_EXE_PATH } from '../utils/paths';
 import { downloadFile } from '../utils/download';
-import store from '../store';
+import getStore from '../store';
 
 const execAsync = promisify(exec);
 
@@ -55,6 +55,7 @@ function compareVersions(v1: string, v2: string): number {
 }
 
 export async function checkAndAutoUpdateRclone(onStatus?: (msg: string) => void): Promise<void> {
+    const store = getStore();
     const lastCheck = store.get('settings.lastDriverUpdateCheck') || 0;
     const now = Date.now();
     const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;

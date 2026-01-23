@@ -23,20 +23,25 @@ interface StoreSchema {
   serviceMountOptions: Record<string, Record<string, string>>;
 }
 
-const store = new Store<StoreSchema>({
-  defaults: {
-    settings: {
-      theme: 'system',
-      rclonePath: 'bin/rclone.exe',
-      firstRun: true,
-      lastDriverUpdateCheck: 0,
-      autoLaunch: false,
-    },
-    mounts: [],
-    mountPreferences: {},
-    windowBounds: { width: 1000, height: 800 },
-    serviceMountOptions: {}
-  },
-});
+let store: Store<StoreSchema>;
 
-export default store;
+export default function getStore(): Store<StoreSchema> {
+  if (!store) {
+    store = new Store<StoreSchema>({
+      defaults: {
+        settings: {
+          theme: 'system',
+          rclonePath: 'bin/rclone.exe',
+          firstRun: true,
+          lastDriverUpdateCheck: 0,
+          autoLaunch: false,
+        },
+        mounts: [],
+        mountPreferences: {},
+        windowBounds: { width: 1000, height: 800 },
+        serviceMountOptions: {}
+      },
+    });
+  }
+  return store;
+}
