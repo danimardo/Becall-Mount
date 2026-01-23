@@ -6,7 +6,6 @@ import fs from 'fs-extra';
 import { isRcloneInstalled, installRclone, checkAndAutoUpdateRclone } from '../rclone/installer';
 import { isWinFspInstalled, installWinFsp } from '../utils/winfsp';
 import { mountManager } from './mount';
-import { KEYS_PATH } from '../utils/paths';
 
 const execAsync = promisify(exec);
 
@@ -101,6 +100,14 @@ export function registerSystemHandlers() {
 
   ipcMain.handle('system:open-external', async (_, url) => {
     await shell.openExternal(url);
+    return true;
+  });
+
+  ipcMain.handle('system:open-path', async (_, path) => {
+    const error = await shell.openPath(path);
+    if (error) {
+        throw new Error(error);
+    }
     return true;
   });
 }

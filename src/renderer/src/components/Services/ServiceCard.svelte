@@ -38,6 +38,20 @@
           unmounting = false;
       }
   }
+
+  async function handleOpenDrive() {
+      if (!service.mountPoint) return;
+      try {
+          // Aseguramos que el path termina en barra si es una unidad (A: -> A:\) para evitar problemas
+          let path = service.mountPoint;
+          if (path.match(/^[A-Za-z]:$/)) {
+              path = path + '\\';
+          }
+          await window.api.invoke('system:open-path', path);
+      } catch (e: any) {
+          console.error('Failed to open path:', e);
+      }
+  }
 </script>
 
 <div class="card bg-white dark:bg-slate-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
@@ -57,7 +71,13 @@
             <div class="flex items-center gap-2">
                 <span class="badge bg-brand-pistachio text-white border-none badge-sm uppercase text-[10px] font-bold tracking-wider">{service.type}</span>
                 {#if service.isMounted}
-                    <span class="badge bg-brand-green text-white border-none badge-sm gap-1 font-semibold">
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <span 
+                        class="badge bg-brand-green text-white border-none badge-sm gap-1 font-semibold cursor-pointer hover:bg-brand-green-dark transition-colors"
+                        onclick={handleOpenDrive}
+                        title="Abrir unidad"
+                    >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                         </svg>
