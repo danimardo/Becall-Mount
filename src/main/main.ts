@@ -17,6 +17,7 @@ let extraSplashTime = 0;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
+  process.exit(0);
 }
 
 let isQuitting = false;
