@@ -60,7 +60,7 @@
      </div>
   {:else}
       <!-- Liquid Glass header -->
-      <div class="glass-panel success w-[92%] mx-auto mt-4 mb-4 py-6 rounded-3xl text-center">
+      <div class="glass-panel success w-full py-6 rounded-none text-center mb-6">
           <h2 class="text-white text-xl font-bold tracking-[0.2em] uppercase">
               Servicios Cloud
           </h2>
