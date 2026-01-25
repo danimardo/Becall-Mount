@@ -29,6 +29,19 @@ const config: ForgeConfig = {
       },
       icon: './public/icon.ico',
       setupIcon: './public/icon.ico',
+      // Solucionar el problema de los dos iconos en "Agregar o quitar programas"
+      // electron-wix-msi crea entradas de registro con sufijo .msq que generan una entrada duplicada
+      beforeCreate: async (creator: any) => {
+        // Sobrescribir el método getRegistryKeys para que no genere las entradas .msq
+        // que causan el icono duplicado
+        const originalGetRegistryKeys = (creator as any).getRegistryKeys.bind(creator);
+        (creator as any).getRegistryKeys = function() {
+          const registry = originalGetRegistryKeys();
+          // Filtrar para eliminar las entradas que crean el icono duplicado
+          // Mantener solo las que no tengan .msq en la key
+          return registry.filter((item: any) => !item.key?.includes('.msq'));
+        };
+      },
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),

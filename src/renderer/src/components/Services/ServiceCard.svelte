@@ -54,7 +54,7 @@
   }
 </script>
 
-<div class="card bg-white dark:bg-slate-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
+<div class="card glass-card rounded-2xl transition-all duration-300">
   <div class="card-body p-4 flex-row items-center justify-between">
     <div class="flex items-center gap-3">
         {#if serviceIcon}
@@ -89,14 +89,14 @@
     </div>
     <div class="flex gap-2">
         {#if service.isMounted}
-            <button class="btn btn-sm btn-warning" onclick={handleUnmount} disabled={unmounting}>
+            <button class="btn btn-sm glass-button warning" onclick={handleUnmount} disabled={unmounting}>
                 {unmounting ? '...' : 'Desmontar'}
             </button>
         {:else}
-            <button class="btn btn-sm bg-brand-green hover:bg-brand-green-dark text-white border-none" onclick={() => showMountModal = true}>Montar</button>
-            <button class="btn btn-sm btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" onclick={() => onEdit(service)}>Editar</button>
+            <button class="btn btn-sm glass-button success" onclick={() => showMountModal = true}>Montar</button>
+            <button class="btn btn-sm glass-button" onclick={() => onEdit(service)}>Editar</button>
         {/if}
-        <button class="btn btn-sm btn-ghost text-error" onclick={handleDelete}>Eliminar</button>
+        <button class="btn btn-sm glass-button ghost" onclick={handleDelete}>Eliminar</button>
     </div>
   </div>
 </div>

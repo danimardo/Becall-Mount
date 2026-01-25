@@ -59,14 +59,14 @@
          <Settings onRefresh={loadServices} />
      </div>
   {:else}
-      <!-- Full width header -->
-      <div class="bg-brand-blue w-full mb-4 py-4 shadow-sm">
-          <h2 class="text-white text-center text-lg font-bold tracking-[0.15em] uppercase">
-              Servicios Cloud Disponibles
+      <!-- Liquid Glass header -->
+      <div class="glass-panel success w-[92%] mx-auto mt-6 mb-8 py-6 rounded-3xl text-center">
+          <h2 class="text-white text-xl font-bold tracking-[0.2em] uppercase">
+              Servicios Cloud
           </h2>
       </div>
 
-                  <div class="container mx-auto px-4">
+      <div class="container mx-auto px-4">
 
                       <!-- Action Bar under Header -->
 
@@ -122,14 +122,14 @@
       </div>
 
       <!-- Footer Actions -->
-      <div class="fixed bottom-6 right-24 flex gap-2 z-40">
-          <button class="btn btn-circle bg-brand-blue hover:bg-brand-blue-dark text-white border-none shadow-lg" onclick={() => showSettings = true} title="Configuración">
+      <div class="fixed bottom-6 right-24 flex gap-3 z-40">
+          <button class="btn btn-circle glass-panel hover:bg-white/60 dark:hover:bg-slate-700/60 text-brand-blue dark:text-brand-blue-light border-none shadow-glass-md transition-all duration-300" onclick={() => showSettings = true} title="Configuración">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
           </button>
-          <button class="btn btn-circle bg-brand-blue hover:bg-brand-blue-dark text-white border-none shadow-lg" onclick={() => showAbout = true} title="Acerca de">
+          <button class="btn btn-circle glass-panel hover:bg-white/60 dark:hover:bg-slate-700/60 text-brand-blue dark:text-brand-blue-light border-none shadow-glass-md transition-all duration-300" onclick={() => showAbout = true} title="Acerca de">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -152,19 +152,19 @@
 
   {#if showAbout}
       <dialog class="modal modal-open">
-          <div class="modal-box text-center relative bg-white dark:bg-slate-800">
-              <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick={() => showAbout = false}>✕</button>
-              <h3 class="font-bold text-lg mb-4 text-brand-blue dark:text-white">Acerca de Cloud Mount</h3>
-              <div class="flex flex-col items-center gap-4">
-                  <div class="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-4 border-brand-blue">
+          <div class="modal-box text-center relative glass-panel rounded-3xl border-white/40">
+              <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4" onclick={() => showAbout = false}>✕</button>
+              <h3 class="font-bold text-xl mb-6 text-slate-800 dark:text-white">Acerca de Cloud Mount</h3>
+              <div class="flex flex-col items-center gap-6">
+                  <div class="w-32 h-32 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border-4 border-white/50 shadow-glass-lg">
                       <img src={developerPhoto} alt="Daniel Díez Mardomingo" class="w-full h-full object-cover" />
                   </div>
                   <div>
-                      <p class="text-lg font-semibold text-gray-500 dark:text-gray-400">Diseñado e implementado por</p>
-                      <p class="text-xl font-bold text-brand-blue dark:text-brand-blue-light">Daniel Díez Mardomingo</p>
-                      <p class="text-lg font-semibold text-gray-500 dark:text-gray-400 mt-1">danimardo@yahoo.es</p>
+                      <p class="text-sm uppercase tracking-widest font-bold text-slate-500 dark:text-slate-400 mb-1">Creador</p>
+                      <p class="text-2xl font-black text-brand-blue dark:text-brand-blue-light">Daniel Díez Mardomingo</p>
+                      <p class="text-md font-medium text-slate-600 dark:text-slate-300 mt-2">danimardo@yahoo.es</p>
                   </div>
-                  <p class="text-sm text-gray-400 mt-2">Versión: {appVersion}</p>
+                  <div class="badge glass-panel px-4 py-3 border-none text-xs font-bold opacity-70">VERSIÓN {appVersion}</div>
               </div>
           </div>
           <form method="dialog" class="modal-backdrop">

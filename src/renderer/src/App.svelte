@@ -70,11 +70,11 @@
 
 <!-- Background Image Layer -->
 <div 
-    class="fixed inset-0 z-0 bg-cover bg-center opacity-60 pointer-events-none transition-all duration-700 ease-in-out"
-    style="background-image: var(--bg-image);"
+    class="fixed inset-0 z-0 bg-cover bg-center opacity-80 pointer-events-none transition-all duration-1000 ease-in-out scale-105"
+    style="background-image: var(--bg-image); filter: blur(5px);"
 ></div>
 
-<div class="relative z-10 min-h-screen bg-brand-surface-light/60 dark:bg-brand-surface-dark/60 text-slate-900 dark:text-white transition-colors duration-300 backdrop-blur-[2px]" class:p-4={view !== 'app'}>
+<div class="relative z-10 min-h-screen bg-transparent text-slate-900 dark:text-white transition-colors duration-300" class:p-4={view !== 'app'}>
   {#if view === 'loading'}
      <div class="flex flex-col justify-center items-center h-full mt-20 gap-4">
          <span class="loading loading-spinner loading-lg"></span>

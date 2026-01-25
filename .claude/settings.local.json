@@ -10,7 +10,10 @@
       "Bash(npm run make:*)",
       "Bash(curl:*)",
       "Bash(powershell:*)",
-      "Bash(gh pr list:*)"
+      "Bash(gh pr list:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(cmd.exe /c \"powershell -Command \"\"Get-ChildItem HKLM:\\\\SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Uninstall | Get-ItemProperty | Where-Object DisplayName -like ''*Cloud Mount*'' | Select PSChildName, DisplayName\"\"\")",
+      "Bash(cmd.exe:*)"
     ]
   }
 }

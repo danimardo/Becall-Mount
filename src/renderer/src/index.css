@@ -6,5 +6,49 @@
 @layer base {
   body {
     @apply bg-brand-surface-light text-slate-900 dark:bg-brand-surface-dark dark:text-white min-h-screen;
+    /* Fondo con degradado sutil para resaltar el cristal */
+    background: radial-gradient(circle at top left, #f8fafc, #e2e8f0);
+  }
+  
+  .dark body {
+    background: radial-gradient(circle at top left, #1e293b, #0f172a);
+  }
+}
+
+@layer components {
+  /* Panel principal */
+  .glass-panel {
+    @apply !bg-transparent !bg-gradient-to-br !from-white/60 !to-white/20 dark:!from-slate-900/80 dark:!to-slate-900/40 !backdrop-blur-xl !border !border-white/40 dark:!border-white/10 !shadow-glass-md;
+  }
+
+  .glass-panel.success {
+    @apply !bg-gradient-to-r !from-brand-green/80 !to-brand-green/65 !border-white/40 shadow-glass-lg;
+  }
+
+  .glass-panel.success h2 {
+    @apply drop-shadow-md;
+  }
+  
+  /* Tarjetas */
+  .glass-card {
+    @apply !bg-transparent !bg-gradient-to-b !from-white/70 !to-white/30 dark:!from-slate-800/70 dark:!to-slate-800/30 !backdrop-blur-md !border !border-white/50 dark:!border-white/10 !shadow-glass-sm hover:!shadow-glass-md transition-all duration-300;
+  }
+
+  /* Botón Cristal Base */
+  .glass-button {
+    @apply !backdrop-blur-md !bg-gradient-to-t !from-white/20 !to-white/50 !border !border-white/60 hover:!bg-white/40 transition-all !shadow-glass-sm active:scale-95 text-slate-800 dark:text-white;
+  }
+
+  /* Variantes de color para botones de cristal */
+  .glass-button.success {
+    @apply !from-brand-green/20 !to-brand-green/40 !border-brand-green/50 text-brand-green-dark dark:text-brand-green-light hover:!from-brand-green/30 hover:!to-brand-green/50;
+  }
+
+  .glass-button.warning {
+    @apply !from-orange-400/20 !to-orange-400/40 !border-orange-400/50 text-orange-700 dark:text-orange-200 hover:!from-orange-400/30 hover:!to-orange-400/50;
+  }
+  
+  .glass-button.ghost {
+     @apply !bg-none !bg-transparent !border-transparent hover:!bg-white/20 text-slate-500 dark:text-slate-400;
   }
 }

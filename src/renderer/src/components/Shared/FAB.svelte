@@ -3,9 +3,9 @@
 </script>
 
 <button
-  class="fixed bottom-20 right-6 w-14 h-14 rounded-full bg-brand-green hover:bg-brand-green-dark text-white text-3xl shadow-lg flex items-center justify-center z-50 transition-transform hover:scale-105 active:scale-95 cursor-pointer border-none"
+  class="fixed bottom-20 right-6 w-16 h-16 rounded-full !bg-gradient-to-t !from-brand-green !to-brand-green/70 backdrop-blur-md border border-white/40 text-white text-4xl shadow-glass-lg flex items-center justify-center z-50 transition-all duration-300 hover:scale-110 active:scale-90 cursor-pointer"
   {onclick}
   aria-label="Añadir servicio"
 >
-  +
+  <span class="mb-1">+</span>
 </button>
