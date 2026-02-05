@@ -121,8 +121,8 @@ const createMainWindow = async (splash: BrowserWindow) => {
   const minTime = 5000;
 
   const mainWindow = new BrowserWindow({
-    width: bounds?.width || 1000,
-    height: bounds?.height || 800,
+    width: bounds?.width || 813,
+    height: bounds?.height || 952,
     x: bounds?.x,
     y: bounds?.y,
     show: false, // Hidden initially

@@ -123,8 +123,9 @@ Distinción visual clara entre montado y desmontado. Botón Editar solo visible 
 **HU-4.3 Modal "Acerca de" (Nueva)**
 Modal con foto del desarrollador, créditos ("Programado por Daniel Díez Mardomingo") y versión dinámica.
 
-**HU-4.4 Persistencia de ventana (Nueva)**
+**HU-4.4 Persistencia de ventana (Actualizada)**
 - La aplicación debe recordar el tamaño y la posición de la ventana principal entre sesiones para mantener la preferencia del usuario.
+- Resolución por defecto en primer uso: **813 x 952 píxeles**.
 
 ## 5. Bandeja del Sistema (System Tray)
 **HU-5.1 Minimizar a la bandeja**

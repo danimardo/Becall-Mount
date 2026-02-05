@@ -199,6 +199,7 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **FR-025**: System MUST support SFTP, FTP, and FTPS protocols, including advanced compatibility settings like `shell_type` and `subsystem` overrides.
 - **FR-026**: System MUST allow extending the Splash Screen duration by 5 seconds upon user click, using an IPC event to delay the main window transition.
 - **FR-027**: System MUST persist the main window's dimensions and screen coordinates, restoring them upon application launch.
+  - Default window size on first run: **813 x 952 pixels**.
 - **FR-028**: System MUST provide a conflict resolution mechanism during configuration import, allowing users to rename (with custom name) or overwrite existing services.
 - **FR-029**: System MUST allow configuring advanced per-service mount flags via a UI section that visually highlights itself when custom settings are active.
 - **FR-030**: System MUST display the list of configured services sorted alphabetically by name.
