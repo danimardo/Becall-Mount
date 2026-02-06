@@ -156,4 +156,56 @@ export class RcloneConfig {
           return false;
       }
   }
+
+  /**
+   * Exporta remotos seleccionados a un archivo INI de rclone.
+   * Si se proporciona una contraseña, el archivo resultante estará cifrado.
+   */
+  async exportTo(filePath: string, serviceNames: string[], password?: string): Promise<void> {
+    const dump = await this.wrapper.execute(['config', 'show', '--config', RCLONE_CONFIG_PATH]);
+    const lines = dump.split('\n');
+    let content = '';
+    let currentRemote = '';
+    let capture = false;
+
+    for (const line of lines) {
+        if (line.trim().startsWith('[') && line.trim().endsWith(']')) {
+            currentRemote = line.trim().slice(1, -1);
+            capture = serviceNames.includes(currentRemote);
+            if (capture) content += `\n${line}\n`;
+        } else if (capture && line.trim()) {
+            content += `${line}\n`;
+        }
+    }
+
+    await fs.writeFile(filePath, content.trim());
+
+    if (password) {
+        // Cifrar el archivo resultante usando rclone
+        await new Promise<void>((resolve, reject) => {
+            const child = spawn(RCLONE_EXE_PATH, ['config', 'encryption', 'set', '--config', filePath], { 
+                env: { ...process.env }, 
+                stdio: ['pipe', 'ignore', 'ignore'] 
+            });
+
+            const timeout = setTimeout(() => {
+                child.kill();
+                reject(new Error('Timeout estableciendo contraseña de exportación'));
+            }, 5000);
+
+            // Rclone pide la contraseña dos veces para confirmar
+            child.stdin.write(`${password}\n`);
+            setTimeout(() => {
+                child.stdin.write(`${password}\n`);
+                child.stdin.end();
+            }, 500);
+
+            child.on('close', (code) => {
+                clearTimeout(timeout);
+                if (code === 0) resolve();
+                else reject(new Error(`Fallo al cifrar archivo de exportación (Código ${code})`));
+            });
+        });
+    }
+  }
 }

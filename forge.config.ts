@@ -12,7 +12,8 @@ const config: ForgeConfig = {
     asar: true,
     extraResource: [
       'public/icons',
-      'public/icon.ico'
+      'public/icon.ico',
+      'public/configs'
     ],
     icon: './public/icon', 
   },

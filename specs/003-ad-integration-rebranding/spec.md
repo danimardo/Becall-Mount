@@ -25,10 +25,10 @@ Como usuario de Becall, quiero que mi aplicación se configure automáticamente 
 
 **Acceptance Scenarios**:
 
-1. **Given** la aplicación abierta en la sección de Configuración, **When** el usuario activa "Integrar con Active Directory", **Then** se obtiene la información del usuario del dominio y se importan los archivos de configuración procesados.
-2. **Given** un remoto manual llamado "Trabajo" y un `.conf` que también define "Trabajo", **When** se activa la integración AD, **Then** el sistema muestra un diálogo de confirmación antes de sobrescribir.
-3. **Given** un archivo `.conf` con la variable `%Inexistente%`, **When** se importa con AD activo, **Then** la variable se sustituye por "" en la configuración resultante.
-4. **Given** una ruta externa configurada con archivos `.conf`, **When** se activa la integración AD, **Then** el sistema importa los remotos de esa carpeta además de los internos.
+1. **Given** la aplicación abierta en la sección de Configuración, **When** el usuario activa "Integrar con Active Directory", **Then** se obtiene la información del usuario del dominio y se habilitan las herramientas de red.
+2. **Given** un archivo `.conf` cifrado en la carpeta de recursos, **When** el usuario pulsa "Escanear e Importar", **Then** el sistema detecta el cifrado y solicita la contraseña del archivo antes de procesarlo.
+3. **Given** un archivo `.conf` con la variable `%SamAccountName%`, **When** se importa con AD activo, **Then** la variable se sustituye por el nombre de usuario real en el archivo `rclone.conf` resultante.
+4. **Given** una nueva importación exitosa, **When** finaliza el proceso, **Then** la pantalla principal de servicios se recarga automáticamente para mostrar las nuevas unidades.
 
 ---
 
@@ -72,9 +72,9 @@ Como usuario existente de la versión anterior, quiero actualizar la aplicación
 - **FR-001**: El sistema DEBE proporcionar una opción "Integrar con Active Directory" en la configuración del usuario. Esta opción SOLO estará habilitada si el sistema detecta que el equipo está unido a un dominio.
 - **FR-002**: El sistema DEBE utilizar `DirectoryServices.DirectorySearcher` para obtener los campos `SamAccountName`, `DisplayName`, `EmailAddress`, `DistinguishedName`, `Department`, `Title` y `MemberOf`.
 - **FR-004**: El sistema DEBE persistir la información del dominio en la estructura `infoDominio` dentro del Store local.
-- **FR-005**: El sistema DEBE escanear e importar automáticamente archivos `.conf` desde la carpeta interna de recursos y opcionalmente desde una carpeta externa configurable.
+- **FR-005**: El sistema DEBE escanear e importar automáticamente archivos `.conf` desde la carpeta interna de recursos (`public/configs` en desarrollo o `resources/configs` en producción). Se ha eliminado la opción de ruta externa para simplificar la experiencia de usuario y evitar redundancias.
 - **FR-006**: El sistema DEBE sustituir variables con formato `%Variable%` en los archivos `.conf` utilizando los valores de `infoDominio`. Si la variable no existe, se usará una cadena vacía.
-- **FR-007**: El sistema DEBE gestionar conflictos de nombres durante la importación automática solicitando confirmación al usuario para sobrescribir.
+- **FR-007**: El sistema DEBE gestionar archivos `.conf` cifrados, solicitando al usuario la contraseña específica del archivo si el descifrado automático con la contraseña maestro falla.
 - **FR-008**: El sistema DEBE activar automáticamente el autologin seguro al habilitar la integración con AD, solicitando la contraseña maestro una única vez para su almacenamiento cifrado.
 - **FR-009**: El sistema DEBE ocultar las opciones de configuración de AD si no se detecta conectividad con un dominio.
 - **FR-010**: El sistema DEBE renombrar todos los elementos visuales y técnicos (Product Name, App ID, Rutas) a "Becall-Mount".

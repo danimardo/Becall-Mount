@@ -49,7 +49,17 @@
           }
       }
   }  
-  onMount(loadServices);
+  onMount(() => {
+    loadServices();
+    
+    // Escuchar actualizaciones de servicios (ej. desde importación AD)
+    const cleanup = window.api.on('services:updated', () => {
+        console.log('[ServiceManager] Services updated event received, reloading...');
+        loadServices();
+    });
+
+    return cleanup;
+  });
 </script>
 
 <div class="min-h-screen relative pb-24">

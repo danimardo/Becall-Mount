@@ -46,8 +46,8 @@ const getIcon = () => {
 const createSplashWindow = (): BrowserWindow => {
   console.log('Creating Splash Window...');
   const splash = new BrowserWindow({
-    width: 640,
-    height: 360,
+    width: 1366,
+    height: 768,
     frame: false,
     transparent: true,
     alwaysOnTop: true,

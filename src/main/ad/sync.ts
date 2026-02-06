@@ -15,9 +15,11 @@ export class ADSyncService {
         $searcher = New-Object DirectoryServices.DirectorySearcher;
         $searcher.Filter = "(&(objectClass=user)(sAMAccountName=$env:USERNAME))";
         $result = $searcher.FindOne();
+        $userData = @{ success = $false };
         if ($result) {
             $p = $result.Properties;
-            @{
+            $userData = @{
+                success = $true;
                 SamAccountName = if ($p.samaccountname) { [string]$p.samaccountname[0] } else { "" };
                 DisplayName = if ($p.displayname) { [string]$p.displayname[0] } else { "" };
                 EmailAddress = if ($p.mail) { [string]$p.mail[0] } else { "" };
@@ -25,8 +27,9 @@ export class ADSyncService {
                 Department = if ($p.department) { [string]$p.department[0] } else { "" };
                 Title = if ($p.title) { [string]$p.title[0] } else { "" };
                 MemberOf = if ($p.memberof) { @($p.memberof) } else { @() };
-            }
+            };
         }
+        $userData
       `.trim();
       
       const rawData = await PowerShellWrapper.executeAsJson<any>(command);

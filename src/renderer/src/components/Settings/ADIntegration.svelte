@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { AppSettings, DomainInfo } from '../../../../contracts/types';
+  import { showPrompt, showAlert } from '../../stores/modal';
 
   let settings = $state<AppSettings | null>(null);
   let isDomain = $state(false);
@@ -31,9 +32,17 @@
       
       if (newEnabled) {
         // Al activar AD, el autologin es obligatorio. Pedimos la clave una vez.
-        const password = prompt('Introduce tu contraseña maestro para habilitar la integración total con AD (incluye Autologin):');
+        const password = await showPrompt(
+          'Habilitar Integración AD', 
+          'Introduce tu contraseña maestro para habilitar la integración total con AD (incluye Autologin):',
+          'password',
+          'Contraseña Maestra'
+        );
+        
         if (!password) {
           isLoading = false;
+          // Restaurar el checkbox si se canceló
+          await loadSettings();
           return;
         }
         
@@ -68,6 +77,61 @@
       isLoading = false;
     }
   }
+
+  async function selectConfPath() {
+    const path = await window.api.invoke('system:select-folder');
+    if (path) {
+      await window.api.invoke('settings:set', { adConfPath: path });
+      await loadSettings();
+    }
+  }
+
+  async function importConfigs() {
+    if (!settings) return;
+    isLoading = true;
+    error = '';
+    
+    try {
+      let passwords: Record<string, string> = {};
+      let result = await window.api.invoke('ad:importConfigs', { 
+        customPath: settings.adConfPath, 
+        passwords 
+      });
+
+      // Si hay archivos que necesitan contraseña, preguntamos por cada uno
+      while (result.needPassword && result.needPassword.length > 0) {
+        const file = result.needPassword[0];
+        const pass = await showPrompt(
+          'Archivo Cifrado Detectado', 
+          `El archivo "${file.name}" está cifrado. Introduce su contraseña:`,
+          'password',
+          'Contraseña del archivo .conf'
+        );
+
+        if (pass === null) break; // Usuario canceló
+
+        passwords[file.path] = pass;
+        
+        // Reintentar con la nueva contraseña añadida al mapa
+        result = await window.api.invoke('ad:importConfigs', { 
+          customPath: settings.adConfPath, 
+          passwords 
+        });
+      }
+
+      if (result.imported > 0 || result.failed.length === 0) {
+        await showAlert(
+          'Importación finalizada', 
+          `Se han importado ${result.imported} configuraciones.${result.failed.length > 0 ? `\nFallaron: ${result.failed.join(', ')}` : ''}`,
+          result.failed.length > 0 ? 'warning' : 'success'
+        );
+      }
+    } catch (e) {
+      error = 'Error al importar: ' + (e as Error).message;
+    } finally {
+      isLoading = false;
+    }
+  }
 </script>
 
 <div class="card bg-base-200 shadow-xl p-6 flex flex-col gap-4">
@@ -83,7 +147,7 @@
     {#if isDomain}
       <input 
         type="checkbox" 
-        class="toggle toggle-primary" 
+        class="toggle [--tglbg:white] checked:bg-brand-green checked:border-brand-green border-slate-300" 
         checked={settings?.adIntegrationEnabled} 
         onchange={toggleAD}
         disabled={isLoading}
@@ -101,19 +165,22 @@
     <div class="divider"></div>
     
     <div class="flex flex-col gap-2">
-      <h3 class="font-semibold text-brand-blue">Estado: Conectado y Autologin Activo</h3>
+      <h3 class="font-semibold text-brand-blue dark:text-blue-400">Estado: Conectado y Autologin Activo</h3>
       {#if settings.infoDominio}
-        <div class="grid grid-cols-2 gap-2 text-sm mt-2 bg-base-300 p-3 rounded-lg">
+        <div class="grid grid-cols-2 gap-2 text-sm mt-2 bg-base-300 dark:bg-slate-700/50 p-3 rounded-lg border border-base-content/5">
           <span class="opacity-70">Usuario:</span>
-          <span class="font-mono">{settings.infoDominio.SamAccountName}</span>
+          <span class="font-mono font-medium">{settings.infoDominio.SamAccountName}</span>
           <span class="opacity-70">Nombre:</span>
-          <span>{settings.infoDominio.DisplayName}</span>
+          <span class="font-medium">{settings.infoDominio.DisplayName}</span>
           <span class="opacity-70">Departamento:</span>
-          <span>{settings.infoDominio.Department}</span>
+          <span class="font-medium">{settings.infoDominio.Department || 'N/D'}</span>
           <span class="opacity-70">Actualizado:</span>
-          <span>{new Date(settings.infoDominio.lastUpdated).toLocaleString()}</span>
+          <span class="text-xs">{new Date(settings.infoDominio.lastUpdated).toLocaleString()}</span>
         </div>
-        <button class="btn btn-sm btn-ghost mt-2" onclick={syncAD} disabled={isLoading}>
+        <button class="btn btn-sm btn-ghost text-brand-blue dark:text-blue-400 mt-2" onclick={syncAD} disabled={isLoading}>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
           Re-sincronizar datos de red
         </button>
       {:else if !isLoading}
@@ -124,20 +191,14 @@
     <div class="divider"></div>
 
     <div class="flex flex-col gap-2">
-      <h3 class="font-semibold">Importación Automática (.conf)</h3>
-      <p class="text-xs opacity-70 mb-2">Se buscarán archivos en la ruta especificada para crear servicios automáticamente.</p>
-      <div class="flex gap-2">
-        <input 
-          type="text" 
-          class="input input-bordered input-sm flex-1" 
-          placeholder="Ruta externa de configuraciones..." 
-          readonly
-          value={settings.adConfPath || ''} 
-        />
-        <button class="btn btn-sm btn-secondary" onclick={selectConfPath}>Cambiar</button>
-      </div>
-      <button class="btn btn-sm btn-primary w-full mt-2" onclick={importConfigs} disabled={isLoading}>
-        Escanear e Importar ahora
+      <h3 class="font-semibold">Importación Automática de Red</h3>
+      <p class="text-xs opacity-70 mb-4">Se escanearán los recursos corporativos para configurar automáticamente tus unidades de red.</p>
+      
+      <button class="btn btn-sm bg-brand-green hover:bg-brand-green-dark text-white border-none w-full shadow-md" onclick={importConfigs} disabled={isLoading}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        Escanear e Importar Configuraciones
       </button>
     </div>
   {/if}

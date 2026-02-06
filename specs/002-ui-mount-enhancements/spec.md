@@ -20,3 +20,15 @@
 - **Palette**: defined in `tailwind.config.js` under `colors.brand`.
 - **Icons**: Use existing icon set, updated to be circular/floating where specified.
 - **Modals**: Custom DaisyUI dialogs replacing native `alert`/`confirm` for consistent theming.
+
+### Window Persistence
+- **State**: The application saves the main window's width, height, X, and Y coordinates.
+- **Persistence**: Data is stored in `electron-store` under the key `windowBounds`.
+- **Logic**: Dimensions are updated on every `resize` or `move` event with a 500ms debounce to optimize performance.
+- **Restoration**: Upon startup, the application retrieves these values and applies them to the `BrowserWindow` constructor, defaulting to 813x952 if no prior state exists.
+
+### Configuration Management (Import/Export)
+- **Format**: Standard Rclone `.conf` (INI format).
+- **Encryption**: Uses Rclone's native encryption (`config encryption set`) for exported files if a password is provided.
+- **Portability**: Exported files are compatible with standard Rclone installations and the application's AD auto-import feature.
+- **Decryption**: Uses `rclone config show` with the session password (or a prompt-provided password) to decrypt contents before importing.

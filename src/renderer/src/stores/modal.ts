@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 
-export type ModalType = 'alert' | 'confirm';
+export type ModalType = 'alert' | 'confirm' | 'prompt';
 export type ModalVariant = 'info' | 'warning' | 'error' | 'success';
 
 export interface ModalOptions {
@@ -9,13 +9,15 @@ export interface ModalOptions {
     variant?: ModalVariant;
     confirmText?: string;
     cancelText?: string;
+    inputType?: string;
+    placeholder?: string;
 }
 
 interface ModalState {
     isOpen: boolean;
     type: ModalType;
     options: ModalOptions;
-    resolve: (value: boolean) => void;
+    resolve: (value: any) => void;
 }
 
 const initialState: ModalState = {
@@ -47,6 +49,20 @@ export function showConfirm(title: string, message: string, variant: ModalVarian
             isOpen: true,
             type: 'confirm',
             options: { title, message, variant, confirmText },
+            resolve: (val) => {
+                modalStore.set(initialState);
+                resolve(!!val);
+            }
+        });
+    });
+}
+
+export function showPrompt(title: string, message: string, inputType = 'text', placeholder = ''): Promise<string | null> {
+    return new Promise((resolve) => {
+        modalStore.set({
+            isOpen: true,
+            type: 'prompt',
+            options: { title, message, inputType, placeholder },
             resolve: (val) => {
                 modalStore.set(initialState);
                 resolve(val);

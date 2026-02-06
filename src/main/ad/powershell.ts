@@ -41,9 +41,24 @@ export class PowerShellWrapper {
    * Ejecuta un comando y parsea el resultado como JSON.
    */
   static async executeAsJson<T>(command: string): Promise<T> {
-    const script = `${command} | ConvertTo-Json -Compress`;
+    // Usamos -Depth 10 para asegurar que no trunque la lista de grupos (MemberOf)
+    const script = `${command} | ConvertTo-Json -Compress -Depth 10`;
     const result = await this.execute(script);
-    if (!result) return null as unknown as T;
-    return JSON.parse(result) as T;
+    
+    if (!result || result === 'null') return null as unknown as T;
+    
+    try {
+        // Intentamos limpiar posibles caracteres invisibles o advertencias de PS
+        const jsonStart = result.indexOf('{');
+        const jsonEnd = result.lastIndexOf('}');
+        if (jsonStart !== -1 && jsonEnd !== -1) {
+            const cleanJson = result.substring(jsonStart, jsonEnd + 1);
+            return JSON.parse(cleanJson) as T;
+        }
+        return JSON.parse(result) as T;
+    } catch (e) {
+        console.error('[PowerShell] Failed to parse JSON:', result);
+        throw e;
+    }
   }
 }

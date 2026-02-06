@@ -1,43 +1,68 @@
-import { ipcMain, dialog } from 'electron';
+import { ipcMain, dialog, BrowserWindow } from 'electron';
 import fs from 'fs-extra';
-import { encrypt, decrypt } from '../utils/crypto';
+import path from 'path';
+import { spawn } from 'child_process';
 import { RcloneConfig } from '../rclone/config';
+import { RCLONE_EXE_PATH } from '../utils/paths';
 
 const config = new RcloneConfig();
+
+/**
+ * Intenta descifrar un archivo usando rclone config show.
+ */
+async function decryptContent(filePath: string, password?: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(RCLONE_EXE_PATH, ['config', 'show', '--config', filePath], {
+      env: { ...process.env, RCLONE_CONFIG_PASS: password }
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (data) => stdout += data.toString());
+    child.stderr.on('data', (data) => stderr += data.toString());
+    child.on('close', (code) => {
+      if (code === 0) resolve(stdout.trim());
+      else reject(new Error(stderr.trim() || 'Contraseña incorrecta'));
+    });
+  });
+}
+
+/**
+ * Parsea un contenido tipo INI de rclone.
+ */
+function parseRcloneIni(content: string): { name: string, type: string, params: Record<string, string> }[] {
+  const remotes: { name: string, type: string, params: Record<string, string> }[] = [];
+  const lines = content.replace(/\r\n/g, '\n').split('\n');
+  let currentRemote: any = null;
+
+  for (let line of lines) {
+    line = line.trim();
+    if (!line || line.startsWith('#') || line.startsWith(';')) continue;
+    if (line.startsWith('[') && line.endsWith(']')) {
+      if (currentRemote) remotes.push(currentRemote);
+      currentRemote = { name: line.slice(1, -1), params: {} };
+    } else if (currentRemote && line.includes('=')) {
+      const parts = line.split('=');
+      const key = parts[0].trim();
+      const val = parts.slice(1).join('=').trim();
+      if (key === 'type') currentRemote.type = val;
+      else currentRemote.params[key] = val;
+    }
+  }
+  if (currentRemote) remotes.push(currentRemote);
+  return remotes;
+}
 
 export function registerConfigTransferHandlers() {
   ipcMain.handle('config:export', async (_, { serviceNames, password }) => {
     try {
         const { filePath } = await dialog.showSaveDialog({
             defaultPath: 'becall-mount-export.conf',
-            filters: [{ name: 'Configuración Becall-Mount', extensions: ['conf'] }]
+            filters: [{ name: 'Configuración Rclone (.conf)', extensions: ['conf'] }]
         });
 
         if (!filePath) return { success: false };
 
-        const servicesToExport = [];
-        for (const name of serviceNames) {
-            const remote = await config.getRemoteConfig(name);
-            // Need the type. listRemotes gives name/type. getRemoteConfig gives config.
-            // Actually getRemoteConfig result usually has 'type' in it or we merge it?
-            // Rclone 'config dump' returns object with keys as remote names.
-            // getRemoteConfig returns the specific remote object which INCLUDES 'type'.
-            if (remote) {
-                servicesToExport.push({
-                    name,
-                    type: remote.type,
-                    params: remote
-                });
-            }
-        }
-
-        const payload = JSON.stringify({
-            version: 1,
-            services: servicesToExport
-        });
-
-        const encrypted = await encrypt(payload, password);
-        await fs.writeFile(filePath, encrypted);
+        await config.exportTo(filePath, serviceNames, password);
 
         return { success: true, filePath };
     } catch (e: any) {
@@ -48,42 +73,46 @@ export function registerConfigTransferHandlers() {
 
   ipcMain.handle('config:import', async (_, { filePath, password }) => {
     try {
-        const buffer = await fs.readFile(filePath);
-        let content = '';
+        if (!fs.existsSync(filePath)) throw new Error('El archivo no existe');
         
-        try {
-            content = await decrypt(buffer, password);
-        } catch (e) {
-            return { success: false, error: 'Contraseña incorrecta o archivo corrupto' };
+        const rawContent = await fs.readFile(filePath, 'utf-8');
+        let content = '';
+
+        if (rawContent.includes('RCLONE_ENCRYPT_V0') || !rawContent.trim().startsWith('[')) {
+            try {
+                content = await decryptContent(filePath, password);
+            } catch (e) {
+                return { success: false, error: 'Contraseña incorrecta o archivo corrupto' };
+            }
+        } else {
+            content = rawContent;
         }
 
-        const data = JSON.parse(content);
-        if (data.version !== 1 || !Array.isArray(data.services)) {
-            return { success: false, error: 'Formato de archivo inválido' };
+        const servicesToImport = parseRcloneIni(content);
+        if (servicesToImport.length === 0) {
+            return { success: false, error: 'No se encontraron servicios válidos en el archivo' };
         }
 
         const existingRemotes = await config.listRemotes();
         const existingNames = new Set(existingRemotes.map(r => r.name));
         
         const conflicts = [];
-        let imported = 0;
+        let importedCount = 0;
 
-        for (const service of data.services) {
+        for (const service of servicesToImport) {
             if (existingNames.has(service.name)) {
                 conflicts.push({ name: service.name, type: service.type, params: service.params });
             } else {
-                // Remove 'type' from params if it's there, as createRemote takes type argument
-                // Actually createRemote(name, type, params). 
-                // Params usually excludes name/type in the prompt logic, but rclone config create takes key=value.
-                // 'type' is a separate arg.
-                const { type, ...params } = service.params;
-                await config.createRemote(service.name, service.type, params);
-                imported++;
+                await config.createRemote(service.name, service.type, service.params);
+                importedCount++;
             }
         }
 
-        // We return conflicts full data so UI can decide how to re-submit them (rename/overwrite)
-        return { success: true, servicesImported: imported, conflicts };
+        if (importedCount > 0) {
+            BrowserWindow.getAllWindows().forEach(win => win.webContents.send('services:updated'));
+        }
+
+        return { success: true, servicesImported: importedCount, conflicts };
     } catch (e: any) {
         console.error('Import failed', e);
         return { success: false, error: e.message };
