@@ -4,6 +4,7 @@ import path from 'path';
 import util from 'util';
 import { RCLONE_EXE_PATH, LOGS_PATH, RCLONE_CONFIG_PATH } from '../utils/paths';
 import { getSessionPassword } from '../utils/session';
+import { getFreeDiskSpaceGB } from '../utils/system';
 import getStore from '../store';
 import { MountState } from '../../contracts/types';
 import { RcloneConfig } from './config';
@@ -37,7 +38,7 @@ export class MountManager {
       return null;
   }
 
-  async mount(serviceName: string, mountType: 'drive' | 'folder', target: string, extraArgs: string[] = [], schemaIconPath?: string): Promise<void> {
+  async mount(serviceName: string, mountType: 'drive' | 'folder', target: string, extraArgs: string[] = [], schemaIconPath?: string): Promise<string> {
     const store = getStore();
     const existingMounts = store.get('mounts') || [];
     const existingIndex = existingMounts.findIndex(m => m.mountPoint === target);
@@ -66,7 +67,7 @@ export class MountManager {
         }
     }
 
-    const pid = await this.spawnRclone(serviceName, mountType, target, extraArgs, schemaIconPath);
+    const { pid, command, cacheSize } = await this.spawnRclone(serviceName, mountType, target, extraArgs, schemaIconPath);
 
     const mounts = store.get('mounts') || [];
     mounts.push({
@@ -78,12 +79,15 @@ export class MountManager {
         startTime: new Date().toISOString(),
         status: 'mounted',
         iconPath: schemaIconPath,
-        extraArgs
+        extraArgs,
+        cacheSize
     });
     store.set('mounts', mounts);
+
+    return command;
   }
 
-  private async spawnRclone(serviceName: string, mountType: 'drive' | 'folder', target: string, extraArgs: string[], schemaIconPath?: string): Promise<number> {
+  private async spawnRclone(serviceName: string, mountType: 'drive' | 'folder', target: string, extraArgs: string[], schemaIconPath?: string): Promise<{ pid: number; command: string; cacheSize: string }> {
     const store = getStore();
     const logFile = path.join(LOGS_PATH, `mount-${serviceName}-${Date.now()}.log`);
     await fs.ensureDir(LOGS_PATH);
@@ -128,32 +132,55 @@ export class MountManager {
             advancedArgs.push(flag, value as string);
         }
     }
+
+    // Calcular el límite de caché dinámico
+    const freeSpaceGB = await getFreeDiskSpaceGB('C');
+    const settings = store.get('settings');
+    const percentage = settings.mountPercentageLimit || 80;
+    const activeMountsCount = this.getMounts().filter(m => m.status === 'mounted').length;
     
-    console.log('[MountManager] Advanced Args prepared:', advancedArgs);
+    // Reparto equitativo (Opción A): Espacio_Total_Permitido / (Montajes_Activos + 1)
+    const totalAllowedSpace = freeSpaceGB * (percentage / 100);
+    const perMountCacheGB = Math.round(totalAllowedSpace / (activeMountsCount + 1));
+    const finalCacheSize = perMountCacheGB > 0 ? `${perMountCacheGB}G` : '1G';
+
+    console.log(`[MountManager] Cache Calc: Free=${freeSpaceGB}GB, %= ${percentage}, Active=${activeMountsCount}, Result=${finalCacheSize}`);
+
+    const defaultFlags: Record<string, string> = {
+        '--vfs-cache-mode': 'full',
+        '--vfs-read-chunk-size': '128M',
+        '--vfs-read-chunk-size-limit': '1G',
+        '--vfs-cache-max-age': '24h',
+        '--vfs-cache-max-size': finalCacheSize,
+        '--bwlimit-file': '32M'
+    };
 
     const args = [
         'mount', remotePathFull, target,
         '--config', RCLONE_CONFIG_PATH,
-        '--vfs-cache-mode', 'full',
         '--no-console',
         '--log-file', logFile,
         '--log-level', 'INFO',
-        ...extraArgs,
-        ...advancedArgs
     ];
 
-    // Remove default --vfs-cache-mode if user provided one in advancedArgs
-    // We check if it exists in advancedArgs values (since advancedArgs is [flag, value, flag, value...])
-    if (advancedArgs.includes('--vfs-cache-mode')) {
-        const defaultIndex = args.indexOf('--vfs-cache-mode');
-        // Ensure we remove the default one (which is early in the array), not the user one (at the end)
-        if (defaultIndex > -1 && defaultIndex < args.length - advancedArgs.length) {
-            args.splice(defaultIndex, 2); 
+    // Añadir flags por defecto solo si no están en advancedArgs
+    for (const [flag, defaultValue] of Object.entries(defaultFlags)) {
+        if (!advancedArgs.includes(flag)) {
+            args.push(flag, defaultValue);
         }
     }
 
-    console.log('🚀 LANZANDO MONTAJE RCLONE:');
-    console.log(`> "${RCLONE_EXE_PATH}"`, JSON.stringify(args));
+    // Añadir el resto de argumentos (extra y avanzados)
+    args.push(...extraArgs);
+    args.push(...advancedArgs);
+
+    const fullCommand = `"${RCLONE_EXE_PATH}" ${args.join(' ')}`;
+
+    console.log('\n' + '='.repeat(80));
+    console.log('🚀 EJECUTANDO COMANDO DE MONTAJE:');
+    console.log('-'.repeat(80));
+    console.log(fullCommand);
+    console.log('='.repeat(80) + '\n');
 
     const child = spawn(RCLONE_EXE_PATH, args, { env, detached: true, stdio: 'ignore' });
     child.unref();
@@ -168,7 +195,7 @@ export class MountManager {
         throw new Error(`Error en rclone: ${log.slice(0, 200)}`);
     }
 
-    return child.pid;
+    return { pid: child.pid, command: fullCommand, cacheSize: finalCacheSize };
   }
 
   async autoMountAll(): Promise<void> {
@@ -180,8 +207,9 @@ export class MountManager {
           if (!isRunning) {
               console.log(`[MountManager] Re-mounting ${m.serviceName}...`);
               try {
-                  const newPid = await this.spawnRclone(m.serviceName, m.mountType, m.mountPoint, m.extraArgs || [], m.iconPath);
-                  mounts[i].pid = newPid;
+                  const { pid, cacheSize } = await this.spawnRclone(m.serviceName, m.mountType, m.mountPoint, m.extraArgs || [], m.iconPath);
+                  mounts[i].pid = pid;
+                  mounts[i].cacheSize = cacheSize;
                   mounts[i].startTime = new Date().toISOString();
               } catch (e) {
                   console.error(`[MountManager] Auto-mount failed for ${m.serviceName}`, e);

@@ -10,8 +10,11 @@
       theme: 'system',
       rclonePath: '',
       firstRun: false,
-      passwordHash: ''
+      passwordHash: '',
+      mountPercentageLimit: 80
   });
+
+  let freeSpaceGB = $state<number>(0);
 
   // Export State
   let showExportModal = $state(false);
@@ -53,6 +56,10 @@
 
   onMount(async () => {
       settings = await window.api.invoke('settings:get');
+      if (settings.mountPercentageLimit === undefined) {
+          settings.mountPercentageLimit = 80;
+      }
+      freeSpaceGB = await window.api.invoke('system:get-free-space', 'C');
       applyTheme(settings.theme);
   });
 
@@ -65,6 +72,18 @@
   async function updateAutoLaunch(enabled: boolean) {
       settings.autoLaunch = enabled;
       await window.api.invoke('settings:set', { autoLaunch: enabled });
+  }
+
+  async function updateMountPercentage(value: number) {
+      if (value >= 100) {
+          await showAlert('Error', 'El porcentaje no puede ser 100% o superior.', 'warning');
+          return;
+      }
+      if (value > 80) {
+          await showAlert('Aviso', 'Se recomienda no superar el 80% del espacio libre para garantizar el rendimiento del sistema.', 'info');
+      }
+      settings.mountPercentageLimit = value;
+      await window.api.invoke('settings:set', { mountPercentageLimit: value });
   }
 
   function applyTheme(theme: 'light' | 'dark' | 'system') {
@@ -199,12 +218,12 @@
 </script>
 
 <div class="p-4">
-  <h2 class="text-2xl font-bold mb-6 text-brand-blue dark:text-white">Configuración</h2>
+  <h2 class="text-2xl font-bold mb-6 text-text-brand-primary">Configuración</h2>
   
   <div class="space-y-6">
       <div class="form-control max-w-xs">
-          <label class="label font-bold">Tema</label>
-          <select class="select select-bordered" value={settings.theme} onchange={(e) => updateTheme(e.currentTarget.value as any)}>
+          <label class="label font-bold text-text-primary">Tema</label>
+          <select class="select select-bordered bg-primary border-primary text-text-primary" value={settings.theme} onchange={(e) => updateTheme(e.currentTarget.value as any)}>
               <option value="light">Claro</option>
               <option value="dark">Oscuro</option>
               <option value="system">Sistema</option>
@@ -213,23 +232,55 @@
 
       <div class="form-control max-w-sm">
           <label class="label cursor-pointer justify-start gap-4">
-              <span class="label-text font-bold">Arrancar al iniciar sesión</span>
-              <input type="checkbox" class="toggle border-brand-blue checked:bg-brand-blue checked:border-brand-blue" checked={settings.autoLaunch} onchange={(e) => updateAutoLaunch(e.currentTarget.checked)} />
+              <span class="label-text font-bold text-text-primary">Arrancar al iniciar sesión</span>
+              <input type="checkbox" class="toggle border-border-brand checked:bg-brand-500 checked:border-border-brand" checked={settings.autoLaunch} onchange={(e) => updateAutoLaunch(e.currentTarget.checked)} />
           </label>
-          <p class="text-xs text-gray-500 dark:text-gray-400">Si se activa, la aplicación se iniciará automáticamente cuando inicies sesión en Windows.</p>
+          <p class="text-xs text-text-secondary">Si se activa, la aplicación se iniciará automáticamente cuando inicies sesión en Windows.</p>
       </div>
 
-      <div class="divider"></div>
+      <div class="divider border-primary"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="form-control w-full max-w-xs">
+              <label class="label">
+                  <span class="label-text font-bold text-text-primary">Espacio libre disponible en disco C</span>
+              </label>
+              <div class="flex items-center gap-2 px-4 py-2 bg-secondary rounded-lg border border-primary">
+                  <span class="text-lg font-mono text-text-brand-primary">{freeSpaceGB} GB</span>
+              </div>
+              <p class="text-xs text-text-secondary mt-1">Información del sistema en tiempo real.</p>
+          </div>
+
+          <div class="form-control w-full max-w-xs">
+              <label class="label">
+                  <span class="label-text font-bold text-text-primary">Porcentaje de espacio en disco libre<br />a utilizar para montaje de unidades</span>
+              </label>
+              <div class="flex items-center gap-3">
+                  <input 
+                      type="number" 
+                      min="1" 
+                      max="99" 
+                      class="input input-bordered w-24 text-center font-bold bg-primary border-primary text-text-primary" 
+                      value={settings.mountPercentageLimit} 
+                      onchange={(e) => updateMountPercentage(parseInt(e.currentTarget.value))}
+                  />
+                  <span class="text-xl font-bold text-text-primary">%</span>
+              </div>
+              <p class="text-xs text-text-secondary mt-1">Límite de seguridad recomendado: 80% o menos.</p>
+          </div>
+      </div>
+
+      <div class="divider border-primary"></div>
 
       <ADIntegration />
 
-      <div class="divider"></div>
+      <div class="divider border-primary"></div>
 
       <div>
-          <h3 class="font-bold text-lg mb-2">Gestión de Configuración</h3>
+          <h3 class="font-bold text-lg mb-2 text-text-primary">Gestión de Configuración</h3>
           <div class="flex gap-4">
-              <button class="btn bg-brand-green text-white hover:bg-brand-green-dark border-none" onclick={startExport}>Exportar Configuración</button>
-              <button class="btn btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" onclick={startImport}>Importar Configuración</button>
+              <button class="btn bg-brand-600 text-white hover:bg-brand-700 border-none" onclick={startExport}>Exportar Configuración</button>
+              <button class="btn btn-outline text-brand-600 border-brand-600 hover:bg-brand-600 hover:text-white" onclick={startImport}>Importar Configuración</button>
           </div>
       </div>
   </div>
@@ -237,31 +288,31 @@
   <!-- Export Modal -->
   {#if showExportModal}
       <dialog class="modal modal-open">
-          <div class="modal-box bg-white dark:bg-slate-800 dark:text-white">
+          <div class="modal-box bg-primary text-text-primary border border-primary">
               <h3 class="font-bold text-lg mb-4">Exportar Configuración</h3>
               {#if exportStep === 1}
-                  <p class="mb-2 dark:text-gray-300">Selecciona los servicios a exportar:</p>
-                  <div class="max-h-60 overflow-y-auto mb-4 border dark:border-gray-600 rounded-lg p-3 bg-gray-50 dark:bg-slate-700/50 flex flex-col gap-1">
+                  <p class="mb-2 text-text-secondary">Selecciona los servicios a exportar:</p>
+                  <div class="max-h-60 overflow-y-auto mb-4 border border-primary rounded-lg p-3 bg-secondary flex flex-col gap-1">
                       {#each services as service}
-                          <label class="label cursor-pointer flex justify-start items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-slate-600 rounded-md transition-colors">
-                              <input type="checkbox" class="checkbox border-brand-green checked:bg-brand-green checked:border-brand-green" checked={selectedServices.has(service.name)} onchange={() => toggleService(service.name)} />
+                          <label class="label cursor-pointer flex justify-start items-center gap-3 p-2 hover:bg-primary/50 rounded-md transition-colors">
+                              <input type="checkbox" class="checkbox border-success-500 checked:bg-success-500 checked:border-success-500" checked={selectedServices.has(service.name)} onchange={() => toggleService(service.name)} />
                               <div class="flex flex-col">
-                                  <span class="label-text dark:text-gray-200 font-bold">{service.name}</span>
-                                  <span class="text-xs text-gray-500 dark:text-gray-400 capitalize">{service.type}</span>
+                                  <span class="label-text text-text-primary font-bold">{service.name}</span>
+                                  <span class="text-xs text-text-secondary capitalize">{service.type}</span>
                               </div>
                           </label>
                       {/each}
                   </div>
                   <div class="modal-action">
-                      <button class="btn btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" onclick={() => showExportModal = false}>Cancelar</button>
-                      <button class="btn bg-brand-green hover:bg-brand-green-dark text-white border-none" onclick={() => exportStep = 2} disabled={selectedServices.size === 0}>Continuar</button>
+                      <button class="btn btn-outline text-brand-600 border-brand-600 hover:bg-brand-600 hover:text-white" onclick={() => showExportModal = false}>Cancelar</button>
+                      <button class="btn bg-brand-600 hover:bg-brand-700 text-white border-none" onclick={() => exportStep = 2} disabled={selectedServices.size === 0}>Continuar</button>
                   </div>
               {:else}
-                  <p class="mb-2 dark:text-gray-300">Establece una contraseña para encriptar el archivo:</p>
-                  <input bind:this={exportPasswordRef} type="password" class="input input-bordered w-full mb-4 dark:bg-slate-700 dark:border-gray-600" bind:value={exportPassword} placeholder="Contraseña" />
+                  <p class="mb-2 text-text-secondary">Establece una contraseña para encriptar el archivo:</p>
+                  <input bind:this={exportPasswordRef} type="password" class="input input-bordered w-full mb-4 bg-primary border-primary text-text-primary" bind:value={exportPassword} placeholder="Contraseña" />
                   <div class="modal-action">
-                      <button class="btn btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" onclick={() => exportStep = 1}>Atrás</button>
-                      <button class="btn bg-brand-green hover:bg-brand-green-dark text-white border-none" onclick={doExport} disabled={!exportPassword}>Exportar</button>
+                      <button class="btn btn-outline text-brand-600 border-brand-600 hover:bg-brand-600 hover:text-white" onclick={() => exportStep = 1}>Atrás</button>
+                      <button class="btn bg-brand-600 hover:bg-brand-700 text-white border-none" onclick={doExport} disabled={!exportPassword}>Exportar</button>
                   </div>
               {/if}
           </div>
@@ -271,13 +322,13 @@
   <!-- Import Modal -->
   {#if showImportModal}
       <dialog class="modal modal-open">
-          <div class="modal-box bg-white dark:bg-slate-800 dark:text-white">
+          <div class="modal-box bg-primary text-text-primary border border-primary">
               <h3 class="font-bold text-lg mb-4">Importar Configuración</h3>
-              <p class="mb-2 dark:text-gray-300">Introduce la contraseña del archivo:</p>
-              <input bind:this={importPasswordRef} type="password" class="input input-bordered w-full mb-4 dark:bg-slate-700 dark:border-gray-600" bind:value={importPassword} placeholder="Contraseña" />
+              <p class="mb-2 text-text-secondary">Introduce la contraseña del archivo:</p>
+              <input bind:this={importPasswordRef} type="password" class="input input-bordered w-full mb-4 bg-primary border-primary text-text-primary" bind:value={importPassword} placeholder="Contraseña" />
               <div class="modal-action">
-                  <button class="btn btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" onclick={() => showImportModal = false}>Cancelar</button>
-                  <button class="btn bg-brand-green hover:bg-brand-green-dark text-white border-none" onclick={doImport} disabled={!importPassword}>Importar</button>
+                  <button class="btn btn-outline text-brand-600 border-brand-600 hover:bg-brand-600 hover:text-white" onclick={() => showImportModal = false}>Cancelar</button>
+                  <button class="btn bg-brand-600 hover:bg-brand-700 text-white border-none" onclick={doImport} disabled={!importPassword}>Importar</button>
               </div>
           </div>
       </dialog>

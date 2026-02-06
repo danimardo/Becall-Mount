@@ -14,8 +14,8 @@ export function registerMountHandlers() {
   const mountManager = getMountManager();
 
   ipcMain.handle('mount:start', async (_, { serviceName, mountType, target, extraArgs, iconPath }) => {
-    await mountManager.mount(serviceName, mountType, target, extraArgs || [], iconPath);
-    return true;
+    const command = await mountManager.mount(serviceName, mountType, target, extraArgs || [], iconPath);
+    return command;
   });
 
   ipcMain.handle('mount:stop', async (_, target) => {

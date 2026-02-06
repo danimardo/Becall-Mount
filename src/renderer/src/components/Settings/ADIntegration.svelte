@@ -134,20 +134,20 @@
   }
 </script>
 
-<div class="card bg-base-200 shadow-xl p-6 flex flex-col gap-4">
+<div class="card bg-secondary text-text-primary border border-primary shadow-xl p-6 flex flex-col gap-4">
   <div class="flex items-center justify-between">
     <div>
-      <h2 class="text-xl font-bold">Integración con Active Directory</h2>
+      <h2 class="text-xl font-bold text-text-brand-primary">Integración con Active Directory</h2>
       {#if isDomain}
-        <p class="text-sm opacity-70">Sincroniza configuración y habilita autologin de dominio.</p>
+        <p class="text-sm opacity-70 text-text-secondary">Sincroniza configuración y habilita autologin de dominio.</p>
       {:else}
-        <p class="text-sm text-error font-semibold italic">Funcionalidad no disponible: Equipo no unido a un dominio.</p>
+        <p class="text-sm text-error-500 font-semibold italic">Funcionalidad no disponible: Equipo no unido a un dominio.</p>
       {/if}
     </div>
     {#if isDomain}
       <input 
         type="checkbox" 
-        class="toggle [--tglbg:white] checked:bg-brand-green checked:border-brand-green border-slate-300" 
+        class="toggle border-border-brand checked:bg-brand-500 checked:border-border-brand" 
         checked={settings?.adIntegrationEnabled} 
         onchange={toggleAD}
         disabled={isLoading}
@@ -156,45 +156,45 @@
   </div>
 
   {#if error}
-    <div class="alert alert-error text-sm">
+    <div class="alert bg-error-500/10 border-error-500/30 text-error-600 text-sm">
       <span>{error}</span>
     </div>
   {/if}
 
   {#if settings?.adIntegrationEnabled && isDomain}
-    <div class="divider"></div>
+    <div class="divider border-primary/50"></div>
     
     <div class="flex flex-col gap-2">
-      <h3 class="font-semibold text-brand-blue dark:text-blue-400">Estado: Conectado y Autologin Activo</h3>
+      <h3 class="font-semibold text-text-brand-primary">Estado: Conectado y Autologin Activo</h3>
       {#if settings.infoDominio}
-        <div class="grid grid-cols-2 gap-2 text-sm mt-2 bg-base-300 dark:bg-slate-700/50 p-3 rounded-lg border border-base-content/5">
-          <span class="opacity-70">Usuario:</span>
+        <div class="grid grid-cols-2 gap-2 text-sm mt-2 bg-primary dark:bg-slate-700/50 p-3 rounded-lg border border-primary">
+          <span class="opacity-70 text-text-secondary">Usuario:</span>
           <span class="font-mono font-medium">{settings.infoDominio.SamAccountName}</span>
-          <span class="opacity-70">Nombre:</span>
+          <span class="opacity-70 text-text-secondary">Nombre:</span>
           <span class="font-medium">{settings.infoDominio.DisplayName}</span>
-          <span class="opacity-70">Departamento:</span>
+          <span class="opacity-70 text-text-secondary">Departamento:</span>
           <span class="font-medium">{settings.infoDominio.Department || 'N/D'}</span>
-          <span class="opacity-70">Actualizado:</span>
+          <span class="opacity-70 text-text-secondary">Actualizado:</span>
           <span class="text-xs">{new Date(settings.infoDominio.lastUpdated).toLocaleString()}</span>
         </div>
-        <button class="btn btn-sm btn-ghost text-brand-blue dark:text-blue-400 mt-2" onclick={syncAD} disabled={isLoading}>
+        <button class="btn btn-sm btn-ghost text-brand-600 mt-2" onclick={syncAD} disabled={isLoading}>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           Re-sincronizar datos de red
         </button>
       {:else if !isLoading}
-        <p class="text-sm text-warning italic">Sincronizando datos del dominio...</p>
+        <p class="text-sm text-warning-600 italic">Sincronizando datos del dominio...</p>
       {/if}
     </div>
 
-    <div class="divider"></div>
+    <div class="divider border-primary/50"></div>
 
     <div class="flex flex-col gap-2">
-      <h3 class="font-semibold">Importación Automática de Red</h3>
-      <p class="text-xs opacity-70 mb-4">Se escanearán los recursos corporativos para configurar automáticamente tus unidades de red.</p>
+      <h3 class="font-semibold text-text-primary">Importación Automática de Red</h3>
+      <p class="text-xs text-text-secondary mb-4">Se escanearán los recursos corporativos para configurar automáticamente tus unidades de red.</p>
       
-      <button class="btn btn-sm bg-brand-green hover:bg-brand-green-dark text-white border-none w-full shadow-md" onclick={importConfigs} disabled={isLoading}>
+      <button class="btn btn-sm bg-orange-500 hover:bg-orange-600 text-white border-none w-full shadow-md" onclick={importConfigs} disabled={isLoading}>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
@@ -205,7 +205,7 @@
 
   {#if isLoading}
     <div class="flex justify-center">
-      <span class="loading loading-dots loading-md"></span>
+      <span class="loading loading-dots loading-md text-brand-600"></span>
     </div>
   {/if}
 </div>

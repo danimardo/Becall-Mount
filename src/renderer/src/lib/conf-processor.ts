@@ -10,24 +10,27 @@ export class ConfProcessor {
    */
   static process(content: string, info: DomainInfo | null): string {
     if (!info) {
-      // Si no hay info de AD, eliminamos todas las variables %...% por seguridad/limpieza
+      console.log('[ConfProcessor] No hay información de dominio disponible. Limpiando variables.');
       return content.replace(/%[a-zA-Z0-9]+%/g, '');
     }
 
-    return content.replace(/%([a-zA-Z0-9]+)%/g, (match, key) => {
-      const value = (info as any)[key];
+    console.log('[ConfProcessor] Iniciando procesamiento de variables con info de dominio.');
+
+    const processed = content.replace(/%([a-zA-Z0-9]+)%/g, (match, key) => {
+      // Buscar la clave de forma insensible a mayúsculas
+      const foundKey = Object.keys(info).find(k => k.toLowerCase() === key.toLowerCase());
+      const value = foundKey ? (info as any)[foundKey] : undefined;
       
       if (value === undefined || value === null) {
+        console.log(`[ConfProcessor] Variable %${key}% no encontrada en AD. Sustituyendo por vacío.`);
         return '';
       }
 
-      // Si es un array (como MemberOf), lo unimos por comas o tomamos el primero
-      // Por ahora, asumimos que se buscan strings simples
-      if (Array.isArray(value)) {
-        return value.join(',');
-      }
-
-      return String(value);
+      const stringValue = Array.isArray(value) ? value.join(',') : String(value);
+      console.log(`[ConfProcessor] Sustituyendo %${key}% -> ${stringValue}`);
+      return stringValue;
     });
+
+    return processed;
   }
 }

@@ -53,14 +53,14 @@
   }
 </script>
 
-<div class="card bg-white dark:bg-slate-800 shadow-xl max-w-sm mx-auto mt-20 border border-gray-100 dark:border-gray-700">
+<div class="card bg-primary text-text-primary shadow-xl max-w-sm mx-auto mt-20 border border-primary">
   <div class="card-body">
-    <h2 class="card-title text-brand-blue dark:text-white mb-2">
+    <h2 class="card-title text-text-brand-primary mb-2">
         {isSetup ? 'Crear Contraseña Maestra' : 'Desbloquear Becall-Mount'}
     </h2>
     
     {#if isSetup}
-        <p class="text-xs text-gray-500 mb-4">
+        <p class="text-xs text-text-secondary mb-4">
             Esta contraseña encriptará tus credenciales de la nube. Por seguridad, debe ser robusta.
         </p>
     {/if}
@@ -71,9 +71,8 @@
             bind:this={inputRef}
             type="password" 
             placeholder={isSetup ? "Nueva Contraseña" : "Contraseña Maestra"} 
-            class="input input-bordered w-full border-brand-blue focus:ring-brand-blue" 
+            class="input input-bordered w-full bg-primary border-border-brand focus:ring-brand-500 text-text-primary" 
             bind:value={password}
-            autofocus
           />
       </div>
 
@@ -82,19 +81,19 @@
               <input 
                 type="password" 
                 placeholder="Confirmar Contraseña" 
-                class="input input-bordered w-full border-brand-blue focus:ring-brand-blue" 
+                class="input input-bordered w-full bg-primary border-border-brand focus:ring-brand-500 text-text-primary" 
                 bind:value={confirmPassword}
               />
           </div>
       {/if}
 
       {#if error}
-        <div class="alert alert-error py-2 px-3 text-xs rounded shadow-sm">
+        <div class="alert bg-error-500/10 border-error-500/30 text-error-600 py-2 px-3 text-xs rounded shadow-sm">
             <span class="font-medium">{error}</span>
         </div>
       {/if}
 
-      <button class="btn bg-brand-green hover:bg-brand-green-dark text-white border-none w-full shadow-md" type="submit" disabled={loading}>
+      <button class="btn bg-brand-600 hover:bg-brand-700 text-white border-none w-full shadow-md" type="submit" disabled={loading}>
         {#if loading}<span class="loading loading-spinner loading-sm"></span>{/if}
         {loading ? 'Procesando...' : (isSetup ? 'Establecer y Continuar' : 'Desbloquear')}
       </button>

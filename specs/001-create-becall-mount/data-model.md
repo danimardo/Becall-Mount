@@ -23,7 +23,8 @@ Tracks active background processes.
     "driveLetter": "Z",
     "pid": 12345,
     "startTime": "2026-01-17T10:00:00Z",
-    "status": "mounted" // "mounted" | "error" | "unmounted"
+    "status": "mounted", // "mounted" | "error" | "unmounted"
+    "cacheSize": "45G"
   }
 ]
 ```
@@ -56,6 +57,7 @@ interface Service {
   icon: string;
   isMounted: boolean;
   mountPoint?: string; // e.g., "Z:"
+  cacheSize?: string; // e.g., "45G"
 }
 ```
 

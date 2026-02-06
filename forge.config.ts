@@ -24,7 +24,7 @@ const config: ForgeConfig = {
       manufacturer: 'Becall',
       description: 'Becall-Mount - Acceso a unidades en la nube',
       shortcutFolderName: 'Becall-Mount',
-      upgradeCode: '0484A8E5-3C9F-4E8B-BDD5-C36C6DA99C9F',
+      upgradeCode: 'F7A23D81-4C5B-4D9E-AF01-B2C3D4E5F6A7',
       ui: {
         chooseDirectory: true,
       },

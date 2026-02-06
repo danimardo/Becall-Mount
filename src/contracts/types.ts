@@ -19,6 +19,7 @@ export interface AppSettings {
   adConfPath?: string;
   autologinEnabled?: boolean;
   infoDominio?: DomainInfo;
+  mountPercentageLimit?: number;
 }
 
 export interface MountState {
@@ -31,6 +32,7 @@ export interface MountState {
   status: "mounted" | "error" | "unmounted";
   iconPath?: string;
   extraArgs?: string[];
+  cacheSize?: string;
 }
 
 export type ServiceType = 'b2' | 's3' | 'drive' | 'dropbox' | 'other';
@@ -41,6 +43,7 @@ export interface Service {
   icon?: string;
   isMounted: boolean;
   mountPoint?: string;
+  cacheSize?: string;
 }
 
 export interface MountConfig {

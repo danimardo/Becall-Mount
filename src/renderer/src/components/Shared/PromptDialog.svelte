@@ -41,25 +41,25 @@
 </script>
 
 <dialog bind:this={dialog} class="modal" onclose={handleCancel}>
-  <div class="modal-box bg-white dark:bg-slate-800 dark:text-white">
-      <h3 class="font-bold text-lg text-brand-blue dark:text-white">{title}</h3>
-      <p class="py-4 text-sm opacity-90">{message}</p>
+  <div class="modal-box bg-primary text-text-primary border border-primary">
+      <h3 class="font-bold text-lg text-text-brand-primary">{title}</h3>
+      <p class="py-4 text-sm opacity-90 text-text-secondary">{message}</p>
       
       <div class="form-control w-full">
           <input 
             bind:this={inputRef}
             type={inputType} 
             placeholder={placeholder} 
-            class="input input-bordered w-full border-brand-blue focus:ring-brand-blue dark:bg-slate-700" 
+            class="input input-bordered w-full bg-primary border-border-brand focus:ring-brand-500 text-text-primary" 
             bind:value={value}
             onkeydown={handleKeyDown}
           />
       </div>
 
       <div class="modal-action">
-          <button class="btn btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" onclick={handleCancel}>{cancelText}</button>
+          <button class="btn btn-outline border-brand-500 text-brand-600 hover:bg-brand-500 hover:text-white" onclick={handleCancel}>{cancelText}</button>
           <button 
-            class="btn bg-brand-green hover:bg-brand-green-dark border-none text-white shadow-md" 
+            class="btn bg-success-500 hover:bg-success-600 border-none text-white shadow-md" 
             onclick={handleConfirm}
             disabled={!value}
           >

@@ -4,12 +4,11 @@ import path from 'path';
 import { spawn } from 'child_process';
 import { RcloneConfig } from '../rclone/config';
 import { RCLONE_EXE_PATH } from '../utils/paths';
+import { ADSyncService } from '../ad/sync';
+import { ConfProcessor } from '../../renderer/src/lib/conf-processor';
 
 const config = new RcloneConfig();
 
-/**
- * Intenta descifrar un archivo usando rclone config show.
- */
 async function decryptContent(filePath: string, password?: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const child = spawn(RCLONE_EXE_PATH, ['config', 'show', '--config', filePath], {
@@ -26,9 +25,6 @@ async function decryptContent(filePath: string, password?: string): Promise<stri
   });
 }
 
-/**
- * Parsea un contenido tipo INI de rclone.
- */
 function parseRcloneIni(content: string): { name: string, type: string, params: Record<string, string> }[] {
   const remotes: { name: string, type: string, params: Record<string, string> }[] = [];
   const lines = content.replace(/\r\n/g, '\n').split('\n');
@@ -61,9 +57,7 @@ export function registerConfigTransferHandlers() {
         });
 
         if (!filePath) return { success: false };
-
         await config.exportTo(filePath, serviceNames, password);
-
         return { success: true, filePath };
     } catch (e: any) {
         console.error('Export failed', e);
@@ -75,20 +69,27 @@ export function registerConfigTransferHandlers() {
     try {
         if (!fs.existsSync(filePath)) throw new Error('El archivo no existe');
         
-        const rawContent = await fs.readFile(filePath, 'utf-8');
+        const rawBuffer = await fs.readFile(filePath);
+        const preview = rawBuffer.toString('utf-8', 0, 100);
         let content = '';
 
-        if (rawContent.includes('RCLONE_ENCRYPT_V0') || !rawContent.trim().startsWith('[')) {
+        if (preview.includes('RCLONE_ENCRYPT_V0') || !preview.trim().startsWith('[')) {
             try {
                 content = await decryptContent(filePath, password);
             } catch (e) {
                 return { success: false, error: 'Contraseña incorrecta o archivo corrupto' };
             }
         } else {
-            content = rawContent;
+            content = rawBuffer.toString('utf-8');
         }
 
-        const servicesToImport = parseRcloneIni(content);
+        // --- NUEVA LÓGICA DE SUSTITUCIÓN DE VARIABLES AD ---
+        console.log('[ConfigTransfer] Procesando variables de AD antes de importar...');
+        const userInfo = await ADSyncService.getUserInfo().catch(() => null);
+        const processedContent = ConfProcessor.process(content, userInfo);
+        // ----------------------------------------------------
+
+        const servicesToImport = parseRcloneIni(processedContent);
         if (servicesToImport.length === 0) {
             return { success: false, error: 'No se encontraron servicios válidos en el archivo' };
         }

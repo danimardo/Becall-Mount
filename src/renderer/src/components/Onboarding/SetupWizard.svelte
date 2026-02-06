@@ -66,46 +66,44 @@
   }
 </script>
 
-<div class="card bg-base-100 shadow-xl max-w-lg mx-auto mt-10">
+<div class="card bg-primary text-text-primary shadow-xl max-w-lg mx-auto mt-10 border border-primary">
   <div class="card-body">
-    <h2 class="card-title">Configuración de Becall-Mount</h2>
-    <p>Necesitamos instalar algunas dependencias para comenzar.</p>
+    <h2 class="card-title text-text-brand-primary">Configuración de Becall-Mount</h2>
+    <p class="text-text-secondary">Necesitamos instalar algunas dependencias para comenzar.</p>
 
     {#if loading}
-      <span class="loading loading-spinner loading-lg"></span>
+      <span class="loading loading-spinner loading-lg text-brand-500"></span>
     {:else}
       <div class="space-y-4">
-        <div class="flex justify-between items-center">
-          <span>Drivers Cloud</span>
-          {#if status.rclone}
-            <span class="badge bg-brand-green text-white border-none font-bold">Instalado</span>
-          {:else}
-            <div class="flex items-center gap-2">
-                {#if installing.rclone}
-                     <progress class="progress progress-info w-20 shadow-sm" value={rcloneProgress} max="100"></progress>
-                {:else}
-                    <button class="btn btn-sm bg-brand-green hover:bg-brand-green-dark text-white border-none shadow-sm px-4" onclick={installRclone}>Instalar</button>
-                {/if}
-            </div>
-          {/if}
-        </div>
-
-        <div class="flex justify-between items-center">
-          <span class="font-medium text-gray-700 dark:text-gray-300">WinFsp</span>
-          {#if status.winfsp}
-            <span class="badge bg-brand-green text-white border-none font-bold">Instalado</span>
-          {:else}
-            <div class="flex items-center gap-2">
-                 {#if installing.winfsp}
-                    <span class="loading loading-spinner loading-sm text-brand-blue"></span>
-                 {:else}
-                    <button class="btn btn-sm bg-brand-green hover:bg-brand-green-dark text-white border-none shadow-sm px-4" onclick={installWinFsp}>Instalar</button>
-                 {/if}
-                        </div>
-                      {/if}
+                  <div class="flex justify-between items-center">
+                  <span class="font-medium text-text-primary">Drivers Cloud</span>
+                  {#if status.rclone}
+                    <span class="badge bg-success-500 text-white border-none font-bold">Instalado</span>
+                  {:else}
+                    <div class="flex items-center gap-2">
+                        {#if installing.rclone}
+                             <progress class="progress progress-info w-20 shadow-sm" value={rcloneProgress} max="100"></progress>
+                        {:else}
+                            <button class="btn btn-sm bg-brand-600 hover:bg-brand-700 text-white border-none shadow-sm px-4" onclick={installRclone}>Instalar</button>
+                        {/if}
                     </div>
-                  </div>
-                {/if}
-              </div>
-            </div>
-            
+                  {/if}
+                </div>
+        
+                <div class="flex justify-between items-center">
+                  <span class="font-medium text-text-primary">WinFsp</span>
+                  {#if status.winfsp}
+                    <span class="badge bg-success-500 text-white border-none font-bold">Instalado</span>
+                  {:else}
+                    <div class="flex items-center gap-2">
+                         {#if installing.winfsp}
+                            <span class="loading loading-spinner loading-sm text-brand-500"></span>
+                         {:else}
+                            <button class="btn btn-sm bg-brand-600 hover:bg-brand-700 text-white border-none shadow-sm px-4" onclick={installWinFsp}>Instalar</button>
+                         {/if}
+                    </div>
+                  {/if}
+                </div>      </div>
+    {/if}
+  </div>
+</div>

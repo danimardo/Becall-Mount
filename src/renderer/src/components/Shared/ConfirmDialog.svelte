@@ -23,17 +23,19 @@
 </script>
 
 <dialog bind:this={dialog} class="modal" onclose={() => onCancel()}>
-  <div class="modal-box bg-white dark:bg-slate-800 dark:text-white">
-      <h3 class="font-bold text-lg" class:text-error={type === 'error'} class:text-warning={type === 'warning'}>{title}</h3>
+  <div class="modal-box bg-primary text-text-primary border border-primary">
+      <h3 class="font-bold text-lg" class:text-error-500={type === 'error'} class:text-warning-500={type === 'warning'} class:text-text-brand-primary={type === 'info' || type === 'success'}>{title}</h3>
       <p class="py-4">{message}</p>
       <div class="modal-action">
-          <button class="btn btn-outline text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white" onclick={() => close(false)}>{cancelText}</button>
+          <button class="btn btn-outline border-brand-500 text-brand-600 hover:bg-brand-500 hover:text-white" onclick={() => close(false)}>{cancelText}</button>
           <button 
             class="btn border-none text-white" 
-            class:bg-brand-green={type === 'info' || type === 'success'}
-            class:hover:bg-brand-green-dark={type === 'info' || type === 'success'}
-            class:btn-error={type === 'error'}
-            class:btn-warning={type === 'warning'}
+            class:bg-success-500={type === 'info' || type === 'success'}
+            class:hover:bg-success-600={type === 'info' || type === 'success'}
+            class:bg-error-500={type === 'error'}
+            class:hover:bg-error-600={type === 'error'}
+            class:bg-warning-500={type === 'warning'}
+            class:hover:bg-warning-600={type === 'warning'}
             onclick={() => close(true)}
           >
             {confirmText}

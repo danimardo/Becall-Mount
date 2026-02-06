@@ -328,21 +328,42 @@
       "type": "select",
       "options": ["off", "minimal", "writes", "full"],
       "default": "full",
-      "description": "Controla cómo rclone cachea los objetos en disco"
+      "description": "Controla cómo rclone cachea los objetos en disco. Recomendado: full."
     },
     "--vfs-cache-max-size": {
       "label": "Tamaño Máx. Caché",
       "type": "select",
-      "options": ["off", "10G", "50G", "100G", "500G"],
+      "options": ["off", "5G", "10G", "20G", "50G", "100G"],
       "default": "off",
-      "description": "Límite de espacio en disco para la caché"
+      "description": "Límite de caché. Si es 'off', se calcula automáticamente según el espacio libre en C: y el porcentaje configurado."
     },
     "--vfs-cache-max-age": {
       "label": "Tiempo Máx. Caché",
       "type": "select",
       "options": ["1h", "12h", "24h", "48h", "168h"],
-      "default": "1h",
-      "description": "Tiempo máximo que un objeto permanece en caché sin uso"
+      "default": "24h",
+      "description": "Tiempo máximo que un objeto permanece en caché sin uso."
+    },
+    "--vfs-read-chunk-size": {
+      "label": "Tamaño de fragmento de lectura",
+      "type": "select",
+      "options": ["32M", "64M", "128M", "256M"],
+      "default": "128M",
+      "description": "Tamaño de los fragmentos que rclone lee de la nube."
+    },
+    "--vfs-read-chunk-size-limit": {
+      "label": "Límite de fragmento de lectura",
+      "type": "select",
+      "options": ["off", "512M", "1G", "2G", "4G"],
+      "default": "1G",
+      "description": "Límite máximo al que puede crecer el fragmento de lectura."
+    },
+    "--bwlimit-file": {
+      "label": "Límite ancho banda por archivo",
+      "type": "select",
+      "options": ["off", "8M", "16M", "32M", "64M"],
+      "default": "32M",
+      "description": "Limita el ancho de banda utilizado por cada archivo individual."
     },
     "--cache-dir": {
       "label": "Directorio de Caché",

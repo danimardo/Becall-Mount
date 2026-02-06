@@ -7,10 +7,15 @@ import { isRcloneInstalled, installRclone, checkAndAutoUpdateRclone } from '../r
 import { isWinFspInstalled, installWinFsp } from '../utils/winfsp';
 import { getMountManager } from './mount';
 import { PowerShellWrapper } from '../ad/powershell';
+import { getFreeDiskSpaceGB } from '../utils/system';
 
 const execAsync = promisify(exec);
 
 export function registerSystemHandlers() {
+  ipcMain.handle('system:get-free-space', async (_, drive = 'C') => {
+    return await getFreeDiskSpaceGB(drive);
+  });
+
   ipcMain.handle('system:check-prereqs', async () => {
     await checkAndAutoUpdateRclone((msg) => {
         BrowserWindow.getAllWindows().forEach(w => w.webContents.send('splash:status', msg));

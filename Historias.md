@@ -108,6 +108,14 @@ Al iniciar la aplicación y tras la autenticación, el sistema debe intentar mon
 **HU-3.11 Ayuda contextual de parámetros (Nueva)**
 - El usuario debe poder consultar la documentación de cada parámetro avanzado mediante un botón de ayuda integrado en la interfaz, sin necesidad de salir de la aplicación.
 
+**HU-3.12 Visualización del tamaño de caché (Nueva)**
+- El sistema debe mostrar el límite máximo de caché VFS calculado para cada unidad montada (ej. "⚡45G") directamente en la tarjeta del servicio.
+- Este valor debe mostrarse con una opacidad reducida para no distraer, pero permitiendo al usuario conocer el espacio de disco reservado.
+
+**HU-3.13 Gestión inteligente de caché (Nueva)**
+- El sistema debe calcular automáticamente un límite de caché seguro basado en el espacio libre del disco C: y un porcentaje máximo configurable (por defecto 80%).
+- El espacio disponible se reparte equitativamente entre todas las unidades que se deseen montar para evitar llenar el disco duro local.
+
 **HU-2.13 Ordenación de servicios (Nueva)**
 - La lista de servicios disponibles debe mostrarse siempre ordenada alfabéticamente por nombre para facilitar la localización.
 

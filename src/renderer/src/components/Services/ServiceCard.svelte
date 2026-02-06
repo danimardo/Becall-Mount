@@ -60,21 +60,28 @@
         {#if serviceIcon}
             <img src={serviceIcon} alt={service.type} class="w-8 h-8 object-contain" />
         {:else}
-            <div class="w-8 h-8 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded text-brand-blue">
+            <div class="w-8 h-8 flex items-center justify-center bg-secondary rounded text-brand-500">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
                 </svg>
             </div>
         {/if}
         <div class="flex flex-col">
-            <h3 class="font-bold text-lg text-gray-900 dark:text-white leading-tight mb-1">{service.name}</h3>
+            <h3 class="font-bold text-lg text-text-primary leading-tight mb-1">
+                {service.name}
+                {#if service.isMounted && service.cacheSize}
+                    <span class="ml-2 text-sm font-medium opacity-40 inline-flex items-center gap-0.5" title="Tamaño máximo de caché VFS">
+                        <span class="text-xs">⚡</span>{service.cacheSize}
+                    </span>
+                {/if}
+            </h3>
             <div class="flex items-center gap-2">
-                <span class="badge bg-brand-pistachio text-white border-none badge-sm uppercase text-[10px] font-bold tracking-wider">{service.type}</span>
+                <span class="badge bg-brand-400 text-white border-none badge-sm uppercase text-[10px] font-bold tracking-wider">{service.type}</span>
                 {#if service.isMounted}
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <span 
-                        class="badge bg-brand-green text-white border-none badge-sm gap-1 font-semibold cursor-pointer hover:bg-brand-green-dark transition-colors"
+                        class="badge bg-success-500 text-white border-none badge-sm gap-1 font-semibold cursor-pointer hover:bg-success-600 transition-colors"
                         onclick={handleOpenDrive}
                         title="Abrir unidad"
                     >

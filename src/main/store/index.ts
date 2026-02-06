@@ -35,6 +35,7 @@ export default function getStore(): Store<StoreSchema> {
           firstRun: true,
           lastDriverUpdateCheck: 0,
           autoLaunch: false,
+          mountPercentageLimit: 80,
         },
         mounts: [],
         mountPreferences: {},

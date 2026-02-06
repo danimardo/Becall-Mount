@@ -205,6 +205,7 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **FR-030**: System MUST display the list of configured services sorted alphabetically by name.
 - **FR-031**: System MUST provide an integrated help modal explaining the purpose and default values of all advanced mount parameters to assist users in configuration.
 - **FR-032**: System MUST only display the "Desmontar Todos" action button when there is at least one active mount point detected.
+- **FR-033**: System MUST calculate and display the maximum VFS cache size for each mounted unit (e.g., "⚡45G") in the service card UI, calculated based on available disk space and configured percentage limits.
 
 ### Key Entities
 
@@ -249,16 +250,19 @@ As an advanced user, I want to customize the application (Theme, Password) and a
   - No se almacenan copias del archivo JSON en el disco duro del usuario.
   - Se activa `bucket_policy_only` por defecto para compatibilidad con GCS.
 
-### Personalización Visual de Unidades
-- **Objetivo**: Mejorar la integración con el sistema mostrando iconos y nombres descriptivos en el Explorador.
-- **Resolución de Iconos**:
+### Personalización Visual de Unidades e Interfaz
+- **Objetivo**: Mejorar la integración con el sistema y la transparencia de la configuración activa.
+- **Resolución de Iconos de Unidad**:
   - El sistema extrae el nombre base del icono definido en el esquema (ej. de `google.webp` extrae `google`).
   - Busca el archivo equivalente con extensión `.ico` en las carpetas de recursos de la aplicación.
 - **Modificaciones de Registro**:
   - Se utilizan claves en `HKEY_CURRENT_USER\Software\Classes\Applications\explorer.exe\Drives\{LETRA}`.
   - `DefaultIcon`: Ruta al archivo `.ico`.
   - `DefaultLabel`: Nombre personalizado del servicio.
-- **Limpieza**: Al ejecutar el comando de desmontaje, se elimina la clave de registro correspondiente a esa letra de unidad para evitar que personalizaciones antiguas afecten a unidades físicas conectadas posteriormente.
+- **Indicadores de Estado en la UI**:
+  - **Caché VFS**: Se muestra un indicador sutil `⚡ {tamaño}` (ej. `⚡45G`) junto al nombre del servicio montado con opacidad al 40%. 
+  - **Tooltip**: Al pasar el ratón por el indicador de caché, se muestra "Tamaño máximo de caché VFS" para clarificar su propósito.
+- **Limpieza**: Al ejecutar el comando de desmontaje, se elimina la clave de registro correspondiente a esa letra de unidad.
 
 ### Drive Availability Detection
 - **Logic**:
@@ -267,3 +271,11 @@ As an advanced user, I want to customize the application (Theme, Password) and a
   - The UI (`MountModal`) only renders letters that pass both checks.
 - **Validation**:
   - A double-check is performed in the `mount` method in the main process to prevent race conditions if a drive becomes occupied between selection and execution.
+
+### Cálculo Dinámico de Caché VFS
+- **Objetivo**: Evitar saturar el disco duro local repartiendo el espacio disponible entre las unidades montadas de forma inteligente.
+- **Algoritmo**: 
+  - Se obtiene el espacio libre en `C:`.
+  - Se aplica el porcentaje límite configurado (por defecto 80%).
+  - El espacio resultante se divide equitativamente entre los montajes activos más el que se está intentando iniciar: `Espacio_Total_Permitido / (Montajes_Activos + 1)`.
+- **Persistencia**: El valor resultante se envía al comando `--vfs-cache-max-size` de Rclone y se guarda en el estado del montaje para su visualización en la UI.

@@ -6,6 +6,7 @@ import { createTray } from './tray';
 import { getMountManager } from './ipc/mount';
 import getStore from './store';
 import { MigrationService } from './utils/migration';
+import { getFreeDiskSpaceGB } from './utils/system';
 
 // Configurar identidad de la app antes de que Electron se inicialice por completo
 app.setName('Becall-Mount');
@@ -213,6 +214,13 @@ app.on('ready', async () => {
 
   Menu.setApplicationMenu(null);
   registerIpcHandlers();
+
+  // Comprobar espacio libre en disco al arrancar
+  getFreeDiskSpaceGB('C').then(freeSpace => {
+      console.log(`[Main] Espacio libre en disco C: ${freeSpace} GB`);
+  }).catch(err => {
+      console.error('[Main] No se pudo obtener el espacio libre en disco:', err);
+  });
 
   // Try autologin silently before showing UI
   try {

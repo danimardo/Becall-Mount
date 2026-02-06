@@ -74,10 +74,10 @@
     style="background-image: var(--bg-image); filter: blur(5px);"
 ></div>
 
-<div class="relative z-10 min-h-screen bg-transparent text-slate-900 dark:text-white transition-colors duration-300" class:p-4={view !== 'app'}>
+<div class="relative z-10 min-h-screen bg-transparent text-primary transition-colors duration-300" class:p-4={view !== 'app'}>
   {#if view === 'loading'}
      <div class="flex flex-col justify-center items-center h-full mt-20 gap-4">
-         <span class="loading loading-spinner loading-lg"></span>
+         <span class="loading loading-spinner loading-lg text-brand-500"></span>
          <p>Cargando Becall-Mount...</p>
      </div>
   {:else if view === 'error'}

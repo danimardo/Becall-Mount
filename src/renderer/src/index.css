@@ -1,54 +1,129 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-@config "../../../tailwind.config.js";
+@theme {
+  /* Palette definitions for utilities */
+  --color-brand-50: #E6F6FF;
+  --color-brand-100: #CBEDFF;
+  --color-brand-200: #8ADDFF;
+  --color-brand-300: #00CEFE;
+  --color-brand-400: #00B7E2;
+  --color-brand-500: #00A0C6;
+  --color-brand-600: #008AAB;
+  --color-brand-700: #006780;
+  --color-brand-800: #004658;
+  --color-brand-900: #002531;
+  --color-brand-950: #001821;
+
+  --color-gray-25: #FDFDFD;
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F3F4F6;
+  --color-gray-200: #E5E7EB;
+  --color-gray-300: #D1D5DB;
+  --color-gray-400: #9CA3AF;
+  --color-gray-500: #6B7280;
+  --color-gray-600: #4B5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1F2937;
+  --color-gray-900: #111827;
+  --color-gray-950: #0A0D12;
+
+  --color-error-500: #F04438;
+  --color-error-600: #D92D20;
+  --color-warning-500: #F79009;
+  --color-warning-600: #DC6803;
+  --color-success-500: #17B26A;
+  --color-success-600: #079455;
+  --color-orange-500: #EF6820;
+  --color-orange-600: #E04F16;
+
+  --shadow-glass-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-glass-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-glass-lg: 20px 20px 40px -10px rgba(0, 0, 0, 0.2);
+}
+
+:root {
+  /* Semantic Variables (Light) */
+  --text-p: #111827; /* gray-900 */
+  --text-s: #374151; /* gray-700 */
+  --text-brand-p: #002531; /* brand-900 */
+  --text-brand-s: #006780; /* brand-700 */
+  --bg-p: #FFFFFF;
+  --bg-s: #F9FAFB; /* gray-50 */
+  --bg-brand-s: #008AAB; /* brand-600 */
+  --bg-brand-sect: #004658; /* brand-800 */
+  --border-p: #D1D5DB; /* gray-300 */
+  --border-b: #00A0C6; /* brand-500 */
+}
+
+.dark {
+  /* Semantic Variables (Dark) */
+  --text-p: #F9FAFB; /* gray-50 */
+  --text-s: #D1D5DB; /* gray-300 */
+  --text-brand-p: #F9FAFB; /* gray-50 */
+  --text-brand-s: #8ADDFF; /* brand-200 */
+  --bg-p: #0A0D12; /* gray-950 */
+  --bg-s: #111827; /* gray-900 */
+  --bg-brand-s: #008AAB; /* brand-600 */
+  --bg-brand-sect: #1F2937; /* gray-800 */
+  --border-p: #374151; /* gray-700 */
+  --border-b: #00B7E2; /* brand-400 */
+}
 
 @layer base {
   body {
-    @apply bg-brand-surface-light text-slate-900 dark:bg-brand-surface-dark dark:text-white min-h-screen;
-    /* Fondo con degradado sutil para resaltar el cristal */
-    background: radial-gradient(circle at top left, #f8fafc, #e2e8f0);
-  }
-  
-  .dark body {
-    background: radial-gradient(circle at top left, #1e293b, #0f172a);
+    @apply bg-primary text-primary min-h-screen;
+    background: radial-gradient(circle at top left, var(--bg-p), var(--bg-s)) !important;
   }
 }
 
 @layer components {
-  /* Panel principal */
   .glass-panel {
     @apply !bg-transparent !bg-gradient-to-br !from-white/60 !to-white/20 dark:!from-slate-900/80 dark:!to-slate-900/40 !backdrop-blur-xl !border !border-white/40 dark:!border-white/10 !shadow-glass-md;
   }
 
+  /* Header - FORZADO A AZUL/CIAN DE MARCA */
   .glass-panel.success {
-    @apply !bg-gradient-to-r !from-brand-green/80 !to-brand-green/65 !border-white/40 shadow-glass-lg;
+    background: linear-gradient(to right, #00A0C6CC, #008AABBF) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: var(--shadow-glass-lg) !important;
   }
 
   .glass-panel.success h2 {
-    @apply drop-shadow-md;
+    @apply !drop-shadow-md !text-white;
   }
   
-  /* Tarjetas */
   .glass-card {
     @apply !bg-transparent !bg-gradient-to-b !from-white/70 !to-white/30 dark:!from-slate-800/70 dark:!to-slate-800/30 !backdrop-blur-md !border !border-white/50 dark:!border-white/10 !shadow-glass-sm hover:!shadow-glass-md transition-all duration-300;
   }
 
-  /* Botón Cristal Base */
   .glass-button {
-    @apply !backdrop-blur-md !bg-gradient-to-t !from-white/20 !to-white/50 !border !border-white/60 hover:!bg-white/40 transition-all !shadow-glass-sm active:scale-95 text-slate-800 dark:text-white;
+    @apply !backdrop-blur-md !bg-gradient-to-t !from-white/20 !to-white/50 !border !border-white/60 hover:!bg-white/40 transition-all !shadow-glass-sm active:scale-95 text-primary;
   }
 
-  /* Variantes de color para botones de cristal */
   .glass-button.success {
-    @apply !from-brand-green/20 !to-brand-green/40 !border-brand-green/50 text-brand-green-dark dark:text-brand-green-light hover:!from-brand-green/30 hover:!to-brand-green/50;
+    @apply !from-success-500/20 !to-success-500/40 !border-success-500/50 text-success-600 dark:text-success-500 hover:!from-success-500/30 hover:!to-success-500/50;
   }
 
   .glass-button.warning {
-    @apply !from-orange-400/20 !to-orange-400/40 !border-orange-400/50 text-orange-700 dark:text-orange-200 hover:!from-orange-400/30 hover:!to-orange-400/50;
+    @apply !from-orange-500/20 !to-orange-500/40 !border-orange-500/50 text-orange-600 dark:text-orange-500 hover:!from-orange-500/30 hover:!to-orange-500/50;
   }
   
   .glass-button.ghost {
-     @apply !bg-none !bg-transparent !border-transparent hover:!bg-white/20 text-slate-500 dark:text-slate-400;
+     @apply !bg-none !bg-transparent !border-transparent hover:!bg-white/20 text-secondary;
   }
 }
+
+/* OVERRIDES FINALES PARA MATAR EL ROSA Y EL VERDE INDESEADO */
+.bg-primary { background-color: var(--bg-p) !important; }
+.bg-secondary { background-color: var(--bg-s) !important; }
+.text-primary { color: var(--text-p) !important; }
+.text-secondary { color: var(--text-s) !important; }
+.text-brand-primary { color: var(--text-brand-p) !important; }
+.text-brand-secondary { color: var(--text-brand-s) !important; }
+.border-primary { border-color: var(--border-p) !important; }
+.border-brand { border-color: var(--border-b) !important; }
+
+/* Forzar Naranja en botones de escaneo */
+.bg-orange-500 { background-color: #EF6820 !important; }
+.hover\:bg-orange-600:hover { background-color: #E04F16 !important; }
