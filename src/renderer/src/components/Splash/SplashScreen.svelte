@@ -61,7 +61,7 @@
         <div class="tech-data">
             <div class="data-row">
                 <span class="data-label">SYS.ID:</span>
-                <span class="data-value">CM-2026</span>
+                <span class="data-value">BM-2026</span>
             </div>
             <div class="data-row">
                 <span class="data-label">STATUS:</span>
@@ -84,7 +84,7 @@
             </div>
         </div>
         
-        <h1 class="app-name glitch" data-text="CLOUD MOUNT">CLOUD MOUNT</h1>
+        <h1 class="app-name glitch" data-text="BECALL-MOUNT">BECALL-MOUNT</h1>
         
         <div class="status-container">
             <div class="status-indicator"></div>
@@ -130,7 +130,7 @@
         <div class="tech-data">
             <div class="data-row">
                 <span class="data-label">SYS.ID:</span>
-                <span class="data-value">CM-2026</span>
+                <span class="data-value">BM-2026</span>
             </div>
             <div class="data-row">
                 <span class="data-label">STATUS:</span>
@@ -153,7 +153,7 @@
             </div>
         </div>
         
-        <h1 class="app-name">CLOUD MOUNT</h1>
+        <h1 class="app-name">BECALL-MOUNT</h1>
         
         <div class="status-container">
             <div class="status-indicator"></div>

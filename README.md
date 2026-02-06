@@ -1,11 +1,11 @@
-# ☁️ Cloud Mount
+# ☁️ Becall-Mount
 
 [![Electron](https://img.shields.io/badge/Electron-40.0.0-blue.svg)](https://www.electronjs.org/)
 [![Svelte](https://img.shields.io/badge/Svelte-5.0-orange.svg)](https://svelte.dev/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-4.0-38B2AC.svg)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**Cloud Mount** es una potente aplicación de escritorio para Windows que transforma tus servicios de almacenamiento en la nube en unidades de disco locales. Basada en el motor de **Rclone**, permite gestionar, montar y acceder a tus archivos remotos directamente desde el Explorador de Windows como si estuvieran en tu propio ordenador.
+**Becall-Mount** es una potente aplicación de escritorio para Windows que transforma tus servicios de almacenamiento en la nube en unidades de disco locales. Basada en el motor de **Rclone**, permite gestionar, montar y acceder a tus archivos remotos directamente desde el Explorador de Windows como si estuvieran en tu propio ordenador.
 
 ---
 
@@ -39,10 +39,10 @@
 ### Instalación
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/cloud-mount.git
+git clone https://github.com/tu-usuario/becall-mount.git
 
 # Entrar en la carpeta
-cd cloud-mount
+cd becall-mount
 
 # Instalar dependencias
 npm install
@@ -59,11 +59,11 @@ npm run start
 
 ## 📦 Generación de Instaladores
 
-Cloud Mount utiliza **Electron Forge** para el empaquetado y distribución.
+Becall-Mount utiliza **Electron Forge** para el empaquetado y distribución.
 
 | Comando | Acción | Resultado |
 | :--- | :--- | :--- |
-| `npm run package` | **Empaquetar** | Genera la aplicación ejecutable en una carpeta (`/out/Cloud Mount-win32-x64/`). Ideal para pruebas locales rápidas sin instalar. |
+| `npm run package` | **Empaquetar** | Genera la aplicación ejecutable en una carpeta (`/out/Becall-Mount-win32-x64/`). Ideal para pruebas locales rápidas sin instalar. |
 | `npm run make` | **Crear Instalador** | Genera el instalador final (`setup.exe`) y paquetes distribuibles en `/out/make/`. Este es el archivo para compartir con usuarios. |
 
 ---

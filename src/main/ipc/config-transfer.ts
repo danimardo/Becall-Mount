@@ -9,8 +9,8 @@ export function registerConfigTransferHandlers() {
   ipcMain.handle('config:export', async (_, { serviceNames, password }) => {
     try {
         const { filePath } = await dialog.showSaveDialog({
-            defaultPath: 'cloud-mount-export.conf',
-            filters: [{ name: 'Configuración Cloud Mount', extensions: ['conf'] }]
+            defaultPath: 'becall-mount-export.conf',
+            filters: [{ name: 'Configuración Becall-Mount', extensions: ['conf'] }]
         });
 
         if (!filePath) return { success: false };

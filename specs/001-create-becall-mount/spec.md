@@ -1,14 +1,14 @@
-# Feature Specification: Cloud Mount MVP
+# Feature Specification: Becall-Mount MVP
 
-**Feature Branch**: `001-create-cloud-mount`
+**Feature Branch**: `001-create-becall-mount`
 **Created**: 2026-01-17
 **Status**: Draft
-**Input**: User description provided in Spanish (Cloud Mount - Historias de Usuario)
+**Input**: User description provided in Spanish (Becall-Mount - Historias de Usuario)
 
 ## Clarifications
 
 ### Session 2026-01-17
-- Q: Where should the Rclone configuration file be stored? -> A: Isolated Location (`%APPDATA%/CloudMount/rclone.conf`) to ensure this application's settings do not interfere with any existing system-wide Rclone installation.
+- Q: Where should the Rclone configuration file be stored? -> A: Isolated Location (`%APPDATA%/becall-mount/rclone.conf`) to ensure this application's settings do not interfere with any existing system-wide Rclone installation.
 - Q: How should the WinFsp dependency be handled? -> A: Download & Launch. The application will detect if WinFsp is missing, download the installer, and launch it to guide the user through the process.
 - Q: What happens to active mounts when the user fully exits the application? -> A: Silent Disconnect. Mount processes remain active in the background; the application UI process terminates without killing them.
 - Q: How should the system handle a mount failure due to invalid credentials? -> A: Prompt for Credentials. Show a clear error in Spanish and allow the user to immediately update the service configuration.
@@ -185,7 +185,7 @@ As an advanced user, I want to customize the application (Theme, Password) and a
 - **FR-008**: System MUST persist mount states and attempt to restore them on application restart.
 - **FR-009**: System MUST NOT require Administrator privileges for installation or basic operation.
 - **FR-010**: System MUST display all interface text and error messages in Spanish.
-- **FR-011**: System MUST store all data (including `rclone.conf`) in a dedicated isolated directory (`%APPDATA%/CloudMount/`) and never expose credentials in plain text logs.
+- **FR-011**: System MUST store all data (including `rclone.conf`) in a dedicated isolated directory (`%APPDATA%/becall-mount/`) and never expose credentials in plain text logs.
 - **FR-012**: System MUST allow mounting the same service multiple times to different letters/paths.
 - **FR-016**: System MUST periodically (monthly) check for updates to the underlying `rclone` binary and automatically update it if a newer version is available.
 - **FR-017**: System MUST support importing Service Account JSON files for Google Cloud Storage by embedding their content directly into the encrypted configuration, preventing plain-text credential files from remaining on disk.

@@ -1,6 +1,7 @@
 import { app } from 'electron';
 import path from 'path';
 
+export const OLD_APP_NAME = 'cloud-mount';
 export const USER_DATA_PATH = app.getPath('userData');
 export const RCLONE_CONFIG_PATH = path.join(USER_DATA_PATH, 'rclone.conf');
 export const BIN_PATH = path.join(USER_DATA_PATH, 'bin');

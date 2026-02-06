@@ -1,4 +1,4 @@
-# Specification Quality Checklist: Cloud Mount MVP
+# Specification Quality Checklist: Becall-Mount MVP
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-01-17

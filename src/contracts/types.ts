@@ -1,9 +1,24 @@
+export interface DomainInfo {
+  SamAccountName: string;
+  DisplayName: string;
+  EmailAddress: string;
+  DistinguishedName: string;
+  Department: string;
+  Title: string;
+  MemberOf: string[];
+  lastUpdated: string;
+}
+
 export interface AppSettings {
   theme: "light" | "dark" | "system";
   rclonePath: string;
   firstRun: boolean;
   passwordHash?: string;
   autoLaunch?: boolean;
+  adIntegrationEnabled?: boolean;
+  adConfPath?: string;
+  autologinEnabled?: boolean;
+  infoDominio?: DomainInfo;
 }
 
 export interface MountState {

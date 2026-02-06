@@ -9,12 +9,13 @@
 - Todo el output, escríbelo en español.
 
 - Ubicación de documentos normativos:
-  - specs\001-create-cloud-mount\spec.md (especificación funcional)
+  - specs\001-create-becall-mount\spec.md (especificación funcional)
+  - specs\002-ui-mount-enhancements\spec.md (especificación funcional)
   - .specify\memory\constitution.md (reglas/limitaciones de diseño)
 
 
 - Instrucciones para todos los agentes y colaboradores:
-  - Sigue estrictamente las definiciones del plan de implementación en historias.md, .specify\memory\constitution.md y specs\001-create-cloud-mount\spec.md
+  - Sigue estrictamente las definiciones del plan de implementación en Historias.md, .specify\memory\constitution.md y specs\001-create-becall-mount\spec.md
   - No modifiques el comportamiento fuera de los criterios descritos en esos ficheros.
   - Si detectas discrepancias entre el código y esos documentos, solicita autorización antes de aplicar cualquier cambio que altere el comportamiento.
   - Cuando una tarea no esté cubierta por esos documentos, propone cambios como diffs o notas de diseño, pero no los apliques sin validación explícita.

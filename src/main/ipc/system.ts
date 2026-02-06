@@ -1,4 +1,4 @@
-import { ipcMain, shell, dialog, BrowserWindow } from 'electron';
+import { ipcMain, shell, dialog, BrowserWindow, app } from 'electron';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import path from 'node:path';
@@ -6,6 +6,7 @@ import fs from 'fs-extra';
 import { isRcloneInstalled, installRclone, checkAndAutoUpdateRclone } from '../rclone/installer';
 import { isWinFspInstalled, installWinFsp } from '../utils/winfsp';
 import { getMountManager } from './mount';
+import { PowerShellWrapper } from '../ad/powershell';
 
 const execAsync = promisify(exec);
 
@@ -14,9 +15,22 @@ export function registerSystemHandlers() {
     await checkAndAutoUpdateRclone((msg) => {
         BrowserWindow.getAllWindows().forEach(w => w.webContents.send('splash:status', msg));
     });
+
+    const domainCmd = '(Get-CimInstance Win32_ComputerSystem).PartOfDomain';
+    const isDomainRaw = await PowerShellWrapper.execute(domainCmd).catch(() => 'False');
+    const isDomain = isDomainRaw.trim().toLowerCase() === 'true';
+    
+    // Ya no requerimos el módulo AD de RSAT, usamos DirectorySearcher que es nativo de .NET
+    // Si está en un dominio, la funcionalidad de AD está disponible.
+    const hasADModule = isDomain;
+
+    console.log(`[System] Prereqs check: Domain=${isDomain} (${isDomainRaw}), ADAvailable=${hasADModule}`);
+
     return {
       rclone: await isRcloneInstalled(),
       winfsp: await isWinFspInstalled(),
+      isDomain,
+      hasADModule
     };
   });
 
@@ -109,5 +123,10 @@ export function registerSystemHandlers() {
         throw new Error(error);
     }
     return true;
+  });
+
+  ipcMain.handle('system:restart', () => {
+    app.relaunch();
+    app.exit();
   });
 }

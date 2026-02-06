@@ -5,6 +5,10 @@ import { registerIpcHandlers } from './ipc';
 import { createTray } from './tray';
 import { getMountManager } from './ipc/mount';
 import getStore from './store';
+import { MigrationService } from './utils/migration';
+
+// Configurar identidad de la app antes de que Electron se inicialice por completo
+app.setName('Becall-Mount');
 
 // Declare globals from Vite plugin
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
@@ -197,8 +201,40 @@ const createMainWindow = async (splash: BrowserWindow) => {
 };
 
 app.on('ready', async () => {
+  // Asegurar el nombre de la aplicación para rutas de sistema
+  app.setName('Becall-Mount');
+
+  // Execute migration if needed before anything else
+  const migrated = await MigrationService.migrateIfNeeded();
+  if (migrated) {
+    console.log('[Main] Migration performed, cleaning up old data...');
+    await MigrationService.cleanupOldData();
+  }
+
   Menu.setApplicationMenu(null);
   registerIpcHandlers();
+
+  // Try autologin silently before showing UI
+  try {
+    const { isSessionAuthenticated } = await import('./utils/session');
+    if (!isSessionAuthenticated()) {
+      const { SecureStorage } = await import('./auth/safe-storage');
+      const { verifyPassword } = await import('./utils/security');
+      const { setSessionPassword } = await import('./utils/session');
+      
+      const password = await SecureStorage.getPassword();
+      const store = getStore();
+      const storedHash = store.get('settings.passwordHash');
+      const autologinEnabled = store.get('settings.autologinEnabled');
+
+      if (autologinEnabled && password && storedHash && verifyPassword(password, storedHash as string)) {
+        console.log('[Main] Silent autologin successful.');
+        setSessionPassword(password);
+      }
+    }
+  } catch (e) {
+    console.error('[Main] Autologin attempt failed:', e);
+  }
   
   const splash = createSplashWindow();
   createMainWindow(splash);

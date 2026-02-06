@@ -1,61 +1,50 @@
-# Cloud Mount Constitution
+# [PROJECT_NAME] Constitution
+<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
 
-## Principios Fundamentales (Core Principles)
+## Core Principles
 
-### I. Seguridad Primero (Security First)
-*   **Encriptación Obligatoria:** Todas las credenciales y configuraciones sensibles deben almacenarse encriptadas. El archivo de configuración de Rclone nunca debe guardar contraseñas en texto plano.
-*   **Protección Maestra:** La aplicación requiere una contraseña maestra para iniciarse y desencriptar la configuración.
-*   **Privacidad de Logs:** Nunca escribir credenciales, tokens o información sensible en los logs de la aplicación o del sistema.
+### [PRINCIPLE_1_NAME]
+<!-- Example: I. Library-First -->
+[PRINCIPLE_1_DESCRIPTION]
+<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
 
-### II. Usabilidad y Simplicidad (Usability & Simplicity)
-*   **Enfoque No Técnico:** La interfaz debe abstraer la complejidad de la línea de comandos. El usuario no debe necesitar saber qué es un "remote" o "flag" de Rclone para usar las funciones básicas.
-*   **Eficiencia:** Operaciones críticas (montar/desmontar) accesibles en máximo 2 clics.
-*   **Feedback Inmediato:** Toda acción debe tener una respuesta visual clara (éxito, carga, error).
-*   **Idioma:** Interfaz 100% en Español.
+### [PRINCIPLE_2_NAME]
+<!-- Example: II. CLI Interface -->
+[PRINCIPLE_2_DESCRIPTION]
+<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
 
-### III. Arquitectura y Separación (Architecture)
-*   **Separación Lógica-Vista:** La lógica de interacción con Rclone (wrapper/servicios) debe estar desacoplada de la interfaz de usuario (Componentes Svelte).
-*   **Gestión de Estado:** El estado de la UI debe reflejar fielmente el estado del sistema (montajes reales).
-*   **Portabilidad y Permisos:** La aplicación debe funcionar sin instalación administrativa y almacenar datos en `%APPDATA%` (User Space). No debe requerir elevación de privilegios UAC salvo que sea estrictamente inevitable para el montaje.
+### [PRINCIPLE_3_NAME]
+<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
+[PRINCIPLE_3_DESCRIPTION]
+<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
 
-### IV. Calidad y Pruebas (Quality & Testing)
-*   **Cobertura Mínima:** Mantener una cobertura de pruebas unitarias superior al **80%**.
-*   **Pruebas de Integración:** Verificar el correcto "spawning" de procesos Rclone y el manejo de sus salidas (stdout/stderr).
-*   **Manejo de Errores:** Todos los errores deben ser capturados y presentados al usuario de forma amigable, no como stack traces.
+### [PRINCIPLE_4_NAME]
+<!-- Example: IV. Integration Testing -->
+[PRINCIPLE_4_DESCRIPTION]
+<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
 
-### V. Accesibilidad (Accessibility)
-*   **Estándares:** Seguir pautas WCAG 2.1 AA.
-*   **Navegación:** Toda la funcionalidad debe ser accesible vía teclado.
-*   **Contraste y Claridad:** Uso de colores y tamaños de fuente legibles. Soporte para temas Claro/Oscuro.
+### [PRINCIPLE_5_NAME]
+<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
+[PRINCIPLE_5_DESCRIPTION]
+<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
 
-## Stack Tecnológico (Technology Stack)
+## [SECTION_2_NAME]
+<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
 
-Se utilizarán estrictamente las siguientes tecnologías y versiones (o superiores estables):
+[SECTION_2_CONTENT]
+<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
 
-### Build & Packaging
-*   **Electron Forge:** Herramienta estándar para empaquetado y distribución (Template Vite + TypeScript).
-*   **Electron:** Última versión estable.
+## [SECTION_3_NAME]
+<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
 
-### Runtime & Backend Local (Main Process)
-*   **Node.js:** (Version lts/iron o superior).
-*   **Rclone:** Última versión estable (Binario externo gestionado por la app).
-*   **Electron-Store:** Para persistencia de preferencias simples.
+[SECTION_3_CONTENT]
+<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
 
-### Frontend & UI (Renderer Process)
-*   **Svelte:** v5.x+ (Framework reactivo de alto rendimiento).
-*   **TypeScript:** Tipado estático obligatorio.
-*   **Vite:** Build tool (integrado con Electron Forge).
-*   **Tailwind CSS:** v3.4+ (Styling).
-*   **DaisyUI:** v4.x+ (Componentes de UI).
-*   **Lucide Svelte:** Biblioteca de iconos.
+## Governance
+<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-### Testing
-*   **Vitest:** Runner de pruebas unitarias.
-*   **Svelte Testing Library:** Pruebas de componentes.
+[GOVERNANCE_RULES]
+<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
 
-## Gobernanza
-Esta constitución define los límites innegociables del proyecto Cloud Mount.
-1.  **Framework:** No se permite cambiar Electron Forge/Svelte por otra tecnología sin una re-evaluación completa del proyecto.
-2.  **Seguridad:** Jamás se comprometerá la seguridad de las credenciales por conveniencia en el desarrollo.
-
-**Versión:** 1.2.0 | **Fecha:** 17/01/2026 | **Proyecto:** Cloud Mount
+**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
+<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->

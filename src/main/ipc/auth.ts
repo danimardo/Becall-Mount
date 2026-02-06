@@ -3,6 +3,7 @@ import getStore from '../store';
 import { hashPassword, verifyPassword } from '../utils/security';
 import { setSessionPassword, isSessionAuthenticated } from '../utils/session';
 import { RcloneConfig } from '../rclone/config';
+import { SecureStorage } from '../auth/safe-storage';
 
 let rcloneConfigInstance: RcloneConfig;
 function getRcloneConfig() {
@@ -65,5 +66,47 @@ export function registerAuthHandlers() {
           return true;
       }
       return false;
+  });
+
+  // --- Autologin & Secure Storage ---
+
+  ipcMain.handle('auth:enableAutologin', async (_, { masterPassword }) => {
+    const store = getStore();
+    const storedHash = store.get('settings.passwordHash');
+    
+    // Validar contraseña antes de guardar
+    if (!verifyPassword(masterPassword, storedHash as string)) {
+      throw new Error('Contraseña incorrecta');
+    }
+
+    await SecureStorage.savePassword(masterPassword);
+    store.set('settings.autologinEnabled', true);
+  });
+
+  ipcMain.handle('auth:tryAutologin', async () => {
+    const store = getStore();
+    const isEnabled = store.get('settings.autologinEnabled');
+    
+    if (!isEnabled) return false;
+
+    try {
+      const password = await SecureStorage.getPassword();
+      if (!password) return false;
+
+      const storedHash = store.get('settings.passwordHash');
+      if (verifyPassword(password, storedHash as string)) {
+        setSessionPassword(password);
+        return true;
+      }
+    } catch (e) {
+      console.error('Autologin failed:', e);
+    }
+    return false;
+  });
+
+  ipcMain.handle('auth:logout', async () => {
+    // Para el logout manual, simplemente quitamos la sesión de memoria.
+    // El autologin seguirá intentándose en el próximo arranque si está activo en settings.
+    setSessionPassword('');
   });
 }

@@ -1,11 +1,11 @@
-Cloud Mount - Historias de Usuario
+Becall-Mount - Historias de Usuario
 
 ## Visión del Producto
 ### Propósito
-Cloud Mount es una aplicación de escritorio para Windows que permite a los usuarios montar servicios de almacenamiento en la nube como unidades locales del sistema, de forma que puedan acceder a sus archivos remotos directamente desde el Explorador de Windows como si fueran discos locales.
+Becall-Mount es una aplicación de escritorio para Windows que permite a los usuarios montar servicios de almacenamiento en la nube como unidades locales del sistema, de forma que puedan acceder a sus archivos remotos directamente desde el Explorador de Windows como si fueran discos locales.
 
 ### Problema que resuelve
-Configurar y gestionar Rclone mediante línea de comandos requiere conocimientos técnicos y resulta tedioso para usuarios no expertos. Cloud Mount elimina esta barrera ofreciendo una interfaz visual intuitiva que abstrae la complejidad técnica mientras mantiene el acceso a funciones avanzadas para usuarios expertos.
+Configurar y gestionar Rclone mediante línea de comandos requiere conocimientos técnicos y resulta tedioso para usuarios no expertos. Becall-Mount elimina esta barrera ofreciendo una interfaz visual intuitiva que abstrae la complejidad técnica mientras mantiene el acceso a funciones avanzadas para usuarios expertos.
 
 ## 1. Instalación y Primer Uso
 **HU-1.1 Descarga automática de componentes**
@@ -177,6 +177,18 @@ Ventana sin bordes al inicio (mínimo 5s) con Logo, Nombre y Créditos ("Daniel 
 **HU-13.2 Extensión manual de visibilidad (Nueva)**
 - Al hacer clic sobre la pantalla de presentación, esta debe extender su tiempo de vida 5 segundos adicionales por cada clic recibido.
 
-## 14. Identidad Visual (Nueva)
-**RG-14.1 Paleta de colores corporativa**
+## 15. Integración con Active Directory (AD)
+**HU-15.1 Automatización e Inicio de Sesión con AD**
+- El sistema debe obtener la información del usuario del dominio utilizando consultas directas a .NET (DirectorySearcher).
+- El interruptor de integración AD solo debe estar visible si el equipo está unido a un dominio. Si no lo está, se muestra un aviso y se ocultan las opciones.
+- Al activar la integración, el sistema habilita automáticamente el **Autologin Seguro** (desbloqueo automático al iniciar Windows), solicitando la contraseña maestro por única vez.
+- Importación automática de archivos `.conf` sustituyendo variables como `%SamAccountName%`.
+
+## 16. Rebranding a Becall-Mount
+**HU-16.1 Migración Transparente**
+- En el primer arranque de la nueva versión, migrar automáticamente los datos de la ruta antigua a la nueva carpeta `%AppData%\becall-mount`.
+- Renombrar todos los elementos visuales, iconos y títulos a "Becall-Mount".
+
+## 17. Identidad Visual (Actualizada)
+**RG-17.1 Paleta de colores corporativa**
 Implementar paleta Tailwind: Azul (#5EC2F6), Verde (#6FC30A), Pistacho (#96CE4D) y Fondos (#FDFDFD / #0F172A).

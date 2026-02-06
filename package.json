@@ -1,8 +1,8 @@
 {
-  "name": "cloud-mount",
-  "productName": "Cloud Mount",
-  "version": "1.2.2",
-  "description": "My Electron application description",
+  "name": "becall-mount",
+  "productName": "Becall-Mount",
+  "version": "1.0.0",
+  "description": "Monataje de almacenamientos Cloud",
   "main": ".vite/build/main.js",
   "private": true,
   "scripts": {

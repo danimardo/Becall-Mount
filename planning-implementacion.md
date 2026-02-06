@@ -1,4 +1,4 @@
-# Planning de Implementación - Cloud Mount
+# Planning de Implementación - Becall-Mount
 
 ## Visión General
 
@@ -226,7 +226,7 @@ Implementar integración con system tray para ejecución en segundo plano.
 - [ ] Implementar minimización a bandeja al cerrar (X)
 - [ ] Implementar restauración con clic simple
 - [ ] Crear menú contextual:
-  - [ ] "Abrir Cloud Mount"
+  - [ ] "Abrir Becall-Mount"
   - [ ] "Montar todos"
   - [ ] "Desmontar todos"
   - [ ] Lista de servicios con estado

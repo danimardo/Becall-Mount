@@ -78,7 +78,7 @@
   {#if view === 'loading'}
      <div class="flex flex-col justify-center items-center h-full mt-20 gap-4">
          <span class="loading loading-spinner loading-lg"></span>
-         <p>Cargando Cloud Mount...</p>
+         <p>Cargando Becall-Mount...</p>
      </div>
   {:else if view === 'error'}
      <div class="alert alert-error max-w-lg mx-auto mt-20">

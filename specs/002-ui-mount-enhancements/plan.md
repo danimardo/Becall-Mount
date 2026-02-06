@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a comprehensive UI refresh and core functionality expansion for Cloud Mount. It includes applying a corporate color palette (Tailwind), redesigning the main interface with a FAB for "Add Service", and introducing a Splash Screen. Core enhancements include a dual mounting system (Drive Letter vs Local Folder) with mutual exclusivity, persistent preferences via Electron Store, "Unmount All" capability, and a secure Configuration Export/Import system using AES-256 encryption.
+This feature implements a comprehensive UI refresh and core functionality expansion for Becall-Mount. It includes applying a corporate color palette (Tailwind), redesigning the main interface with a FAB for "Add Service", and introducing a Splash Screen. Core enhancements include a dual mounting system (Drive Letter vs Local Folder) with mutual exclusivity, persistent preferences via Electron Store, "Unmount All" capability, and a secure Configuration Export/Import system using AES-256 encryption.
 
 ## Technical Context
 

@@ -20,9 +20,9 @@ const config: ForgeConfig = {
   makers: [
     new MakerWix({
       language: 1034, // Español
-      manufacturer: 'Daniel Díez Mardomingo',
-      description: 'Cloud Mount - Acceso a unidades en la nube',
-      shortcutFolderName: 'Cloud Mount',
+      manufacturer: 'Becall',
+      description: 'Becall-Mount - Acceso a unidades en la nube',
+      shortcutFolderName: 'Becall-Mount',
       upgradeCode: '0484A8E5-3C9F-4E8B-BDD5-C36C6DA99C9F',
       ui: {
         chooseDirectory: true,

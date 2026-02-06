@@ -49,14 +49,14 @@ export function createTray(mainWindow: BrowserWindow) {
       tray = new Tray(icon);
 
       const contextMenu = Menu.buildFromTemplate([
-        { label: 'Abrir Cloud Mount', click: () => mainWindow.show() },
+        { label: 'Abrir Becall-Mount', click: () => mainWindow.show() },
         { type: 'separator' },
         { label: 'Salir', click: () => {
             app.quit(); 
         }}
       ]);
       
-      tray.setToolTip('Cloud Mount');
+      tray.setToolTip('Becall-Mount');
       tray.setContextMenu(contextMenu);
       
       // Permitir abrir con un solo clic o doble clic

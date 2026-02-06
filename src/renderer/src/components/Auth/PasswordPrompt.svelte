@@ -56,7 +56,7 @@
 <div class="card bg-white dark:bg-slate-800 shadow-xl max-w-sm mx-auto mt-20 border border-gray-100 dark:border-gray-700">
   <div class="card-body">
     <h2 class="card-title text-brand-blue dark:text-white mb-2">
-        {isSetup ? 'Crear Contraseña Maestra' : 'Desbloquear Cloud Mount'}
+        {isSetup ? 'Crear Contraseña Maestra' : 'Desbloquear Becall-Mount'}
     </h2>
     
     {#if isSetup}

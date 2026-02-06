@@ -1,8 +1,8 @@
-# Tasks: Cloud Mount MVP
+# Tasks: Becall-Mount MVP
 
-**Feature**: `001-create-cloud-mount`
+**Feature**: `001-create-becall-mount`
 **Status**: Pending
-**Spec**: `specs/001-create-cloud-mount/spec.md`
+**Spec**: `specs/001-create-becall-mount/spec.md`
 
 ## Dependencies
 
@@ -27,7 +27,7 @@
 **Goal**: Implement core architecture for IPC, persistence, and Rclone command execution.
 
 - [x] T006 [P] Implement `src/main/store/index.ts` using electron-store for `settings.json` and `mounts.json` schemas
-- [x] T007 [P] Implement `src/main/utils/paths.ts` to define isolated storage paths (`%APPDATA%/CloudMount/`)
+- [x] T007 [P] Implement `src/main/utils/paths.ts` to define isolated storage paths (`%APPDATA%/becall-mount/`)
 - [x] T008 Implement `src/main/rclone/wrapper.ts` skeleton for spawning child processes
 - [x] T009 Create `src/contracts/types.ts` shared type definitions from data-model
 - [x] T010 Set up `src/main/ipc/index.ts` to register handlers and `src/preload/index.ts` to expose them

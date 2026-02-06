@@ -154,7 +154,7 @@
       <dialog class="modal modal-open">
           <div class="modal-box text-center relative glass-panel rounded-3xl border-white/40">
               <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4" onclick={() => showAbout = false}>✕</button>
-              <h3 class="font-bold text-xl mb-6 text-slate-800 dark:text-white">Acerca de Cloud Mount</h3>
+              <h3 class="font-bold text-xl mb-6 text-slate-800 dark:text-white">Acerca de Becall-Mount</h3>
               <div class="flex flex-col items-center gap-6">
                   <div class="w-32 h-32 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border-4 border-white/50 shadow-glass-lg">
                       <img src={developerPhoto} alt="Daniel Díez Mardomingo" class="w-full h-full object-cover" />

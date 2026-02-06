@@ -1,7 +1,7 @@
-# Implementation Plan: Cloud Mount MVP
+# Implementation Plan: Becall-Mount MVP
 
-**Branch**: `001-create-cloud-mount` | **Date**: 2026-01-17 | **Spec**: [specs/001-create-cloud-mount/spec.md](spec.md)
-**Input**: Feature specification from `specs/001-create-cloud-mount/spec.md`
+**Branch**: `001-create-becall-mount` | **Date**: 2026-01-17 | **Spec**: [specs/001-create-becall-mount/spec.md](spec.md)
+**Input**: Feature specification from `specs/001-create-becall-mount/spec.md`
 
 ## Summary
 
@@ -11,7 +11,7 @@ Implement a Windows desktop application using Electron and Svelte to manage Rclo
 
 **Language/Version**: TypeScript 5.x, Node.js 20+ (Electron bundled)
 **Primary Dependencies**: Electron 28+, Svelte 5.x, DaisyUI 4.x, Rclone (v1.65.0 binary), WinFsp
-**Storage**: `%APPDATA%/CloudMount/rclone.conf` (Rclone config), `mounts.json` (State), `settings.json` (Preferences)
+**Storage**: `%APPDATA%/becall-mount/rclone.conf` (Rclone config), `mounts.json` (State), `settings.json` (Preferences)
 **Testing**: Vitest (Unit), Playwright (E2E - optional for MVP, stick to Vitest per constitution)
 **Target Platform**: Windows 10/11 (win32)
 **Project Type**: Desktop Application (Electron)
@@ -34,7 +34,7 @@ Implement a Windows desktop application using Electron and Svelte to manage Rclo
 ### Documentation (this feature)
 
 ```text
-specs/001-create-cloud-mount/
+specs/001-create-becall-mount/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output

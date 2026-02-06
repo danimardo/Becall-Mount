@@ -1,25 +1,31 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  let status = $state({ rclone: false, winfsp: false });
+  let status = $state({ rclone: false, winfsp: false, isDomain: false, hasADModule: false });
   let loading = $state(true);
-  let installing = $state({ rclone: false, winfsp: false });
+  let installing = $state({ rclone: false, winfsp: false, ad: false });
+  let rsatPendingRestart = $state(false);
   let rcloneProgress = $state(0);
   let pollingInterval: NodeJS.Timeout;
 
   let { onDone } = $props<{ onDone: () => void }>();
 
   async function check() {
-    // ... (sin cambios)
     try {
         const newStatus = await window.api.invoke('system:check-prereqs');
         status = newStatus; // Actualizar estado local
+        
+        // Requisitos obligatorios para entrar en la app: Rclone y WinFsp
         if (newStatus.rclone && newStatus.winfsp) {
             if (pollingInterval) clearInterval(pollingInterval);
             onDone();
         }
     } catch (e) { console.error(e); }
     loading = false;
+  }
+
+  async function restartApp() {
+    await window.api.invoke('system:restart');
   }
 
   onMount(() => {
@@ -62,7 +68,7 @@
 
 <div class="card bg-base-100 shadow-xl max-w-lg mx-auto mt-10">
   <div class="card-body">
-    <h2 class="card-title">Configuración de Cloud Mount</h2>
+    <h2 class="card-title">Configuración de Becall-Mount</h2>
     <p>Necesitamos instalar algunas dependencias para comenzar.</p>
 
     {#if loading}
@@ -95,10 +101,11 @@
                  {:else}
                     <button class="btn btn-sm bg-brand-green hover:bg-brand-green-dark text-white border-none shadow-sm px-4" onclick={installWinFsp}>Instalar</button>
                  {/if}
+                        </div>
+                      {/if}
+                    </div>
+                  </div>
+                {/if}
+              </div>
             </div>
-          {/if}
-        </div>
-      </div>
-    {/if}
-  </div>
-</div>
+            

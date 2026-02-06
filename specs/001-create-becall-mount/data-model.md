@@ -1,7 +1,7 @@
-# Data Model: Cloud Mount
+# Data Model: Becall-Mount
 
 ## 1. File Storage
-All files stored in `%APPDATA%/CloudMount/`.
+All files stored in `%APPDATA%/becall-mount/`.
 
 ### `settings.json`
 General application preferences.

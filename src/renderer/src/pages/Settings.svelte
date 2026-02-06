@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import type { AppSettings, Service } from '../../../../contracts/types';
   import { showAlert } from '../stores/modal';
+  import ADIntegration from '../components/Settings/ADIntegration.svelte';
 
   let { onRefresh } = $props<{ onRefresh?: () => void }>();
 
@@ -217,6 +218,10 @@
           </label>
           <p class="text-xs text-gray-500 dark:text-gray-400">Si se activa, la aplicación se iniciará automáticamente cuando inicies sesión en Windows.</p>
       </div>
+
+      <div class="divider"></div>
+
+      <ADIntegration />
 
       <div class="divider"></div>
 
