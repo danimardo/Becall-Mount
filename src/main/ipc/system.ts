@@ -130,6 +130,15 @@ export function registerSystemHandlers() {
     return true;
   });
 
+  ipcMain.handle('system:get-resource-path', (_, fileName) => {
+    const prodPath = path.join(process.resourcesPath, fileName);
+    if (fs.existsSync(prodPath)) {
+        return `file://${prodPath}`;
+    }
+    // En desarrollo, Vite sirve desde la raíz /public
+    return null; 
+  });
+
   ipcMain.handle('system:restart', () => {
     app.relaunch();
     app.exit();

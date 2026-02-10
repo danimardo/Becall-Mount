@@ -3,9 +3,18 @@
 
   let appVersion = __APP_VERSION__;
   let statusMessage = $state('Cargando tu sistema de archivos en la nube...');
+  let logoUrl = $state('/Nuevo_logo_BeCall_2024.png');
 
   onMount(async () => {
+    // Resolver ruta del logo para producción
     if (window.api) {
+        try {
+            const prodLogo = await window.api.invoke('system:get-resource-path', 'Nuevo_logo_BeCall_2024.png');
+            if (prodLogo) logoUrl = prodLogo;
+        } catch (e) {
+            console.warn('Could not resolve production logo path, falling back to public root');
+        }
+
         window.api.on('splash:status', (msg: string) => {
             statusMessage = msg;
         });
@@ -21,7 +30,7 @@
 <div class="splash-container">
     <!-- Logo en esquina superior izquierda -->
     <div class="logo-corner">
-        <img src="/Nuevo_logo_BeCall_2024.png" alt="Becall Logo" class="logo-img">
+        <img src={logoUrl} alt="Becall Logo" class="logo-img">
     </div>
 
     <!-- Nubes animadas de fondo -->

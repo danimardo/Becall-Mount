@@ -13,7 +13,8 @@ const config: ForgeConfig = {
     extraResource: [
       'public/icons',
       'public/icon.ico',
-      'public/configs'
+      'public/configs',
+      'public/Nuevo_logo_BeCall_2024.png'
     ],
     icon: './public/icon', 
   },

@@ -9,8 +9,8 @@
 
   let { onAuthenticated, isSetup } = $props<{ onAuthenticated: () => void, isSetup: boolean }>();
 
-  // Requisitos: 8+ caracteres, Mayus, Minus, Numero, Especial (@$!%*?&)
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  // Requisitos: 8+ caracteres, Mayus, Minus, Numero, Especial
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&+\-_.[\]{}()|:;<>])[A-Za-z\d@$!%*?&+\-_.[\]{}()|:;<>]{8,}$/;
 
   onMount(() => {
       // Forzar el foco al primer campo al montar el componente
@@ -27,7 +27,7 @@
 
     if (isSetup) {
         if (!passwordRegex.test(password)) {
-            error = 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&)';
+            error = 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial';
             return;
         }
         if (password !== confirmPassword) {
